@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Multi-Agent Table Augmented Generation (Document-ETL) &mdash; Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #08080e;
+      --bg2: #0e0e18;
+      --bg3: #151524;
+      --bg4: #1c1c32;
+      --border: #252545;
+      --border2: #3a3a5c;
+      --text: #eeeef4;
+      --text2: #a0a0b8;
+      --text3: #6c6c84;
+      --blue: #6366f1;
+      --purple: #a855f7;
+      --cyan: #22d3ee;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --orange: #fb923c;
+      --grd: linear-gradient(135deg, #6366f1, #a855f7);
+      --grd2: linear-gradient(135deg, #06b6d4, #6366f1);
+      --font: 'Inter', system-ui, sans-serif;
+      --r: 14px;
+      --r2: 10px;
+      --r3: 20px;
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased
+    }
+
+    ::selection {
+      background: rgba(99, 102, 241, .3)
+    }
+
+    /* ===== TAB NAV ===== */
+    .tab-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(8, 8, 14, .88);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      height: 60px;
+      gap: 0;
+    }
+
+    .tab-logo {
+      font-weight: 800;
+      font-size: 1rem;
+      margin-right: 2.5rem;
+      flex-shrink: 0;
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .tab-btns {
+      display: flex;
+      gap: .25rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none
+    }
+
+    .tab-btns::-webkit-scrollbar {
+      display: none
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: .82rem;
+      font-weight: 500;
+      padding: .55rem 1.1rem;
+      border-radius: 8px;
+      white-space: nowrap;
+      transition: all .2s;
+      position: relative;
+    }
+
+    .tab-btn:hover {
+      color: var(--text2);
+      background: rgba(99, 102, 241, .06)
+    }
+
+    .tab-btn.active {
+      color: var(--text);
+      background: rgba(99, 102, 241, .1)
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 2px;
+      background: var(--blue);
+      border-radius: 2px;
+    }
+
+    /* ===== TAB PANELS ===== */
+    .tab-panel {
+      display: none;
+      min-height: 100vh;
+      padding: 90px 1.5rem 4rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .panel-inner {
+      max-width: 1100px;
+      margin: 0 auto
+    }
+
+    /* ===== REVEAL ===== */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all .5s ease
+    }
+
+    .rv.vis {
+      opacity: 1;
+      transform: none
+    }
+
+    .rv-d1 {
+      transition-delay: .08s
+    }
+
+    .rv-d2 {
+      transition-delay: .16s
+    }
+
+    .rv-d3 {
+      transition-delay: .24s
+    }
+
+    .rv-d4 {
+      transition-delay: .32s
+    }
+
+    /* ===== SHARED ===== */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      padding: .35rem .85rem;
+      border-radius: 20px;
+    }
+
+    .pill-blue {
+      background: rgba(99, 102, 241, .1);
+      color: var(--blue);
+      border: 1px solid rgba(99, 102, 241, .2)
+    }
+
+    .pill-green {
+      background: rgba(52, 211, 153, .1);
+      color: var(--green);
+      border: 1px solid rgba(52, 211, 153, .2)
+    }
+
+    .pill-purple {
+      background: rgba(168, 85, 247, .1);
+      color: var(--purple);
+      border: 1px solid rgba(168, 85, 247, .2)
+    }
+
+    .pill-amber {
+      background: rgba(251, 191, 36, .1);
+      color: var(--amber);
+      border: 1px solid rgba(251, 191, 36, .2)
+    }
+
+    .pill-cyan {
+      background: rgba(34, 211, 238, .1);
+      color: var(--cyan);
+      border: 1px solid rgba(34, 211, 238, .2)
+    }
+
+    .pill-rose {
+      background: rgba(251, 113, 133, .1);
+      color: var(--rose);
+      border: 1px solid rgba(251, 113, 133, .2)
+    }
+
+    .section-h {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+      margin-bottom: .6rem
+    }
+
+    .section-h .gr {
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--text2);
+      max-width: 580px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem
+    }
+
+    .card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.6rem;
+      transition: all .25s
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, .25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .3)
+    }
+
+    /* ===== HERO / OVERVIEW TAB ===== */
+    .hero-wrap {
+      text-align: center;
+      padding: 3rem 0 2rem;
+      position: relative
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(99, 102, 241, .12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      margin-bottom: 1.5rem
+    }
+
+    .hero-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .35
+      }
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1.08;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero-title .gr {
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .hero-desc {
+      font-size: clamp(.95rem, 1.8vw, 1.15rem);
+      color: var(--text2);
+      max-width: 620px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7
+    }
+
+    .hero-nums {
+      display: flex;
+      justify-content: center;
+      gap: clamp(1.5rem, 4vw, 3rem);
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem
+    }
+
+    .hero-num {
+      text-align: center
+    }
+
+    .hero-num b {
+      display: block;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .hero-num span {
+      font-size: .78rem;
+      color: var(--text3)
+    }
+
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .4rem
+    }
+
+    .badge {
+      padding: .3rem .7rem;
+      border-radius: 6px;
+      font-size: .72rem;
+      font-weight: 500;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      transition: all .15s;
+    }
+
+    .badge:hover {
+      border-color: rgba(99, 102, 241, .3);
+      color: var(--text)
+    }
+
+    .badge[data-c="ai"] {
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, .25)
+    }
+
+    .badge[data-c="db"] {
+      color: var(--cyan);
+      border-color: rgba(34, 211, 238, .25)
+    }
+
+    .badge[data-c="infra"] {
+      color: var(--green);
+      border-color: rgba(52, 211, 153, .25)
+    }
+
+    .badge[data-c="etl"] {
+      color: var(--amber);
+      border-color: rgba(251, 191, 36, .25)
+    }
+
+    /* What is this */
+    .what-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2.5rem
+    }
+
+    .what-card {
+      text-align: left
+    }
+
+    .what-card .ico {
+      font-size: 1.5rem;
+      margin-bottom: .75rem
+    }
+
+    .what-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: .4rem
+    }
+
+    .what-card p {
+      font-size: .88rem;
+      color: var(--text2);
+      line-height: 1.6
+    }
+
+    /* ===== HOW IT WORKS TAB ===== */
+    .step-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      padding-left: 2rem
+    }
+
+    .step-flow::before {
+      content: '';
+      position: absolute;
+      left: 17px;
+      top: 30px;
+      bottom: 30px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--blue), var(--purple), var(--cyan), var(--green), var(--amber), var(--rose));
+      border-radius: 2px;
+      opacity: .35;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.2rem 0;
+      position: relative
+    }
+
+    .step-dot {
+      position: absolute;
+      left: -2rem;
+      top: 1.5rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .82rem;
+      font-weight: 700;
+      color: #fff;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .step-body {
+      flex: 1
+    }
+
+    .step-body h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: .35rem
+    }
+
+    .step-body p {
+      font-size: .9rem;
+      color: var(--text2);
+      line-height: 1.65
+    }
+
+    .step-note {
+      margin-top: .65rem;
+      padding: .75rem 1rem;
+      border-radius: var(--r2);
+      font-size: .82rem;
+      line-height: 1.55;
+      background: rgba(251, 191, 36, .05);
+      border: 1px solid rgba(251, 191, 36, .12);
+      color: var(--text2);
+    }
+
+    .step-note strong {
+      color: var(--amber)
+    }
+
+    .step-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-top: .6rem
+    }
+
+    .step-tag {
+      font-size: .68rem;
+      font-weight: 500;
+      padding: .2rem .55rem;
+      border-radius: 5px;
+      background: rgba(99, 102, 241, .08);
+      color: var(--blue);
+      border: 1px solid rgba(99, 102, 241, .12);
+    }
+
+    .step-tag.t2 {
+      background: rgba(168, 85, 247, .08);
+      color: var(--purple);
+      border-color: rgba(168, 85, 247, .12)
+    }
+
+    .step-tag.t3 {
+      background: rgba(34, 211, 238, .08);
+      color: var(--cyan);
+      border-color: rgba(34, 211, 238, .12)
+    }
+
+    .step-tag.t4 {
+      background: rgba(52, 211, 153, .08);
+      color: var(--green);
+      border-color: rgba(52, 211, 153, .12)
+    }
+
+    /* ===== PIPELINE DEEP DIVE ===== */
+    .pipe-visual {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .pipe-row {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap
+    }
+
+    .pipe-node {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 1rem 1.2rem;
+      min-width: 180px;
+      flex-shrink: 0;
+    }
+
+    .pipe-node-icon {
+      font-size: 1.3rem;
+      margin-bottom: .4rem
+    }
+
+    .pipe-node-title {
+      font-weight: 700;
+      font-size: .9rem;
+      margin-bottom: .2rem
+    }
+
+    .pipe-node-desc {
+      font-size: .78rem;
+      color: var(--text3);
+      line-height: 1.5
+    }
+
+    .pipe-arrow {
+      font-size: 1.3rem;
+      color: var(--text3);
+      flex-shrink: 0
+    }
+
+    .pipe-decision {
+      flex: 1;
+      min-width: 280px;
+      background: var(--bg2);
+      border: 1px solid rgba(251, 191, 36, .2);
+      border-radius: var(--r2);
+      padding: 1rem 1.2rem;
+    }
+
+    .pipe-decision-label {
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--amber);
+      margin-bottom: .6rem
+    }
+
+    .pipe-decision-paths {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem
+    }
+
+    .pipe-path-small,
+    .pipe-path-large {
+      display: flex;
+      align-items: center;
+      gap: .6rem
+    }
+
+    .pipe-path-badge {
+      font-size: .68rem;
+      font-weight: 600;
+      padding: .2rem .55rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .pipe-path-badge.small {
+      background: rgba(52, 211, 153, .12);
+      color: var(--green);
+      border: 1px solid rgba(52, 211, 153, .15)
+    }
+
+    .pipe-path-badge.large {
+      background: rgba(99, 102, 241, .12);
+      color: var(--blue);
+      border: 1px solid rgba(99, 102, 241, .15)
+    }
+
+    .pipe-path-text {
+      font-size: .78rem;
+      color: var(--text3)
+    }
+
+    .pipe-stages {
+      display: flex;
+      flex-direction: column;
+      gap: 0
+    }
+
+    .pipe-connector {
+      display: flex;
+      justify-content: center;
+      padding: .25rem 0
+    }
+
+    .pipe-stage {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.4rem;
+      transition: all .25s;
+    }
+
+    .pipe-stage:hover {
+      border-color: rgba(99, 102, 241, .25);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .25)
+    }
+
+    .pipe-stage-num {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .pipe-stage-content {
+      flex: 1
+    }
+
+    .pipe-stage-head {
+      display: flex;
+      align-items: baseline;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-bottom: .4rem
+    }
+
+    .pipe-stage-head h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0
+    }
+
+    .pipe-stage-badge {
+      font-size: .72rem;
+      color: var(--text3);
+      font-weight: 500
+    }
+
+    .pipe-stage-content>p {
+      font-size: .88rem;
+      color: var(--text2);
+      line-height: 1.65;
+      margin-bottom: .75rem
+    }
+
+    .pipe-detail-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem
+    }
+
+    .pipe-detail {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .45rem .7rem;
+    }
+
+    .pipe-detail-label {
+      font-size: .65rem;
+      color: var(--text3);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em
+    }
+
+    .pipe-detail-value {
+      font-size: .78rem;
+      color: var(--text2);
+      margin-top: .1rem
+    }
+
+    @media(max-width:800px) {
+      .pipe-row {
+        flex-direction: column;
+        align-items: stretch
+      }
+
+      .pipe-arrow {
+        text-align: center;
+        transform: rotate(90deg)
+      }
+
+      .pipe-stage {
+        flex-direction: column;
+        gap: .75rem
+      }
+    }
+
+    /* ===== AGENTS TAB ===== */
+    .agents-g {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem
+    }
+
+    .ag-card {
+      position: relative;
+      overflow: hidden
+    }
+
+    .ag-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--ag-grd, var(--grd));
+      opacity: 0;
+      transition: opacity .25s
+    }
+
+    .ag-card:hover::before {
+      opacity: 1
+    }
+
+    .ag-ico {
+      font-size: 1.6rem;
+      margin-bottom: .75rem
+    }
+
+    .ag-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: .35rem
+    }
+
+    .ag-role {
+      font-size: .78rem;
+      color: var(--text3);
+      margin-bottom: .7rem;
+      font-weight: 500
+    }
+
+    .ag-desc {
+      font-size: .88rem;
+      color: var(--text2);
+      line-height: 1.6;
+      margin-bottom: 1rem
+    }
+
+    .ag-io {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem
+    }
+
+    .ag-io-row {
+      display: flex;
+      gap: .5rem;
+      align-items: flex-start
+    }
+
+    .io-tag {
+      flex-shrink: 0;
+      font-size: .62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .15rem .4rem;
+      border-radius: 4px;
+      margin-top: 2px;
+    }
+
+    .io-tag.in {
+      background: rgba(34, 211, 238, .12);
+      color: var(--cyan)
+    }
+
+    .io-tag.out {
+      background: rgba(52, 211, 153, .12);
+      color: var(--green)
+    }
+
+    .io-txt {
+      font-size: .8rem;
+      color: var(--text3);
+      line-height: 1.5
+    }
+
+    /* ===== DEMO TAB ===== */
+    .demo-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-top: 1rem
+    }
+
+    .demo-pair {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1.5rem;
+      align-items: stretch
+    }
+
+    .demo-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text3);
+      font-size: 1.5rem;
+      padding: 0 .5rem;
+    }
+
+    .demo-card {
+      border-radius: var(--r);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column
+    }
+
+    .demo-card-head {
+      padding: .65rem 1.1rem;
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .demo-card-head.input-h {
+      background: rgba(34, 211, 238, .08);
+      color: var(--cyan);
+      border-bottom: 1px solid rgba(34, 211, 238, .1)
+    }
+
+    .demo-card-head.output-h {
+      background: rgba(52, 211, 153, .08);
+      color: var(--green);
+      border-bottom: 1px solid rgba(52, 211, 153, .1)
+    }
+
+    .demo-card-head.process-h {
+      background: rgba(168, 85, 247, .08);
+      color: var(--purple);
+      border-bottom: 1px solid rgba(168, 85, 247, .1)
+    }
+
+    .demo-card-body {
+      padding: 1.3rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--r) var(--r);
+      flex: 1;
+    }
+
+    .demo-card-body.top-r {
+      border-radius: var(--r) var(--r) 0 0;
+      border-top: 1px solid var(--border);
+      border-bottom: none
+    }
+
+    .demo-q {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: .75rem;
+      padding-left: 1rem;
+      border-left: 3px solid var(--cyan);
+    }
+
+    .demo-context {
+      font-size: .82rem;
+      color: var(--text3);
+      line-height: 1.6
+    }
+
+    .demo-context strong {
+      color: var(--text2);
+      font-weight: 600
+    }
+
+    /* Result mockup */
+    .result-mock {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem
+    }
+
+    .result-analysis {
+      font-size: .88rem;
+      color: var(--text2);
+      line-height: 1.7
+    }
+
+    .result-analysis strong {
+      color: var(--text)
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .78rem;
+      margin-top: .5rem
+    }
+
+    .result-table th {
+      text-align: left;
+      padding: .5rem .65rem;
+      background: var(--bg4);
+      color: var(--text2);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-table td {
+      padding: .45rem .65rem;
+      border-bottom: 1px solid rgba(37, 37, 69, .6);
+      color: var(--text2);
+    }
+
+    .result-table tr:hover td {
+      background: rgba(99, 102, 241, .04)
+    }
+
+    .result-src {
+      margin-top: .75rem;
+      padding: .6rem .85rem;
+      border-radius: var(--r2);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+
+    .result-src-title {
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .4rem
+    }
+
+    .result-src-item {
+      font-size: .78rem;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .15rem 0
+    }
+
+    .result-src-item::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0
+    }
+
+    /* Process preview */
+    .process-steps {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem
+    }
+
+    .ps {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .5rem .7rem;
+      border-radius: var(--r2);
+      background: var(--bg2);
+      border: 1px solid var(--border)
+    }
+
+    .ps-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .65rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .ps-text {
+      font-size: .78rem;
+      color: var(--text2)
+    }
+
+    .ps-time {
+      font-size: .68rem;
+      color: var(--text3);
+      margin-left: auto;
+      flex-shrink: 0
+    }
+
+    /* Full width demo for mobile */
+    .demo-full {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem
+    }
+
+    /* ===== TECH TAB ===== */
+    .tech-g {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem
+    }
+
+    .tech-card-h {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      margin-bottom: 1rem
+    }
+
+    .tech-ico {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+    }
+
+    .tech-title {
+      font-size: .92rem;
+      font-weight: 700
+    }
+
+    .tech-role {
+      font-size: .72rem;
+      color: var(--text3)
+    }
+
+    .tech-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem
+    }
+
+    .tech-list li {
+      font-size: .82rem;
+      color: var(--text2);
+      display: flex;
+      align-items: baseline;
+      gap: .5rem
+    }
+
+    .tech-list li::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+      margin-top: 7px
+    }
+
+    /* Metrics */
+    .met-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem
+    }
+
+    .met-card {
+      text-align: center;
+      padding: 1.3rem 1rem
+    }
+
+    .met-card b {
+      display: block;
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .met-card span {
+      font-size: .78rem;
+      color: var(--text2);
+      display: block;
+      margin-top: .2rem
+    }
+
+    .met-card em {
+      font-size: .68rem;
+      color: var(--text3);
+      font-style: normal;
+      display: block;
+      margin-top: .1rem
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:800px) {
+      .tab-logo {
+        margin-right: 1rem;
+        font-size: .9rem
+      }
+
+      .tab-btn {
+        font-size: .75rem;
+        padding: .45rem .75rem
+      }
+
+      .demo-pair {
+        grid-template-columns: 1fr;
+        gap: .75rem
+      }
+
+      .demo-arrow {
+        transform: rotate(90deg);
+        padding: .25rem 0
+      }
+
+      .agents-g,
+      .what-grid,
+      .tech-g {
+        grid-template-columns: 1fr
+      }
+
+      .met-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .step {
+        gap: 1rem
+      }
+
+      .hero-title {
+        margin-bottom: 1rem
+      }
+    }
+
+    @media(max-width:480px) {
+      .met-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .hero-nums {
+        gap: 1.2rem
+      }
+
+      .tab-nav-inner {
+        padding: 0 .75rem
+      }
+
+      .tab-panel {
+        padding: 80px 1rem 3rem
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== TAB NAVIGATION ===== -->
+  <nav class="tab-nav">
+    <div class="tab-nav-inner">
+      <div class="tab-logo">MA-TAG Engine</div>
+      <div class="tab-btns">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="how">How It Works</button>
+        <button class="tab-btn" data-tab="agents">Agents</button>
+        <button class="tab-btn" data-tab="demo">Live Demo</button>
+        <button class="tab-btn" data-tab="tech">Tech &amp; Metrics</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================================================================ -->
+  <!-- TAB 1: OVERVIEW                                                  -->
+  <!-- ================================================================ -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="panel-inner">
+      <div class="hero-wrap">
+        <div class="hero-glow"></div>
+
+        <div class="hero-badge rv">
+          <span class="pill pill-green"><span class="dot"></span> Production System</span>
+        </div>
+
+        <h1 class="hero-title rv rv-d1">
+          <span class="gr">Multi-Agent Table Augmented Generation<br>(Document-ETL)</span>
+        </h1>
+
+        <p class="hero-desc rv rv-d2">
+          Ask a question in plain language. The engine automatically finds the right datasets
+          from thousands of statistical sources, extracts the relevant data, and delivers
+          a comprehensive analysis &mdash; complete with tables, insights, and source references.
+        </p>
+
+        <div class="hero-nums rv rv-d3">
+          <div class="hero-num"><b data-count="8">0</b><span>AI Agents</span></div>
+          <div class="hero-num"><b data-count="10">0</b><span>Pipeline Modes</span></div>
+          <div class="hero-num"><b data-count="15">0</b><span>Integrated Services</span></div>
+          <div class="hero-num"><b data-count="3">0</b><span>Output Formats</span></div>
+        </div>
+
+        <div class="badges-row rv rv-d4">
+          <span class="badge" data-c="ai">GPT-4o</span>
+          <span class="badge" data-c="ai">Gemini 2.5</span>
+          <span class="badge" data-c="ai">DocETL</span>
+          <span class="badge" data-c="db">Qdrant</span>
+          <span class="badge" data-c="db">Elasticsearch</span>
+          <span class="badge" data-c="db">PostgreSQL</span>
+          <span class="badge" data-c="db">Redis</span>
+          <span class="badge" data-c="infra">Kafka</span>
+          <span class="badge" data-c="infra">S3 Storage</span>
+          <span class="badge" data-c="infra">MCP Protocol</span>
+          <span class="badge" data-c="etl">Text-to-SQL</span>
+          <span class="badge" data-c="etl">Rerank Model</span>
+          <span class="badge" data-c="etl">ECharts</span>
+        </div>
+      </div>
+
+      <!-- What does it do -->
+      <div style="margin-top:4rem">
+        <span class="pill pill-blue rv">What It Does</span>
+        <h2 class="section-h rv" style="margin-top:.75rem">Turn Questions Into<br><span class="gr">Data-Driven
+            Answers</span></h2>
+        <p class="section-sub rv">A single question triggers a chain of intelligent agents working together to find,
+          validate, extract, and analyze data from thousands of sources.</p>
+
+        <div class="what-grid">
+          <div class="card what-card rv">
+            <div class="ico">&#128270;</div>
+            <h3>Smart Dataset Discovery</h3>
+            <p>Automatically searches through thousands of statistical datasets using semantic understanding &mdash; not
+              just keyword matching. Finds the most relevant data even when the question uses different terminology than
+              the source.</p>
+          </div>
+          <div class="card what-card rv rv-d1">
+            <div class="ico">&#9878;</div>
+            <h3>Intelligent Relevance Scoring</h3>
+            <p>Every discovered dataset is evaluated by an AI judge that considers content alignment, geographic
+              coverage, time period match, and data completeness. Only the most relevant data passes through.</p>
+          </div>
+          <div class="card what-card rv rv-d2">
+            <div class="ico">&#128200;</div>
+            <h3>Automated Data Extraction</h3>
+            <p>Reads spreadsheets from cloud storage, handles multi-sheet files, and uses natural language-to-SQL
+              conversion to pull exactly the data needed &mdash; even from files with hundreds of rows and columns.</p>
+          </div>
+          <div class="card what-card rv rv-d3">
+            <div class="ico">&#128221;</div>
+            <h3>Comprehensive Analysis</h3>
+            <p>Synthesizes data from multiple sources into a clear, well-structured analysis with tables, comparisons,
+              and key findings. Cites every source so results can be verified.</p>
+          </div>
+          <div class="card what-card rv rv-d4">
+            <div class="ico">&#128202;</div>
+            <h3>Auto Chart Generation</h3>
+            <p>When the data is suitable, the engine generates interactive charts &mdash; selecting the best chart type,
+              colors, and layout automatically based on the data characteristics.</p>
+          </div>
+          <div class="card what-card rv">
+            <div class="ico">&#9889;</div>
+            <h3>Smart Caching</h3>
+            <p>Previously answered questions are cached with AI-powered reasoning. When a similar question comes in, the
+              system evaluates if the cached answer is still relevant &mdash; saving processing time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 2: HOW IT WORKS                                              -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-how">
+    <div class="panel-inner">
+      <span class="pill pill-purple rv">Pipeline Workflow</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">How It Works</h2>
+      <p class="section-sub rv">From a simple question to a comprehensive analysis &mdash; here's what happens behind
+        the scenes, step by step.</p>
+
+      <div class="step-flow">
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--blue)">1</div>
+          <div class="step-body">
+            <h3>You Ask a Question</h3>
+            <p>A user types a question in plain language, such as <em>"Which 5 provinces have the highest village
+                government revenue in 2023?"</em>. The question can come from a chat interface, an API call, a queued
+              job, or even a command-line tool.</p>
+            <div class="step-note">
+              <strong>&#9889; Shortcut:</strong> If a very similar question was answered before, the system checks its
+              answer cache first. If the cached answer is still relevant (scored by AI), it's returned immediately
+              &mdash; skipping all remaining steps.
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--purple)">2</div>
+          <div class="step-body">
+            <h3>The Question Gets Expanded</h3>
+            <p>An AI agent analyzes the question and breaks it into multiple search terms. For example, <em>"village
+                government revenue 2023"</em> becomes: "realisasi pendapatan desa", "belanja pemerintah desa", "village
+              budget 2023", "APBD desa", and several more variations. Abbreviations are expanded, time periods are
+              calculated, and geographic context is identified.</p>
+            <div class="step-tags">
+              <span class="step-tag t2">Abbreviation expansion</span>
+              <span class="step-tag t2">Time period detection</span>
+              <span class="step-tag t2">Geographic context</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--cyan)">3</div>
+          <div class="step-body">
+            <h3>Finding Relevant Datasets</h3>
+            <p>Two searches run at the same time: one scans a database of spreadsheet metadata (thousands of government
+              statistical publications), and the other scans a collection of news and web data. The system uses
+              meaning-based search, not just keywords &mdash; so it can find relevant data even when the wording doesn't
+              match exactly.</p>
+            <div class="step-tags">
+              <span class="step-tag t3">Spreadsheet database</span>
+              <span class="step-tag t3">News &amp; web database</span>
+              <span class="step-tag t3">Parallel search</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:#818cf8">4</div>
+          <div class="step-body">
+            <h3>Ranking &amp; Filtering Results</h3>
+            <p>Every found dataset is scored from 0 to 100 by an AI judge. The judge evaluates: Does the data cover the
+              right topic? Does it match the requested time period? Does it cover the right geographic area? Only
+              datasets scoring above the quality threshold pass through. A secondary verification model double-checks
+              the rankings.</p>
+            <div class="step-note">
+              <strong>&#128260; Self-Healing:</strong> If no datasets pass the quality threshold, the engine
+              automatically lowers the bar and searches again &mdash; repeating until it finds usable data or exhausts
+              all options.
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--amber)">5</div>
+          <div class="step-body">
+            <h3>Extracting the Data</h3>
+            <p>Each qualifying dataset is retrieved from cloud storage. Small files are read directly as spreadsheets.
+              Large or complex files are handled by a text-to-SQL engine that converts the question into a database
+              query, running it against the spreadsheet to extract only the relevant data. Multi-sheet files are
+              automatically split and processed in parallel.</p>
+            <div class="step-tags">
+              <span class="step-tag">Small files: direct read</span>
+              <span class="step-tag">Large files: text-to-SQL</span>
+              <span class="step-tag">Multi-sheet: auto-split</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--green)">6</div>
+          <div class="step-body">
+            <h3>Analyzing &amp; Synthesizing</h3>
+            <p>All extracted data is fed into an intelligent analysis pipeline powered by <strong>DocETL</strong>
+              &mdash; a framework that breaks complex data processing into a chain of specialized operations. The
+              pipeline adapts its strategy based on data size.</p>
+            <div class="step-note">
+              <strong>&#128268; Two strategies:</strong> Small datasets are analyzed in a single pass. Large datasets go
+              through a full 4-stage pipeline: the data is split into overlapping pieces, each piece gets surrounding
+              context attached, then each piece is analyzed individually, and finally all analyses are merged into one
+              comprehensive result.
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end step-flow -->
+
+      <!-- DocETL Deep Dive -->
+      <div class="rv" style="margin-top:3rem">
+        <span class="pill pill-green">Deep Dive</span>
+        <h3 class="section-h" style="margin-top:.75rem;font-size:1.5rem">The Analysis Pipeline</h3>
+        <p style="font-size:.95rem;color:var(--text2);max-width:600px;line-height:1.7;margin-bottom:2rem">
+          The engine uses a modular pipeline framework where each stage has a specific job. Here's how the pieces fit
+          together:
+        </p>
+
+        <!-- Pipeline visual -->
+        <div class="pipe-visual rv">
+          <div class="pipe-row">
+            <div class="pipe-node pipe-dataset">
+              <div class="pipe-node-icon">&#128451;</div>
+              <div class="pipe-node-title">Data Source</div>
+              <div class="pipe-node-desc">The prepared spreadsheet data, loaded from a file with the user's question
+                attached</div>
+            </div>
+            <div class="pipe-arrow">&#10132;</div>
+            <div class="pipe-decision">
+              <div class="pipe-decision-label">How big is the data?</div>
+              <div class="pipe-decision-paths">
+                <div class="pipe-path-small">
+                  <span class="pipe-path-badge small">Small dataset</span>
+                  <span class="pipe-path-text">Goes directly to a single analysis step</span>
+                </div>
+                <div class="pipe-path-large">
+                  <span class="pipe-path-badge large">Large dataset</span>
+                  <span class="pipe-path-text">Goes through the full 4-stage pipeline below</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 pipeline stages -->
+        <div class="pipe-stages rv" style="margin-top:1.5rem">
+
+          <div class="pipe-stage">
+            <div class="pipe-stage-num" style="background:linear-gradient(135deg,#10b981,#06b6d4)">1</div>
+            <div class="pipe-stage-content">
+              <div class="pipe-stage-head">
+                <h4>Split</h4>
+                <span class="pipe-stage-badge">Divides large data into manageable pieces</span>
+              </div>
+              <p>When a spreadsheet has thousands of rows, it's too much for a single AI pass. This stage slices the
+                data into overlapping chunks &mdash; like reading a book in sections, where each section shares a few
+                pages with the next so nothing falls through the cracks.</p>
+              <div class="pipe-detail-grid">
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Chunk size</div>
+                  <div class="pipe-detail-value">~6,500 tokens each</div>
+                </div>
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Overlap</div>
+                  <div class="pipe-detail-value">~3,500 tokens shared between neighbors</div>
+                </div>
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Tracking</div>
+                  <div class="pipe-detail-value">Each piece gets a unique ID and sequence number</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipe-connector">
+            <svg width="24" height="32" viewBox="0 0 24 32">
+              <path d="M12 0v24m-6-6l6 6 6-6" stroke="#10b981" stroke-width="2" fill="none" opacity=".4" />
+            </svg>
+          </div>
+
+          <div class="pipe-stage">
+            <div class="pipe-stage-num" style="background:linear-gradient(135deg,#06b6d4,#6366f1)">2</div>
+            <div class="pipe-stage-content">
+              <div class="pipe-stage-head">
+                <h4>Gather Context</h4>
+                <span class="pipe-stage-badge">Gives each piece its surrounding context</span>
+              </div>
+              <p>Before analyzing a piece, the system attaches the piece that comes before it and the piece that comes
+                after it. This way, the AI can see transitions and relationships across boundaries &mdash; like reading
+                the paragraph before and after the one you're focusing on.</p>
+              <div class="pipe-detail-grid">
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Context window</div>
+                  <div class="pipe-detail-value">1 piece before + 1 piece after</div>
+                </div>
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Benefit</div>
+                  <div class="pipe-detail-value">No data is lost at chunk boundaries</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipe-connector">
+            <svg width="24" height="32" viewBox="0 0 24 32">
+              <path d="M12 0v24m-6-6l6 6 6-6" stroke="#6366f1" stroke-width="2" fill="none" opacity=".4" />
+            </svg>
+          </div>
+
+          <div class="pipe-stage">
+            <div class="pipe-stage-num" style="background:linear-gradient(135deg,#6366f1,#a855f7)">3</div>
+            <div class="pipe-stage-content">
+              <div class="pipe-stage-head">
+                <h4>Analyze Each Piece</h4>
+                <span class="pipe-stage-badge">AI examines every chunk individually</span>
+              </div>
+              <p>Each piece (with its context) is sent to an AI model for analysis. The model extracts relevant data,
+                identifies patterns, and produces insights specific to that portion of the dataset. All pieces are
+                processed independently &mdash; enabling parallel execution.</p>
+              <div class="pipe-detail-grid">
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Per piece output</div>
+                  <div class="pipe-detail-value">Analysis summary, relevant data rows, key findings</div>
+                </div>
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">AI model</div>
+                  <div class="pipe-detail-value">Gemini 2.5 Flash or GPT-4o</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pipe-connector">
+            <svg width="24" height="32" viewBox="0 0 24 32">
+              <path d="M12 0v24m-6-6l6 6 6-6" stroke="#a855f7" stroke-width="2" fill="none" opacity=".4" />
+            </svg>
+          </div>
+
+          <div class="pipe-stage">
+            <div class="pipe-stage-num" style="background:linear-gradient(135deg,#a855f7,#f43f5e)">4</div>
+            <div class="pipe-stage-content">
+              <div class="pipe-stage-head">
+                <h4>Synthesize Everything</h4>
+                <span class="pipe-stage-badge">Merges all piece-level analyses into one answer</span>
+              </div>
+              <p>All individual analyses are combined into a single, comprehensive response. The AI reviews findings
+                from every piece, resolves any contradictions, integrates data tables, and produces the final answer
+                with a clean CSV dataset and a detailed written analysis.</p>
+              <div class="pipe-detail-grid">
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Final output</div>
+                  <div class="pipe-detail-value">Integrated CSV table + full markdown analysis</div>
+                </div>
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Quality check</div>
+                  <div class="pipe-detail-value">Ensures all rows have identical column count</div>
+                </div>
+                <div class="pipe-detail">
+                  <div class="pipe-detail-label">Language</div>
+                  <div class="pipe-detail-value">Analysis written in Bahasa Indonesia</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Pipeline orchestration -->
+        <div class="rv" style="margin-top:2.5rem">
+          <h4 style="font-size:1rem;font-weight:700;margin-bottom:1rem">How It All Connects</h4>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem">
+            <div class="card" style="padding:1.2rem">
+              <div style="font-size:1.1rem;margin-bottom:.5rem">&#127917;</div>
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:.3rem">Pipeline Orchestrator</div>
+              <p style="font-size:.82rem;color:var(--text2);line-height:1.6">Ties all stages together into a single
+                execution unit. Defines which data source to use, what operations to run (and in what order), which AI
+                model powers the analysis, and where to write the results.</p>
+            </div>
+            <div class="card" style="padding:1.2rem">
+              <div style="font-size:1.1rem;margin-bottom:.5rem">&#128203;</div>
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:.3rem">Execution Plan</div>
+              <p style="font-size:.82rem;color:var(--text2);line-height:1.6">A step-by-step recipe that tells the
+                pipeline: "Take the spreadsheet data, run it through Split, then Gather, then Analyze, then Synthesize
+                &mdash; in that exact order." Multiple steps can be chained for complex workflows.</p>
+            </div>
+            <div class="card" style="padding:1.2rem">
+              <div style="font-size:1.1rem;margin-bottom:.5rem">&#128190;</div>
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:.3rem">Result Storage</div>
+              <p style="font-size:.82rem;color:var(--text2);line-height:1.6">The final output is saved as a structured
+                file containing the cleaned data table, the written analysis, column mappings, and processing metadata.
+                Intermediate results from each stage are also saved for debugging.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pipeline variants -->
+        <div class="rv" style="margin-top:2rem">
+          <h4 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Pipeline Variants Used in Production</h4>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem">
+            <div class="card" style="padding:1.2rem;border-left:3px solid var(--green)">
+              <div style="font-weight:700;font-size:.88rem;margin-bottom:.3rem">Question-Answering Pipeline</div>
+              <p style="font-size:.8rem;color:var(--text2);line-height:1.55;margin-bottom:.5rem">The primary pipeline.
+                Takes the user's question and extracted data, then generates a direct answer with supporting tables and
+                analysis.</p>
+              <div style="font-size:.72rem;color:var(--text3)">Used by: Main statistical analysis engine</div>
+            </div>
+            <div class="card" style="padding:1.2rem;border-left:3px solid var(--cyan)">
+              <div style="font-weight:700;font-size:.88rem;margin-bottom:.3rem">Table Normalization Pipeline</div>
+              <p style="font-size:.8rem;color:var(--text2);line-height:1.55;margin-bottom:.5rem">Focuses on cleaning
+                messy spreadsheets: detecting headers, standardizing column counts, fixing formatting issues, and
+                producing a clean, consistent table.</p>
+              <div style="font-size:.72rem;color:var(--text3)">Used by: Data normalization &amp; scanning workflows
+              </div>
+            </div>
+            <div class="card" style="padding:1.2rem;border-left:3px solid var(--purple)">
+              <div style="font-weight:700;font-size:.88rem;margin-bottom:.3rem">Correlation Analysis Pipeline</div>
+              <p style="font-size:.8rem;color:var(--text2);line-height:1.55;margin-bottom:.5rem">Examines relationships
+                between two variables (e.g., crime rate vs poverty level). Identifies patterns, geographic variations,
+                and produces strategic recommendations.</p>
+              <div style="font-size:.72rem;color:var(--text3)">Used by: Cross-document analytics &amp; POLRI insight
+                engine</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Resume the numbered flow -->
+      <div class="step-flow" style="margin-top:2.5rem">
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--rose)">7</div>
+          <div class="step-body">
+            <h3>Delivering the Results</h3>
+            <p>The final analysis is sent back to the user as a formatted response. Simultaneously, the system saves the
+              cleaned data to cloud storage (as spreadsheet and CSV), adds it to the answer cache for future queries,
+              indexes it for searchability, and logs the entire process for monitoring.</p>
+            <div class="step-tags">
+              <span class="step-tag">User response</span>
+              <span class="step-tag t3">Cloud storage</span>
+              <span class="step-tag t4">Answer cache</span>
+              <span class="step-tag t2">Event log</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 3: AGENTS                                                    -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-agents">
+    <div class="panel-inner">
+      <span class="pill pill-cyan rv">Core Components</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">The AI Agents</h2>
+      <p class="section-sub rv">Eight specialized agents, each with a focused role. They work together like a team of
+        analysts &mdash; one breaks down the question, another finds data, another judges quality, and so on.</p>
+
+      <div class="agents-g">
+
+        <div class="card ag-card rv" style="--ag-grd:linear-gradient(135deg,#a855f7,#6366f1)">
+          <div class="ag-ico">&#128270;</div>
+          <div class="ag-name">Question Analyzer</div>
+          <div class="ag-role">Understands what you're really asking</div>
+          <div class="ag-desc">Takes your question and breaks it into multiple precise search terms. Expands
+            abbreviations (e.g., "Tangsel" becomes "Tangerang Selatan"), identifies time periods, and generates broader
+            variants to ensure nothing is missed.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">receives</span><span class="io-txt">Your question in natural
+                language</span></div>
+            <div class="ag-io-row"><span class="io-tag out">produces</span><span class="io-txt">3 to 8 expanded search
+                terms</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d1" style="--ag-grd:linear-gradient(135deg,#06b6d4,#6366f1)">
+          <div class="ag-ico">&#9878;</div>
+          <div class="ag-name">Relevance Judge</div>
+          <div class="ag-role">Scores how well each dataset matches</div>
+          <div class="ag-desc">Reviews every discovered dataset and assigns a relevance score from 0 to 100. Checks if
+            the data covers the right topic, time period, and geographic area. Ensures no duplicate datasets pass
+            through.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">receives</span><span class="io-txt">Your question + list of
+                found datasets</span></div>
+            <div class="ag-io-row"><span class="io-tag out">produces</span><span class="io-txt">Score, reasoning, and
+                pass/fail for each</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d2" style="--ag-grd:linear-gradient(135deg,#10b981,#06b6d4)">
+          <div class="ag-ico">&#128197;</div>
+          <div class="ag-name">Time Period Detector</div>
+          <div class="ag-role">Extracts date ranges from descriptions</div>
+          <div class="ag-desc">Reads dataset descriptions and identifies what time period the data covers. Understands
+            Indonesian month names, year ranges, and can determine if a dataset is about a single year or spans multiple
+            years.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">receives</span><span class="io-txt">Dataset title and
+                description</span></div>
+            <div class="ag-io-row"><span class="io-tag out">produces</span><span class="io-txt">Date range (e.g., "2020
+                &ndash; 2024")</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d3" style="--ag-grd:linear-gradient(135deg,#f59e0b,#f97316)">
+          <div class="ag-ico">&#9989;</div>
+          <div class="ag-name">Data Validator</div>
+          <div class="ag-role">Confirms data actually answers the question</div>
+          <div class="ag-desc">A final check before data enters the analysis pipeline. Verifies that the content of each
+            dataset genuinely matches what the question asks for &mdash; catching false positives from the search phase.
+          </div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">receives</span><span class="io-txt">Your question + dataset
+                content preview</span></div>
+            <div class="ag-io-row"><span class="io-tag out">produces</span><span class="io-txt">Validation result with
+                confidence</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv" style="--ag-grd:linear-gradient(135deg,#f43f5e,#a855f7)">
+          <div class="ag-ico">&#129504;</div>
+          <div class="ag-name">Cache Evaluator</div>
+          <div class="ag-role">Decides if a previous answer can be reused</div>
+          <div class="ag-desc">When a similar question has been answered before, this agent evaluates whether the cached
+            answer is still good enough. It considers how closely the new question matches the old one and whether the
+            data might be outdated.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">receives</span><span class="io-txt">New question + cached
+                answer candidates</span></div>
+            <div class="ag-io-row"><span class="io-tag out">produces</span><span class="io-txt">Reuse recommendation
+                with confidence score</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d1" style="--ag-grd:linear-gradient(135deg,#6366f1,#06b6d4)">
+          <div class="ag-ico">&#128202;</div>
+          <div class="ag-name">Chart Designer</div>
+          <div class="ag-role">Creates visualizations from data</div>
+          <div class="ag-desc">Analyzes the extracted data and determines the best chart type (bar, line, pie, etc.).
+            Generates a complete chart configuration including colors, labels, and tooltips. Uses a specially trained
+            model for optimal visualizations.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">receives</span><span class="io-txt">Extracted data in table
+                format</span></div>
+            <div class="ag-io-row"><span class="io-tag out">produces</span><span class="io-txt">Ready-to-render chart
+                configuration</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d2" style="--ag-grd:linear-gradient(135deg,#06b6d4,#10b981)">
+          <div class="ag-ico">&#128221;</div>
+          <div class="ag-name">Table Formatter</div>
+          <div class="ag-role">Makes raw data presentable</div>
+          <div class="ag-desc">Takes raw spreadsheet data and converts it into clean, readable tables. Handles messy
+            headers, inconsistent formatting, and missing values to produce well-structured output ready for analysis.
+          </div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">receives</span><span class="io-txt">Raw spreadsheet
+                data</span></div>
+            <div class="ag-io-row"><span class="io-tag out">produces</span><span class="io-txt">Clean, formatted data
+                table</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d3" style="--ag-grd:linear-gradient(135deg,#10b981,#f59e0b)">
+          <div class="ag-ico">&#9881;</div>
+          <div class="ag-name">Foundation Layer</div>
+          <div class="ag-role">Powers all other agents</div>
+          <div class="ag-desc">The shared infrastructure that every agent builds on. Provides reliable communication
+            with AI models, automatic retries when things go wrong, and detailed logging of every operation for
+            monitoring and debugging.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">receives</span><span class="io-txt">Instructions from any
+                specialized agent</span></div>
+            <div class="ag-io-row"><span class="io-tag out">produces</span><span class="io-txt">AI response +
+                performance metrics + event log</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 4: LIVE DEMO                                                 -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-demo">
+    <div class="panel-inner">
+      <span class="pill pill-green rv">Sample Input &amp; Output</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">See It In Action</h2>
+      <p class="section-sub rv">Real examples showing what goes in and what comes out.</p>
+
+      <!-- EXAMPLE 1 -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-blue" style="font-size:.65rem">Example 1</span> Provincial Revenue Analysis
+        </h3>
+
+        <div class="demo-pair">
+          <!-- INPUT -->
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; What the user asks</div>
+            <div class="demo-card-body">
+              <div class="demo-q">"List the 5 provinces with the highest Village Government Revenue and Expenditure
+                Realization in 2023"</div>
+              <div class="demo-context">
+                <strong>Language:</strong> Indonesian or English<br>
+                <strong>Sent via:</strong> Chat interface, API, or command line<br>
+                <strong>No file upload needed</strong> &mdash; the system finds the data automatically
+              </div>
+            </div>
+          </div>
+
+          <!-- ARROW -->
+          <div class="demo-arrow">&#10132;</div>
+
+          <!-- OUTPUT -->
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; What the system returns</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <div class="result-analysis">
+                  <strong>Analysis:</strong> Based on the 2023 Village Government Budget Realization data published by
+                  BPS, the five provinces with the highest combined revenue and expenditure are:
+                </div>
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Province</th>
+                      <th>Revenue (Rp B)</th>
+                      <th>Expenditure (Rp B)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>1</td>
+                      <td>Jawa Timur</td>
+                      <td>18,245</td>
+                      <td>17,892</td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>Jawa Tengah</td>
+                      <td>16,103</td>
+                      <td>15,847</td>
+                    </tr>
+                    <tr>
+                      <td>3</td>
+                      <td>Jawa Barat</td>
+                      <td>14,567</td>
+                      <td>14,231</td>
+                    </tr>
+                    <tr>
+                      <td>4</td>
+                      <td>Sumatera Utara</td>
+                      <td>8,934</td>
+                      <td>8,612</td>
+                    </tr>
+                    <tr>
+                      <td>5</td>
+                      <td>Sulawesi Selatan</td>
+                      <td>6,789</td>
+                      <td>6,543</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="result-analysis" style="margin-top:.5rem">
+                  Java Island dominates the top three positions, collectively accounting for <strong>67%</strong> of the
+                  top-five total. Jawa Timur leads with a budget surplus of Rp 353B.
+                </div>
+                <div class="result-src">
+                  <div class="result-src-title">Sources Used</div>
+                  <div class="result-src-item">Realisasi Pendapatan dan Belanja Pemerintah Desa 2023 &mdash; bps.go.id
+                  </div>
+                  <div class="result-src-item">Statistik Keuangan Desa 2023 &mdash; bps.go.id</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMPLE 2 -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-purple" style="font-size:.65rem">Example 2</span> Multi-Year Trend Comparison
+        </h3>
+
+        <div class="demo-pair">
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; What the user asks</div>
+            <div class="demo-card-body">
+              <div class="demo-q">"Compare the Import Price Index for oil &amp; gas vs non-oil &amp; gas in the first
+                quarter of 2025"</div>
+              <div class="demo-context">
+                <strong>Complexity:</strong> Multi-variable comparison across time<br>
+                <strong>Challenge:</strong> Requires finding separate datasets and merging them
+              </div>
+            </div>
+          </div>
+          <div class="demo-arrow">&#10132;</div>
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; What the system returns</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <div class="result-analysis">
+                  <strong>Analysis:</strong> Comparing the Import Price Index (IHI) for Q1 2025:
+                </div>
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Oil &amp; Gas</th>
+                      <th>Non-Oil &amp; Gas</th>
+                      <th>Gap</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>January 2025</td>
+                      <td>142.31</td>
+                      <td>118.76</td>
+                      <td>+23.55</td>
+                    </tr>
+                    <tr>
+                      <td>February 2025</td>
+                      <td>138.94</td>
+                      <td>119.42</td>
+                      <td>+19.52</td>
+                    </tr>
+                    <tr>
+                      <td>March 2025</td>
+                      <td>145.67</td>
+                      <td>120.08</td>
+                      <td>+25.59</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="result-analysis" style="margin-top:.5rem">
+                  Oil &amp; gas import prices show <strong>higher volatility</strong> (range: 6.73 points) compared to
+                  non-oil &amp; gas (range: 1.32 points). The price gap widened from 23.55 in January to <strong>25.59
+                    in March</strong>, indicating increasing divergence.
+                </div>
+                <div class="result-src">
+                  <div class="result-src-title">Sources Used</div>
+                  <div class="result-src-item">Indeks Harga Impor Menurut Sektor Migas &mdash; bps.go.id</div>
+                  <div class="result-src-item">Indeks Harga Perdagangan Besar Impor 2025 &mdash; bps.go.id</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Behind the scenes -->
+      <div class="rv" style="margin-top:1rem">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-amber" style="font-size:.65rem">Behind the Scenes</span> What Happens Under the Hood
+        </h3>
+
+        <div class="demo-card" style="max-width:600px">
+          <div class="demo-card-head process-h">&#9881; Processing Pipeline (Example 1)</div>
+          <div class="demo-card-body">
+            <div class="process-steps">
+              <div class="ps">
+                <div class="ps-num" style="background:var(--blue)">1</div>
+                <div class="ps-text">Question expanded into 6 search terms</div>
+                <div class="ps-time">0.8s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--cyan)">2</div>
+                <div class="ps-text">Searched 12,400+ datasets, found 23 candidates</div>
+                <div class="ps-time">2.1s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--purple)">3</div>
+                <div class="ps-text">Ranked all 23 &mdash; top 3 scored above 75/100</div>
+                <div class="ps-time">3.4s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--amber)">4</div>
+                <div class="ps-text">Extracted data from 2 spreadsheets (47 rows each)</div>
+                <div class="ps-time">4.2s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--green)">5</div>
+                <div class="ps-text">Generated analysis with table and insights</div>
+                <div class="ps-time">8.7s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--rose)">6</div>
+                <div class="ps-text">Saved to cache, uploaded to storage, logged</div>
+                <div class="ps-time">1.3s</div>
+              </div>
+            </div>
+            <div
+              style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:.8rem;color:var(--text3)">Total processing time</span>
+              <span style="font-size:1rem;font-weight:700;color:var(--green)">~20.5 seconds</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output formats -->
+      <div class="rv" style="margin-top:3rem">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-rose" style="font-size:.65rem">Delivery</span> Three Output Formats
+        </h3>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem">
+          <div class="card rv">
+            <div style="font-size:1.2rem;margin-bottom:.5rem">&#128196;</div>
+            <div style="font-weight:700;margin-bottom:.25rem">Formatted Report</div>
+            <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Full analysis as formatted text with
+              tables, insights, and source links. Ideal for chat interfaces and web displays. Includes a downloadable
+              Word document with detailed processing logs.</div>
+          </div>
+          <div class="card rv rv-d1">
+            <div style="font-size:1.2rem;margin-bottom:.5rem">&#128202;</div>
+            <div style="font-weight:700;margin-bottom:.25rem">Structured Data Package</div>
+            <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Full pipeline output with cleaned CSV data,
+              analysis markdown, source metadata, execution metrics, and auto-uploaded spreadsheet to cloud storage.
+              Indexed for future cache hits.</div>
+          </div>
+          <div class="card rv rv-d2">
+            <div style="font-size:1.2rem;margin-bottom:.5rem">&#128295;</div>
+            <div style="font-weight:700;margin-bottom:.25rem">Raw Data Feed</div>
+            <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Raw extracted data as a list, designed for
+              downstream systems that need to perform their own analysis. Lightweight, fast, no document generation
+              overhead.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 5: TECH & METRICS                                            -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-tech">
+    <div class="panel-inner">
+      <span class="pill pill-amber rv">Infrastructure</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">Tech Stack &amp; Metrics</h2>
+      <p class="section-sub rv">The technologies and services powering the engine.</p>
+
+      <div class="tech-g">
+
+        <div class="card rv">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(168,85,247,.1);color:#c084fc">&#129302;</div>
+            <div>
+              <div class="tech-title">AI Models</div>
+              <div class="tech-role">Intelligence Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>GPT-4o-mini &mdash; Powers all 7 specialized agents</li>
+            <li>Gemini 2.5 Flash &mdash; Analysis pipeline processing</li>
+            <li>Fine-tuned model &mdash; Chart visualization generation</li>
+            <li>Cross-encoder &mdash; Secondary relevance verification</li>
+          </ul>
+        </div>
+
+        <div class="card rv rv-d1">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(34,211,238,.1);color:var(--cyan)">&#128451;</div>
+            <div>
+              <div class="tech-title">Search &amp; Discovery</div>
+              <div class="tech-role">Retrieval Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>Qdrant &mdash; Vector database with dual-server failover</li>
+            <li>Custom embeddings &mdash; Semantic meaning matching</li>
+            <li>Hybrid search &mdash; Dense + sparse BM25 fusion</li>
+            <li>Elasticsearch &mdash; Metadata search and gold indexing</li>
+          </ul>
+        </div>
+
+        <div class="card rv rv-d2">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(52,211,153,.1);color:var(--green)">&#128450;</div>
+            <div>
+              <div class="tech-title">Data Storage</div>
+              <div class="tech-role">Persistence Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>S3 / MinIO &mdash; Spreadsheets, documents, reports</li>
+            <li>PostgreSQL &mdash; Structured statistical tables</li>
+            <li>Redis &mdash; Job queue with 5 async workers</li>
+            <li>Multiple buckets &mdash; Organized by data lifecycle</li>
+          </ul>
+        </div>
+
+        <div class="card rv rv-d3">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(251,191,36,.1);color:var(--amber)">&#128640;</div>
+            <div>
+              <div class="tech-title">Data Processing</div>
+              <div class="tech-role">Transformation Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>DocETL &mdash; Split, gather, map, reduce pipeline</li>
+            <li>Text-to-SQL &mdash; Natural language to database queries</li>
+            <li>Excel engine &mdash; Multi-sheet, multi-format parsing</li>
+            <li>Auto-normalization &mdash; Header detection &amp; cleanup</li>
+          </ul>
+        </div>
+
+        <div class="card rv">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(99,102,241,.1);color:#818cf8">&#128225;</div>
+            <div>
+              <div class="tech-title">Integration</div>
+              <div class="tech-role">Communication Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>MCP Protocol &mdash; Standard model context sharing</li>
+            <li>Kafka &mdash; Real-time event streaming &amp; logs</li>
+            <li>REST API &mdash; HTTP endpoints for any client</li>
+            <li>Async orchestration &mdash; Parallel processing</li>
+          </ul>
+        </div>
+
+        <div class="card rv rv-d1">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(251,113,133,.1);color:var(--rose)">&#128202;</div>
+            <div>
+              <div class="tech-title">Output &amp; Visualization</div>
+              <div class="tech-role">Delivery Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>ECharts &mdash; Interactive chart generation</li>
+            <li>Markdown rendering &mdash; Formatted analysis</li>
+            <li>Word documents &mdash; Detailed processing logs</li>
+            <li>Chart render API &mdash; Server-side image generation</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- METRICS -->
+      <div style="margin-top:3.5rem">
+        <span class="pill pill-rose rv">By the Numbers</span>
+        <h3 class="section-h rv" style="margin-top:.75rem;font-size:1.6rem">Key Metrics</h3>
+
+        <div class="met-grid">
+          <div class="card met-card rv"><b data-count="8">0</b><span>AI Agents</span><em>Specialized roles</em></div>
+          <div class="card met-card rv rv-d1"><b data-count="10">0</b><span>Pipeline Modes</span><em>Different
+              workflows</em></div>
+          <div class="card met-card rv rv-d2"><b data-count="5">0</b><span>Entry Points</span><em>Ways to send
+              queries</em></div>
+          <div class="card met-card rv rv-d3"><b data-count="3">0</b><span>Output Formats</span><em>Response types</em>
+          </div>
+          <div class="card met-card rv"><b data-count="15">0</b><span>Services</span><em>Integrated systems</em></div>
+          <div class="card met-card rv rv-d1"><b data-count="4">0</b><span>Search Modes</span><em>Dense, sparse, hybrid,
+              late</em></div>
+          <div class="card met-card rv rv-d2"><b data-count="3">0</b><span>AI Providers</span><em>OpenAI, Gemini,
+              Custom</em></div>
+          <div class="card met-card rv rv-d3"><b data-count="35">0</b><span>Tool Modules</span><em>Specialized
+              functions</em></div>
+          <div class="card met-card rv"><b data-count="2">0</b><span>DB Replicas</span><em>Failover architecture</em>
+          </div>
+          <div class="card met-card rv rv-d1"><b data-count="4">0</b><span>Embedding Models</span><em>Semantic
+              understanding</em></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div style="padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--border)">
+    <p style="font-size:.85rem;color:var(--text3)">
+      <span
+        style="background:var(--grd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">Multi-Agent
+        Table Augmented Generation (Document-ETL)</span>
+      &mdash; Agentic Table Augmented Generation
+    </p>
+    <p style="font-size:.72rem;color:var(--text3);margin-top:.4rem;opacity:.6">Multi-Agent Orchestration &middot;
+      Semantic Retrieval &middot; Automated ETL</p>
+  </div>
+
+  <script>
+    /* ===== TAB SWITCHING ===== */
+    const btns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        panels.forEach(p => {
+          p.classList.remove('active');
+          p.style.opacity = '0';
+          p.style.transform = 'translateY(12px)';
+        });
+
+        const panel = document.getElementById('tab-' + target);
+        panel.classList.add('active');
+
+        // trigger reveal animations for newly visible panel
+        requestAnimationFrame(() => {
+          panel.style.opacity = '1';
+          panel.style.transform = 'translateY(0)';
+          panel.querySelectorAll('.rv').forEach(el => {
+            el.classList.remove('vis');
+            void el.offsetWidth; // reflow
+          });
+          observeReveals();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+    });
+
+    /* ===== REVEAL ON SCROLL ===== */
+    function observeReveals() {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+      }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+      document.querySelectorAll('.rv:not(.vis)').forEach(el => obs.observe(el));
+    }
+    observeReveals();
+
+    /* ===== COUNTER ANIMATION ===== */
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting || e.target.dataset.done) return;
+        e.target.dataset.done = '1';
+        const t = +e.target.dataset.count;
+        let c = 0;
+        const s = t / 60;
+        const run = () => {
+          c += s;
+          if (c >= t) { e.target.textContent = t; return; }
+          e.target.textContent = Math.round(c);
+          requestAnimationFrame(run);
+        };
+        run();
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
+  </script>
+</body>
+
+</html>

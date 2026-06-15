@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ACIS Lifecycle Engine — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#08080f;--bg2:#0e0e18;--bg3:#141422;--bg4:#1a1a2c;
+--brd:#1c1c30;--brd2:#282845;--brd3:#363660;
+--t1:#f0f0f8;--t2:#9a9ab8;--t3:#6a6a88;--t4:#484868;
+--blue:#5090ff;--cyan:#22d4e4;--purple:#a882f8;--green:#32d4a4;
+--orange:#f09444;--red:#f06464;--pink:#e474b4;--yellow:#e8cc34;
+--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--r:14px;--rs:10px;--rx:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:3px}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd)}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:54px;gap:10px}
+.brand{font-weight:800;font-size:13px;color:var(--blue);white-space:nowrap;letter-spacing:-.02em;flex-shrink:0}
+.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 14px;border-radius:var(--rx);font-size:11.5px;font-weight:600;color:var(--t4);cursor:pointer;white-space:nowrap;transition:all .2s;border:none;background:none;font-family:var(--sans)}
+.tab:hover{color:var(--t2);background:rgba(255,255,255,.03)}
+.tab.on{color:var(--t1);background:rgba(80,144,255,.12)}
+
+.sec{display:none;min-height:100vh;padding:72px 0 60px}.sec.on{display:block}
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+.sh{margin-bottom:36px;padding-top:12px}
+.sh-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sh-label::before{content:'';width:14px;height:1.5px;background:var(--blue);border-radius:1px}
+.sh-title{font-size:clamp(22px,3.2vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:8px}
+.sh-title em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sh-desc{font-size:14px;color:var(--t2);max-width:640px;line-height:1.75}
+h3.blk{font-size:14px;font-weight:700;margin:30px 0 14px}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}.rv.v{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}.d4{transition-delay:.24s}
+
+/* HERO */
+.hero-wrap{display:flex;align-items:center;min-height:100vh;padding-top:54px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-18%;left:22%;width:520px;height:520px;background:radial-gradient(circle,rgba(80,144,255,.07),transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-12%;right:12%;width:420px;height:420px;background:radial-gradient(circle,rgba(168,130,248,.05),transparent 70%);pointer-events:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--brd);background:rgba(80,144,255,.04);font-size:10.5px;font-weight:600;color:var(--blue);margin-bottom:22px}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:bk 2s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-wrap h1{font-size:clamp(32px,5.5vw,54px);font-weight:900;letter-spacing:-.04em;line-height:1.06;margin-bottom:16px}
+.hero-wrap h1 em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-wrap>div>p{font-size:clamp(14px,1.5vw,16px);color:var(--t2);max-width:560px;margin-bottom:28px;line-height:1.8}
+.tg{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.t{padding:5px 11px;border-radius:5px;font-size:10.5px;font-weight:600;font-family:var(--mono);border:1px solid var(--brd);background:var(--bg3);color:var(--t2);white-space:nowrap}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:32px}
+.mc{padding:20px 16px;border-radius:var(--r);border:1px solid var(--brd);background:var(--bg2);position:relative;overflow:hidden;transition:all .25s}
+.mc:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.mc .gw{position:absolute;top:-30px;right:-30px;width:70px;height:70px;border-radius:50%;filter:blur(32px);opacity:.3}
+.mc .num{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px}
+.mc .lx{font-size:10.5px;color:var(--t3);font-weight:500}
+
+/* FLOW */
+.flow-row{display:flex;align-items:stretch;gap:0;margin-bottom:28px;overflow-x:auto;padding-bottom:8px}
+.flow-step{flex:1;min-width:128px;text-align:center;position:relative;padding:16px 10px}
+.flow-step .fs-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin:0 auto 8px;border:2px solid var(--brd2)}
+.flow-step .fs-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.flow-step .fs-desc{font-size:10px;color:var(--t3);line-height:1.5}
+.flow-step:not(:last-child)::after{content:'';position:absolute;right:-1px;top:30px;width:calc(100% - 30px);height:2px;background:linear-gradient(90deg,transparent,var(--brd2),var(--brd2),transparent);z-index:-1;left:65%}
+
+/* LAYER CARDS */
+.dc-arch{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:30px}
+.dc-layer{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:18px 22px;position:relative;overflow:hidden}
+.dc-layer::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.dc-layer.l1::before{background:var(--blue)}.dc-layer.l2::before{background:var(--cyan)}.dc-layer.l3::before{background:var(--purple)}.dc-layer.l4::before{background:var(--green)}.dc-layer.l5::before{background:var(--orange)}
+.dc-layer h4{font-size:13px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.dc-layer h4 .num-badge{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.dc-layer p{font-size:12.5px;color:var(--t2);line-height:1.7}
+.dc-layer code{font-family:var(--mono);font-size:11px;color:var(--cyan);background:var(--bg);padding:1px 5px;border-radius:4px}
+
+/* IMG */
+.fig{margin:20px 0 30px;border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;background:#f7f7fa}
+.fig img{width:100%;display:block}
+.fig-cap{font-size:11px;color:var(--t3);padding:10px 16px;background:var(--bg2);border-top:1px solid var(--brd);font-family:var(--mono)}
+
+/* FEATURE CARDS */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.feat{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:18px 20px;transition:all .2s}
+.feat:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.feat .fh{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.feat .fi{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.feat .fn{font-size:13.5px;font-weight:700}
+.feat .ft{font-size:9.5px;color:var(--t4);font-family:var(--mono);margin-top:1px;text-transform:uppercase;letter-spacing:.06em}
+.feat p{font-size:12.5px;color:var(--t2);line-height:1.7}
+
+/* STEP GRID */
+.step-grid{display:grid;grid-template-columns:1fr;gap:0;position:relative}
+.step-grid::before{content:'';position:absolute;left:19px;top:28px;bottom:28px;width:2px;background:linear-gradient(180deg,var(--blue),var(--cyan),var(--purple),var(--green),var(--orange));border-radius:1px;opacity:.35}
+.step{display:flex;gap:20px;padding:16px 0;position:relative}
+.step-num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;border:2px solid var(--brd2);background:var(--bg);z-index:1}
+.step-body{flex:1;padding-top:5px}
+.step-body h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--t2);line-height:1.7}
+.step-body code{font-family:var(--mono);font-size:11px;color:var(--cyan)}
+
+/* STATE TABLE / pills */
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 22px}
+.bdg{padding:6px 13px;border-radius:7px;font-size:11.5px;font-weight:700;font-family:var(--mono);border:1px solid var(--brd2)}
+.rule{border:1px solid var(--brd);border-radius:var(--rx);background:var(--bg);font-family:var(--mono);font-size:11.5px;color:var(--t2);line-height:1.9;padding:16px 18px;overflow-x:auto;white-space:pre;margin-bottom:24px}
+.rule b{color:var(--cyan);font-weight:600}.rule .c{color:var(--t4)}
+
+/* AGENT CARDS */
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:24px}
+.ac{border:1px solid var(--brd);border-radius:var(--rs);background:var(--bg2);padding:16px 18px;transition:all .2s}
+.ac:hover{border-color:var(--brd2)}
+.ah{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ai{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.an{font-size:13px;font-weight:700}.am{font-size:9.5px;color:var(--t4);margin-top:1px;font-family:var(--mono)}
+.ad{font-size:12px;color:var(--t2);line-height:1.65}
+
+/* TECH */
+.tg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:8px}
+.tc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:16px 18px}
+.tc-cat{font-size:11px;font-weight:700;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tc-cat .td{width:7px;height:7px;border-radius:50%}
+.ti{display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--brd)}
+.ti .td{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tn{font-size:12px;font-weight:600;color:var(--t1)}.tr{font-size:10.5px;color:var(--t3);margin-left:auto;text-align:right}
+
+footer{border-top:1px solid var(--brd);padding:36px 0;text-align:center;font-size:11px;color:var(--t3)}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid var(--brd);font-size:12.5px}
+.kv .k{color:var(--t3)}.kv .val{color:var(--t1);font-family:var(--mono);font-size:11.5px}
+.note{font-size:11.5px;color:var(--t3);border-left:2px solid var(--brd3);padding:6px 0 6px 14px;margin:6px 0 22px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<nav><div class="nav-in">
+  <div class="brand">◆ ACIS Lifecycle Engine</div>
+  <div class="tabs">
+    <button class="tab on" data-s="hero">Overview</button>
+    <button class="tab" data-s="flow">Alur Data</button>
+    <button class="tab" data-s="rules">Lifecycle Rules</button>
+    <button class="tab" data-s="feat">Fitur</button>
+    <button class="tab" data-s="build">Cara Bangun</button>
+    <button class="tab" data-s="tech">Stack</button>
+  </div>
+</div></nav>
+
+<!-- ========== HERO ========== -->
+<div class="sec on" id="s-hero">
+  <div class="hero-wrap"><div class="hero-glow"></div><div class="hero-glow2"></div>
+    <div class="container">
+      <div class="pill rv"><span class="dot"></span>Production · Kafka-to-Kafka · Postgres Read-Only</div>
+      <h1 class="rv d1">Mesin <em>Lifecycle</em><br>Objek Monitoring</h1>
+      <p class="rv d2">Service event-driven yang menilai "kesehatan" tiap objek pantauan (keyword, akun, media) secara real-time dari aktivitas Elasticsearch, lalu memutuskan transisi state-nya — kapan objek naik aktif, meredup, dorman, atau dipensiunkan — dan menyiarkan keputusannya kembali ke Kafka.</p>
+      <div class="tg rv d3">
+        <span class="t">Python · AsyncIO</span><span class="t">Apache Kafka</span><span class="t">PostgreSQL (RO)</span>
+        <span class="t">Elasticsearch</span><span class="t">Redis</span><span class="t">eb_labs Agents</span>
+        <span class="t">OpenAI / vLLM</span><span class="t">Pydantic</span>
+      </div>
+      <div class="mg rv d4">
+        <div class="mc"><div class="gw" style="background:var(--blue)"></div><div class="num" style="color:var(--blue)">4</div><div class="lx">State (TRIAL→RETIRED)</div></div>
+        <div class="mc"><div class="gw" style="background:var(--cyan)"></div><div class="num" style="color:var(--cyan)">5</div><div class="lx">Mode (HOT…DECAYING)</div></div>
+        <div class="mc"><div class="gw" style="background:var(--green)"></div><div class="num" style="color:var(--green)">4</div><div class="lx">Komponen Health</div></div>
+        <div class="mc"><div class="gw" style="background:var(--purple)"></div><div class="num" style="color:var(--purple)">4</div><div class="lx">LLM Agent</div></div>
+        <div class="mc"><div class="gw" style="background:var(--orange)"></div><div class="num" style="color:var(--orange)">2</div><div class="lx">Mode Keputusan</div></div>
+        <div class="mc"><div class="gw" style="background:var(--pink)"></div><div class="num" style="color:var(--pink)">0</div><div class="lx">Tulisan ke DB (read-only)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ALUR DATA ========== -->
+<div class="sec" id="s-flow"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Alur Data</div>
+    <div class="sh-title">Bagaimana Data <em>Mengalir</em></div>
+    <div class="sh-desc">Engine ini adalah satu worker <b>kafka-to-kafka</b>: menerima sinyal sukses crawl, mengambil konteks dari Postgres (read-only) + menghitung ulang health dari Elasticsearch, memutuskan transisi, lalu menerbitkan status. Tidak pernah menulis DB — penulisan riwayat dilakukan engine downstream.</div>
+  </div>
+
+  <div class="flow-row rv d1">
+    <div class="flow-step"><div class="fs-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">1</div><div class="fs-title" style="color:var(--blue)">Signal In</div><div class="fs-desc">acis-queue-signal-success {object_id, client_id, status, posts_count}</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">2</div><div class="fs-title" style="color:var(--cyan)">Lookup PG</div><div class="fs-desc">objects · lifecycle · topic · client · trial (read-only)</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">3</div><div class="fs-title" style="color:var(--purple)">Recompute Health</div><div class="fs-desc">agregasi ES acis-data-* (window crawling_at)</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">4</div><div class="fs-title" style="color:var(--green)">Decision §5b</div><div class="fs-desc">deterministic | agent (+ fallback) + reasoning</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">5</div><div class="fs-title" style="color:var(--orange)">Status Out</div><div class="fs-desc">acis-queue-lifecycle → downstream tulis DB</div></div>
+  </div>
+
+  <div class="fig rv d2">
+    <img src="flow_fix.png" alt="ACIS Crawler &amp; Lifecycle Engine Job Flow">
+    <div class="fig-cap">crawler job-Flow fix.drawio — posisi Lifecycle Engine dalam pipeline ACIS (Topic Mgmt → Object Generator → Crawler → Signal → ★ Lifecycle Engine → downstream).</div>
+  </div>
+
+  <h3 class="blk rv">Lapisan Pemrosesan (per sinyal)</h3>
+  <div class="dc-arch rv d2">
+    <div class="dc-layer l1"><h4><span class="num-badge" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span><span style="color:var(--blue)">Transport — kafka_worker</span></h4><p>Consume <code>acis-queue-signal-success</code>, proses per-batch (serialize per object_id agar tak balapan), publish <code>acis-queue-lifecycle</code>, commit offset (at-least-once). Stateless.</p></div>
+    <div class="dc-layer l2"><h4><span class="num-badge" style="background:rgba(34,212,228,.12);color:var(--cyan)">2</span><span style="color:var(--cyan)">Lookup PG (read-only)</span></h4><p>Dari <code>object_id</code>: ambil meta objek (<code>acis_lc_objects</code>), state terkini + riwayat (<code>acis_lc_lifecycle</code>), topik & query (<code>acis_topic_management</code>), brief/persona (<code>acis_client</code>), timing trial (<code>acis_lc_trial_meta</code>).</p></div>
+    <div class="dc-layer l3"><h4><span class="num-badge" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span><span style="color:var(--purple)">Recompute Health (Elasticsearch)</span></h4><p>Index unified <code>acis-data-*</code>. Retrieval EXACT lewat <code>_metadata.object.id</code> (anti-twin) dengan fallback ke <code>lucene_query</code> topik. Window waktu pakai <code>crawling_at</code>. Hasil: velocity, volume, recency, client_relevance → <code>health_score</code>.</p></div>
+    <div class="dc-layer l4"><h4><span class="num-badge" style="background:rgba(50,212,164,.12);color:var(--green)">4</span><span style="color:var(--green)">Decision Engine (§5b)</span></h4><p>Precedence ruleset menentukan transisi state/mode. Dua mode terpisah lewat env: <code>deterministic</code> (rules) atau <code>agent</code> (LLM, + fallback otomatis ke deterministic). Setiap transisi dapat <code>reasoning</code> yang kebaca manusia.</p></div>
+    <div class="dc-layer l5"><h4><span class="num-badge" style="background:rgba(240,148,68,.12);color:var(--orange)">5</span><span style="color:var(--orange)">Publish — payload lifecycle</span></h4><p>Payload <code>acis-queue-lifecycle</code>: <code>current</code> → <code>transition_to</code> (state/mode/health + breakdown velocity/volume/recency/client_relevance), <code>inactive_reason</code> (reasoning), lucene & semantic query. Engine downstream yang menulis riwayat ke DB.</p></div>
+  </div>
+</div></div>
+
+<!-- ========== LIFECYCLE RULES ========== -->
+<div class="sec" id="s-rules"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Lifecycle Rules</div>
+    <div class="sh-title">State Machine &amp; <em>Health Score</em></div>
+    <div class="sh-desc">Tiap objek punya state &amp; mode. Health score (0–100) dihitung ulang tiap sinyal, lalu ruleset precedence §5b menentukan transisinya. Validator struktural (Opsi B) hanya menjaga konsistensi state↔mode.</div>
+  </div>
+
+  <h3 class="blk rv">State &amp; Mode</h3>
+  <div class="badges rv d1">
+    <span class="bdg" style="color:var(--yellow);background:rgba(232,204,52,.08)">TRIAL</span>
+    <span class="bdg" style="color:var(--red);background:rgba(240,100,100,.08)">ACTIVE · HOT</span>
+    <span class="bdg" style="color:var(--blue);background:rgba(80,144,255,.08)">ACTIVE · COLD</span>
+    <span class="bdg" style="color:var(--cyan);background:rgba(34,212,228,.08)">ACTIVE · ON_DEMAND</span>
+    <span class="bdg" style="color:var(--orange);background:rgba(240,148,68,.08)">INACTIVE · DORMANT</span>
+    <span class="bdg" style="color:var(--purple);background:rgba(168,130,248,.08)">INACTIVE · DECAYING</span>
+    <span class="bdg" style="color:var(--t3);background:rgba(106,106,136,.08)">RETIRED</span>
+  </div>
+
+  <h3 class="blk rv">Health Score</h3>
+  <div class="rule rv d1"><b>health_score</b> = velocity·0.30 + volume·0.20 + client_relevance·0.30 + recency·0.20   <span class="c">(clamp 0–100)</span>
+
+  <b>velocity</b>          tren post 24 jam-skrg vs 24 jam-sebelum   <span class="c"># tanh saturasi</span>
+  <b>volume</b>            jumlah post 7 hari                        <span class="c"># 1 − e^(−n/ref)</span>
+  <b>recency</b>           seberapa baru post terakhir               <span class="c"># 100·0.5^(jam/half-life)</span>
+  <b>client_relevance</b>  relevansi post ke topik (LLM scorer)      <span class="c"># avg rel_score valid</span></div>
+
+  <h3 class="blk rv">Precedence Keputusan (§5b)</h3>
+  <div class="rule rv d1"><span class="c">// D = silence-age (hari sejak post terakhir) · H = health_score</span>
+1. current = RETIRED                       → <b>STAY</b> (terminal)
+2. D ≥ 90 hari                             → <b>RETIRED</b>
+3. D ≥ 30 hari                             → <b>INACTIVE / DORMANT</b>
+4. current = TRIAL &amp; umur ≥ trial_max_days → band by H:
+        H ≥ 80 → <b>ACTIVE/HOT</b> · 40–80 → <b>ACTIVE/COLD</b> · &lt;40 → <b>INACTIVE/DECAYING</b>
+5. ada post (D &lt; 30):
+        INACTIVE &amp; H ≥ 40        → <b>ACTIVE/COLD</b>  <span class="c">(resurrect)</span>
+        H &lt; 40 sustained 14 hari → <b>INACTIVE/DECAYING</b>
+        COLD &amp; H ≥ 80            → <b>ACTIVE/HOT</b>   <span class="c">(promote)</span>
+        HOT  &amp; H &lt; 75            → <b>ACTIVE/COLD</b>  <span class="c">(demote, instan)</span>
+        else                     → <b>STAY</b>
+6. else                                    → <b>STAY</b></div>
+  <div class="note rv">Hysteresis 75–80 mencegah HOT↔COLD flapping. Demote instan (H sudah teragregasi window). Masuk DECAYING konservatif (sustained 14 hari), keluar/resurrect instan (H≥40). Aging (DORMANT/RETIRED) murni dari <code>last_post_at</code> ES.</div>
+</div></div>
+
+<!-- ========== FITUR ========== -->
+<div class="sec" id="s-feat"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Fitur</div>
+    <div class="sh-title">Kemampuan <em>Engine</em></div>
+    <div class="sh-desc">Apa saja yang dilakukan engine tiap menerima sinyal — dari penilaian health, keputusan transisi, sampai penjelasan yang bisa dibaca analis.</div>
+  </div>
+  <div class="feat-grid rv d1">
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(168,130,248,.12);color:var(--purple)">⚡</div><div><div class="fn">Recompute Health Real-time</div><div class="ft">elasticsearch · windowed</div></div></div><p>Tiap sinyal, health dihitung ulang dari aktivitas ES: velocity (24h), volume (7d), recency, dan relevansi LLM — bukan angka statis.</p></div>
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(50,212,164,.12);color:var(--green)">🎯</div><div><div class="fn">Retrieval per-Objek (anti-twin)</div><div class="ft">_metadata.object.id</div></div></div><p>Post difilter EXACT ke object_id yang meng-crawl-nya, jadi objek se-topik tak lagi "kembar". Fallback ke lucene topik bila belum ter-tag.</p></div>
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(80,144,255,.12);color:var(--blue)">🔀</div><div><div class="fn">Dua Mode Keputusan</div><div class="ft">deterministic | agent</div></div></div><p>Transisi & resurrect bisa pakai ruleset deterministik atau LLM agent — diatur env terpisah. Mode agent otomatis fallback ke deterministic bila gagal/low-confidence.</p></div>
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(34,212,228,.12);color:var(--cyan)">💬</div><div><div class="fn">Reasoning Tiap Transisi</div><div class="ft">inactive_reason</div></div></div><p>Setiap keputusan disertai penjelasan bahasa manusia (LLM) — kenapa objek naik/turun — dikirim ke Kafka & di-log untuk audit analis.</p></div>
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(240,148,68,.12);color:var(--orange)">🧬</div><div><div class="fn">Refinement Lucene by Agent</div><div class="ft">redis cache · TTL 24h</div></div></div><p>Opsional: agent menyusun lucene_query spesifik per objek dari topik+brief+persona, di-cache di Redis agar deterministik & hemat.</p></div>
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(232,204,52,.12);color:var(--yellow)">📊</div><div><div class="fn">Breakdown Health di Payload</div><div class="ft">velocity/volume/recency/rel</div></div></div><p>Payload membawa komponen pembentuk health (current & transition_to) — transparan, siap dipakai dashboard downstream.</p></div>
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(228,116,180,.12);color:var(--pink)">🛡️</div><div><div class="fn">Validator Struktural (Opsi B)</div><div class="ft">state ↔ mode</div></div></div><p>Memastikan kombinasi state/mode valid (ACTIVE→HOT/COLD/ON_DEMAND, INACTIVE→DORMANT/DECAYING) tanpa membatasi transisi — §5b yang berkuasa.</p></div>
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(240,100,100,.12);color:var(--red)">♻️</div><div><div class="fn">Aging & Resurrect</div><div class="ft">last_post_at</div></div></div><p>Sepi 30 hari → DORMANT, 90 hari → RETIRED (via ES). Objek dorman yang ramai lagi (H≥40) otomatis bangkit ke ACTIVE/COLD.</p></div>
+    <div class="feat"><div class="fh"><div class="fi" style="background:rgba(106,106,136,.12);color:var(--t2)">🔒</div><div><div class="fn">Read-only &amp; Degraded-safe</div><div class="ft">no DB write</div></div></div><p>Tak pernah menulis DB. ES/LLM error → fallback aman (engine tak gagal-total). Objek tak terdaftar → skip + commit.</p></div>
+  </div>
+</div></div>
+
+<!-- ========== CARA BANGUN ========== -->
+<div class="sec" id="s-build"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Cara Pembangunan</div>
+    <div class="sh-title">Arsitektur &amp; <em>Pengembangan</em></div>
+    <div class="sh-desc">Direfactor dari backend lama yang mencampur transport + orkestrasi + tulis DB, menjadi modul bersih yang meniru boilerplate <code>contextual_intelligence/</code>: transport tipis → satu orchestrator → agents/tools → db_clients.</div>
+  </div>
+
+  <h3 class="blk rv">Lapisan Kode (mirror boilerplate)</h3>
+  <div class="step-grid rv d1">
+    <div class="step"><div class="step-num" style="color:var(--blue)">1</div><div class="step-body"><h4>Transport — <code>tools/kafka_worker.py</code></h4><p>Worker tipis: consume → <code>MainProcessor.process_signal</code> → publish → commit. Serialize per object_id dalam batch, prefix-commit untuk at-least-once.</p></div></div>
+    <div class="step"><div class="step-num" style="color:var(--cyan)">2</div><div class="step-body"><h4>Orchestrator — <code>main_processor.py</code></h4><p>Satu pintu: parse sinyal → lookup PG → recompute health (ES) → decision §5b → reasoning → build payload. Testable tanpa Kafka.</p></div></div>
+    <div class="step"><div class="step-num" style="color:var(--purple)">3</div><div class="step-body"><h4>Tools — <code>rules · health · es_tool · lifecycle_repo · state_validator</code></h4><p>Logika murni: ruleset §5b, formula health, agregasi ES (retrieval object_id/lucene), query PG read-only, validator struktural.</p></div></div>
+    <div class="step"><div class="step-num" style="color:var(--green)">4</div><div class="step-body"><h4>Agents — <code>relevance_scorer · lifecycle_decision · lucene_refiner · transition_reasoner</code></h4><p>Pembungkus LLM via <code>eb_labs</code> dengan provider factory (OpenAI / OpenRouter / vLLM). Hanya komponen ber-LLM yang jadi "agent".</p></div></div>
+    <div class="step"><div class="step-num" style="color:var(--orange)">5</div><div class="step-body"><h4>Infra — <code>db_clients · config · schemas</code></h4><p><code>pg_client</code> (asyncpg pool, read-only), <code>es_client</code> (HTTP, versi-agnostik), <code>redis_client</code> (cache), settings (env), payload Pydantic in/out.</p></div></div>
+  </div>
+
+  <h3 class="blk rv">Pengujian End-to-End</h3>
+  <div class="ag rv d2">
+    <div class="ac"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.12);color:var(--blue)">E1</div><div><div class="an">test_e2e_signal</div><div class="am">Opsi B per-tipe</div></div></div><div class="ad">Keyword/account/media — PG stub, ES nyata. Validasi payload + state_validator.</div></div>
+    <div class="ac"><div class="ah"><div class="ai" style="background:rgba(50,212,164,.12);color:var(--green)">E2</div><div><div class="an">test_e2e_kafka</div><div class="am">round-trip nyata</div></div></div><div class="ad">Produce → worker → consume, lewat Kafka nyata pakai topik ephemeral (dihapus setelah test). Topik prod tak tersentuh.</div></div>
+    <div class="ac"><div class="ah"><div class="ai" style="background:rgba(168,130,248,.12);color:var(--purple)">E3</div><div><div class="an">test_state_simulation</div><div class="am">jalur transisi</div></div></div><div class="ad">Satu objek menelusuri semua state (TRIAL→HOT→DECAYING→DORMANT→…) dengan H terkontrol.</div></div>
+    <div class="ac"><div class="ah"><div class="ai" style="background:rgba(240,148,68,.12);color:var(--orange)">E4</div><div><div class="an">test_trial_override</div><div class="am">graduation</div></div></div><div class="ad">Override trial_max_days=0 → trial langsung diputus by band H, data ES nyata.</div></div>
+  </div>
+
+  <h3 class="blk rv">Prinsip Desain</h3>
+  <div class="rule rv d2">· Transport tipis · satu orchestrator (<b>process_signal</b>) · agent = LLM saja
+· DB <b>read-only</b> (asyncpg) · degraded-safe (ES/LLM error → fallback)
+· Konfigurasi penuh dari <b>.env</b> (Kafka/PG/ES/Redis/LLM/mode/threshold)
+· Idempotensi: partition by object_id (upstream) + dedup (downstream)</div>
+</div></div>
+
+<!-- ========== STACK ========== -->
+<div class="sec" id="s-tech"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Stack</div>
+    <div class="sh-title">Teknologi <em>Terpakai</em></div>
+  </div>
+  <div class="tg2">
+    <div class="tc rv"><div class="tc-cat" style="color:var(--blue)"><div class="td" style="background:var(--blue)"></div>Runtime</div>
+      <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Python · AsyncIO</span><span class="tr">async worker</span></div>
+      <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">eb_labs</span><span class="tr">agent framework</span></div>
+      <div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Pydantic</span><span class="tr">schema in/out</span></div>
+      <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">loguru</span><span class="tr">logging</span></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--orange)"><div class="td" style="background:var(--orange)"></div>Messaging</div>
+      <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Apache Kafka</span><span class="tr">signal-success → lifecycle</span></div>
+      <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">kafka-python</span><span class="tr">consumer/producer</span></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--green)"><div class="td" style="background:var(--green)"></div>Storage</div>
+      <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">PostgreSQL</span><span class="tr">asyncpg · read-only</span></div>
+      <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">Elasticsearch</span><span class="tr">acis-data-* · health</span></div>
+      <div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Redis</span><span class="tr">cache refined query</span></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--purple)"><div class="td" style="background:var(--purple)"></div>LLM</div>
+      <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">OpenAI (gpt-4o-mini)</span><span class="tr">cloud</span></div>
+      <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">vLLM (Qwen)</span><span class="tr">local</span></div>
+      <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">OpenRouter</span><span class="tr">alternatif</span></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--cyan)"><div class="td" style="background:var(--cyan)"></div>Agents</div>
+      <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">relevance_scorer</span><span class="tr">client_relevance</span></div>
+      <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">lifecycle_decision</span><span class="tr">mode agent</span></div>
+      <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">lucene_refiner</span><span class="tr">query per-objek</span></div>
+      <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">transition_reasoner</span><span class="tr">penjelasan</span></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--red)"><div class="td" style="background:var(--red)"></div>Data Sources (PG)</div>
+      <div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">acis_lc_objects</span><span class="tr">meta objek</span></div>
+      <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">acis_lc_lifecycle</span><span class="tr">state + riwayat</span></div>
+      <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">acis_topic_management</span><span class="tr">topic · lucene · semantic</span></div>
+      <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">acis_client</span><span class="tr">brief · persona</span></div>
+      <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">acis_lc_trial_meta</span><span class="tr">timing trial</span></div></div>
+  </div>
+</div></div>
+
+<footer><div class="container">
+  <p style="color:var(--t2);font-weight:600;margin-bottom:3px">ACIS Lifecycle Engine</p>
+  <p>Kafka-to-Kafka · Postgres Read-Only · Event-Driven Lifecycle Management</p>
+</div></footer>
+
+<script>
+const tabs=document.querySelectorAll('.tab'),secs=document.querySelectorAll('.sec');
+function go(id){tabs.forEach(t=>t.classList.toggle('on',t.dataset.s===id));secs.forEach(s=>{const show=s.id==='s-'+id;s.classList.toggle('on',show);if(show){window.scrollTo({top:0,behavior:'instant'});setTimeout(()=>s.querySelectorAll('.rv').forEach(r=>r.classList.add('v')),40)}})}
+tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.s)));
+document.querySelectorAll('#s-hero .rv').forEach(r=>r.classList.add('v'));
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')})},{threshold:.06});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

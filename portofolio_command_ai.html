@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Command AI — Reality Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#08080f;--bg2:#0e0e18;--bg3:#141422;--bg4:#1a1a2c;--bg5:#202036;
+--brd:#1c1c30;--brd2:#282845;--brd3:#363660;
+--t1:#f0f0f8;--t2:#9a9ab8;--t3:#6a6a88;--t4:#484868;
+--blue:#5090ff;--cyan:#22d4e4;--purple:#a882f8;--green:#32d4a4;
+--orange:#f09444;--red:#f06464;--pink:#e474b4;--yellow:#e8cc34;
+--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--r:14px;--rs:10px;--rx:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:3px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd)}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:54px;gap:10px}
+.brand{font-weight:800;font-size:13px;color:var(--blue);white-space:nowrap;letter-spacing:-.02em;flex-shrink:0}
+.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 14px;border-radius:var(--rx);font-size:11.5px;font-weight:600;color:var(--t4);cursor:pointer;white-space:nowrap;transition:all .2s;border:none;background:none;font-family:var(--sans);letter-spacing:.01em}
+.tab:hover{color:var(--t2);background:rgba(255,255,255,.03)}
+.tab.on{color:var(--t1);background:rgba(80,144,255,.12)}
+
+/* SECTIONS */
+.sec{display:none;min-height:100vh;padding:72px 0 60px}.sec.on{display:block}
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+
+/* SECTION HEADER */
+.sh{margin-bottom:36px;padding-top:12px}
+.sh-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sh-label::before{content:'';width:14px;height:1.5px;background:var(--blue);border-radius:1px}
+.sh-title{font-size:clamp(22px,3.2vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:8px}
+.sh-title em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sh-desc{font-size:14px;color:var(--t2);max-width:600px;line-height:1.75}
+
+/* ANIM */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}.rv.v{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}.d4{transition-delay:.24s}
+
+/* HERO */
+.hero-wrap{display:flex;align-items:center;min-height:100vh;padding-top:54px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-18%;left:22%;width:520px;height:520px;background:radial-gradient(circle,rgba(80,144,255,.06),transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-12%;right:12%;width:420px;height:420px;background:radial-gradient(circle,rgba(168,130,248,.04),transparent 70%);pointer-events:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--brd);background:rgba(80,144,255,.04);font-size:10.5px;font-weight:600;color:var(--blue);margin-bottom:22px}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:bk 2s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-wrap h1{font-size:clamp(32px,5.5vw,56px);font-weight:900;letter-spacing:-.04em;line-height:1.06;margin-bottom:16px}
+.hero-wrap h1 em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-wrap>div>p{font-size:clamp(14px,1.5vw,16px);color:var(--t2);max-width:560px;margin-bottom:28px;line-height:1.8}
+
+/* METRIC GRID */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:32px}
+.mc{padding:20px 16px;border-radius:var(--r);border:1px solid var(--brd);background:var(--bg2);position:relative;overflow:hidden;transition:all .25s}
+.mc:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.mc .gw{position:absolute;top:-30px;right:-30px;width:70px;height:70px;border-radius:50%;filter:blur(32px);opacity:.3}
+.mc .num{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px}
+.mc .lx{font-size:10.5px;color:var(--t3);font-weight:500}
+
+/* TAG */
+.tg{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.t{padding:5px 11px;border-radius:5px;font-size:10.5px;font-weight:600;font-family:var(--mono);border:1px solid var(--brd);background:var(--bg3);color:var(--t2);white-space:nowrap}
+
+/* DATA / ARCH */
+.dc-arch{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:36px}
+.dc-layer{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative;overflow:hidden}
+.dc-layer::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:0 2px 2px 0}
+.dc-layer.l1::before{background:var(--blue)}.dc-layer.l2::before{background:var(--cyan)}.dc-layer.l3::before{background:var(--purple)}.dc-layer.l4::before{background:var(--green)}
+.dc-layer h4{font-size:13px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.dc-layer h4 .num-badge{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.dc-layer p{font-size:12.5px;color:var(--t2);line-height:1.7}
+
+/* PLATFORM CARDS */
+.plat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:32px}
+.plat-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden;transition:border-color .2s}
+.plat-card:hover{border-color:var(--brd2)}
+.plat-hdr{padding:16px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--brd)}
+.plat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
+.plat-hdr .plat-name{font-size:14px;font-weight:700}
+.plat-hdr .plat-sub{font-size:10.5px;color:var(--t3);margin-top:1px}
+.plat-body{padding:14px 20px 18px}
+.plat-body .item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;color:var(--t2);line-height:1.65}
+.plat-body .item::before{content:'';width:5px;height:5px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.plat-body .item.i-blue::before{background:var(--blue)}.plat-body .item.i-cyan::before{background:var(--cyan)}.plat-body .item.i-green::before{background:var(--green)}.plat-body .item.i-orange::before{background:var(--orange)}.plat-body .item.i-red::before{background:var(--red)}.plat-body .item.i-purple::before{background:var(--purple)}.plat-body .item.i-pink::before{background:var(--pink)}
+
+/* CHALLENGE CARDS */
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:32px}
+.ch-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative}
+.ch-card h4{font-size:13.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.ch-card h4 .ch-num{font-family:var(--mono);font-size:10px;font-weight:800;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch-card p{font-size:12.5px;color:var(--t2);line-height:1.7}
+.ch-card .ch-example{margin-top:10px;padding:10px 14px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);font-family:var(--mono);font-size:10.5px;color:var(--t3);line-height:1.7;overflow-x:auto;white-space:pre-wrap}
+
+/* FLOW DIAGRAM */
+.flow-row{display:flex;align-items:stretch;gap:0;margin-bottom:32px;overflow-x:auto;padding-bottom:8px}
+.flow-step{flex:1;min-width:130px;text-align:center;position:relative;padding:16px 10px}
+.flow-step .fs-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin:0 auto 8px;border:2px solid var(--brd2)}
+.flow-step .fs-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.flow-step .fs-desc{font-size:10px;color:var(--t3);line-height:1.5}
+.flow-step:not(:last-child)::after{content:'';position:absolute;right:-1px;top:30px;width:calc(100% - 30px);height:2px;background:linear-gradient(90deg,transparent,var(--brd2),var(--brd2),transparent);z-index:-1;left:65%}
+
+/* HOW IT WORKS / STEP TIMELINE */
+.step-grid{display:grid;grid-template-columns:1fr;gap:0;position:relative}
+.step-grid::before{content:'';position:absolute;left:19px;top:28px;bottom:28px;width:2px;background:linear-gradient(180deg,var(--blue),var(--cyan),var(--purple),var(--green),var(--orange));border-radius:1px;opacity:.3}
+.step{display:flex;gap:20px;padding:18px 0;position:relative}
+.step-num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;border:2px solid var(--brd2);background:var(--bg);z-index:1}
+.step-body{flex:1;padding-top:4px}
+.step-body h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--t2);line-height:1.7}
+
+/* AGENTS */
+.ctabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px}
+.ctb{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--brd);background:none;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.ctb:hover{color:var(--t2);border-color:var(--brd2)}.ctb.on{color:var(--t1);background:rgba(80,144,255,.1);border-color:rgba(80,144,255,.25)}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.ac{border:1px solid var(--brd);border-radius:var(--rs);background:var(--bg2);padding:16px 18px;transition:all .2s}
+.ac:hover{border-color:var(--brd2)}
+.ah{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ai{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
+.an{font-size:13px;font-weight:700}.am{font-size:10px;color:var(--t4);margin-top:1px;font-family:var(--mono)}
+.ad{font-size:12px;color:var(--t2);line-height:1.65}
+
+/* SCORING */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+.sc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:22px}
+.sc h3{font-size:15px;font-weight:800;margin-bottom:2px}
+.sub{font-size:11px;color:var(--t3);margin-bottom:16px}
+.ar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.al{width:128px;font-size:11px;font-weight:600;flex-shrink:0;color:var(--t2)}
+.abg{flex:1;height:6px;border-radius:3px;background:var(--bg4);overflow:hidden}
+.ab{height:100%;border-radius:3px;width:0;transition:width .8s ease}
+.ap{font-size:11px;font-weight:700;width:36px;text-align:right;flex-shrink:0}
+.fm{margin-top:16px;padding:12px 16px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);font-size:11px;color:var(--t3);line-height:1.7;font-family:var(--mono)}
+
+/* IO / FEATURE BOX */
+.io-box{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden;margin-bottom:14px}
+.io-hdr{padding:13px 18px;font-size:12.5px;font-weight:700;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px}
+.io-body{padding:16px 18px}
+.io-body p{font-size:12.5px;color:var(--t2);line-height:1.7}
+.kv{display:flex;gap:8px;margin-bottom:7px;font-size:12px;line-height:1.6}
+.kv .k{color:var(--t3);min-width:118px;flex-shrink:0;font-weight:600}
+.kv .val{color:var(--t2);flex:1}
+.divider{height:1px;background:var(--brd);margin:14px 0}
+.sub-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:10px}
+.tag-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.tg-sm{padding:3px 10px;border-radius:4px;font-size:10.5px;font-weight:600}
+.code-chip{font-family:var(--mono);font-size:11px;color:var(--cyan);background:rgba(34,212,228,.06);border:1px solid rgba(34,212,228,.14);padding:1px 7px;border-radius:5px}
+
+/* TECH */
+.tg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px;transition:border-color .2s}
+.tc:hover{border-color:var(--brd2)}
+.tc-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.tl{display:flex;flex-direction:column;gap:8px}
+.ti{display:flex;align-items:center;gap:10px;font-size:12px}
+.td{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tn{font-weight:600;flex:1}.tr{font-size:10.5px;color:var(--t4);text-align:right}
+
+footer{padding:40px 0 32px;border-top:1px solid var(--brd);text-align:center;font-size:11.5px;color:var(--t4)}
+
+@media(max-width:640px){
+  .nav-in{height:48px;gap:8px}.brand{font-size:11px}
+  .tab{padding:5px 10px;font-size:10.5px}
+  .plat-grid,.ch-grid{grid-template-columns:1fr}
+  .ag{grid-template-columns:1fr}
+  .sg{grid-template-columns:1fr}
+  .tg2{grid-template-columns:1fr}
+  .flow-row{flex-direction:column;align-items:stretch}
+  .flow-step:not(:last-child)::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav><div class="nav-in">
+  <div class="brand">COMMAND&nbsp;AI</div>
+  <div class="tabs">
+    <button class="tab on" data-s="overview">Overview</button>
+    <button class="tab" data-s="flow">Data Flow</button>
+    <button class="tab" data-s="pipeline">Pipeline</button>
+    <button class="tab" data-s="agents">AI Agents</button>
+    <button class="tab" data-s="scoring">Scoring</button>
+    <button class="tab" data-s="dashboard">Dashboard</button>
+    <button class="tab" data-s="integrations">Integrations</button>
+    <button class="tab" data-s="tech">Tech Stack</button>
+  </div>
+</div></nav>
+
+<!-- ========== OVERVIEW ========== -->
+<div class="sec on" id="s-overview">
+  <div class="hero-wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="container">
+      <div class="pill rv"><span class="dot"></span> Live Pipeline · WhatsApp-native</div>
+      <h1 class="rv d1">Command AI<br><em>Reality Intelligence Platform</em></h1>
+      <p class="rv d2">A WhatsApp-native civic intelligence system that fuses the <strong>Voice of the Public</strong> (citizen complaints) with the <strong>Voice of the Organization</strong> (field-officer reports) into deterministic, auditable reality scores — then classifies, clusters, dispositions, and surfaces it all in an executive command dashboard with a talk-to-data AI assistant.</p>
+      <div class="tg rv d3">
+        <span class="t">Python · AsyncIO</span><span class="t">FastAPI</span>
+        <span class="t">PostgreSQL · PostGIS</span><span class="t">Qdrant</span><span class="t">Redis</span>
+        <span class="t">open-wa</span><span class="t">GPT-4.1-mini</span><span class="t">GPT-4o-mini</span>
+        <span class="t">Qwen (local)</span><span class="t">React 19</span><span class="t">Mapbox GL</span>
+      </div>
+      <div class="mg rv d4">
+        <div class="mc"><div class="gw" style="background:var(--blue)"></div><div class="num" style="color:var(--blue)">2</div><div class="lx">Voices Fused (Public × Org)</div></div>
+        <div class="mc"><div class="gw" style="background:var(--cyan)"></div><div class="num" style="color:var(--cyan)">12</div><div class="lx">AI Agents</div></div>
+        <div class="mc"><div class="gw" style="background:var(--green)"></div><div class="num" style="color:var(--green)">6</div><div class="lx">Deterministic Scores</div></div>
+        <div class="mc"><div class="gw" style="background:var(--purple)"></div><div class="num" style="color:var(--purple)">2</div><div class="lx">WhatsApp Channels</div></div>
+        <div class="mc"><div class="gw" style="background:var(--orange)"></div><div class="num" style="color:var(--orange)">24</div><div class="lx">Dashboard Pages</div></div>
+        <div class="mc"><div class="gw" style="background:var(--pink)"></div><div class="num" style="color:var(--pink)">5</div><div class="lx">LLM Models</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DATA FLOW ========== -->
+<div class="sec" id="s-flow"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Data Flow</div>
+    <div class="sh-title">From a WhatsApp Message to <em>Reality Intelligence</em></div>
+    <div class="sh-desc">Every signal enters through WhatsApp. Citizens report problems; field officers report activity. Both streams are parsed, understood by AI, scored by fixed formulas, and projected onto one command picture.</div>
+  </div>
+
+  <!-- Ingestion flow -->
+  <div class="flow-row rv d1">
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">1</div>
+      <div class="fs-title" style="color:var(--green)">WhatsApp</div>
+      <div class="fs-desc">open-wa, two dedicated numbers (citizen / officer)</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">2</div>
+      <div class="fs-title" style="color:var(--blue)">Webhook</div>
+      <div class="fs-desc">Envelope parse, base64 photo decode, GPS extract</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">3</div>
+      <div class="fs-title" style="color:var(--cyan)">Intent Router</div>
+      <div class="fs-desc">Routes by recipient number + LLM intent</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">4</div>
+      <div class="fs-title" style="color:var(--purple)">AI Understanding</div>
+      <div class="fs-desc">Classify, geocode, vision, embed</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">5</div>
+      <div class="fs-title" style="color:var(--orange)">Reality Engine</div>
+      <div class="fs-desc">Clustering + deterministic scoring + disposition</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--pink);border-color:rgba(228,116,180,.3)">6</div>
+      <div class="fs-title" style="color:var(--pink)">Command Dashboard</div>
+      <div class="fs-desc">React, live map, AI assistant</div>
+    </div>
+  </div>
+
+  <!-- Layered architecture -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d2">Layered Architecture</h3>
+  <div class="dc-arch rv d2">
+    <div class="dc-layer l1">
+      <h4><span class="num-badge" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span> <span style="color:var(--blue)">Ingestion Layer</span></h4>
+      <p>open-wa (wa-automate) delivers inbound messages to a single FastAPI webhook. Two WhatsApp numbers run as two sessions — one for citizens, one for officers — and the router decides the path by the recipient number. Privacy-masked senders (<span class="code-chip">@lid</span>) are auto-resolved to real numbers via the contacts API; photos arrive as inline base64 and are decoded to bytes; an anti-loop guard ignores the platform's own numbers. Per-channel conversation history is buffered in Redis to disambiguate short replies.</p>
+    </div>
+    <div class="dc-layer l2">
+      <h4><span class="num-badge" style="background:rgba(34,212,228,.12);color:var(--cyan)">2</span> <span style="color:var(--cyan)">Understanding Layer</span></h4>
+      <p>A chain of specialized LLM agents turns free text + photos into structured data: intent classification (report vs. complaint vs. query vs. generate-report), field extraction, geocoding of location text, image captioning with claim-matching, and complaint category / sentiment / safety classification. Each agent runs on the model best suited to its task, with an automatic OpenAI ↔ local-vLLM fallback chain.</p>
+    </div>
+    <div class="dc-layer l3">
+      <h4><span class="num-badge" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span> <span style="color:var(--purple)">Reality Layer</span></h4>
+      <p>Complaint text is embedded (Qwen3 embeddings) and clustered into <em>issues</em> in a Qdrant vector store. A deterministic scoring engine then computes urgency, activity quality, correlation, operational-gap, conflict, and an overall Reality Alignment Index — all by fixed, auditable formulas (the AI only extracts indicators, it never invents the score). Gaps and conflicts trigger disposition recommendations.</p>
+    </div>
+    <div class="dc-layer l4">
+      <h4><span class="num-badge" style="background:rgba(50,212,164,.12);color:var(--green)">4</span> <span style="color:var(--green)">Presentation Layer</span></h4>
+      <p>A FastAPI API serves a React 19 command dashboard. Live arrivals are pushed over WebSocket with an HTTP-polling fallback, rendered as click-to-fly map notifications. An SSE-streamed AI assistant lets executives "talk to the data" across both complaints and reports. Two PostgreSQL databases (operational + reality) are merged at the API layer.</p>
+    </div>
+  </div>
+
+  <!-- Two channels -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d2">The Two Voices — One per WhatsApp Channel</h3>
+  <div class="plat-grid rv d3">
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(240,148,68,.1);color:var(--orange)">VoP</div>
+        <div><div class="plat-name">Voice of the Public — Aduan</div><div class="plat-sub">Citizens · complaint number</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-orange">Who: any citizen, no registration required — open intake channel</div>
+        <div class="item i-blue">Captured: complaint text, location (typed or shared GPS), photos, sentiment</div>
+        <div class="item i-cyan">Intents: new complaint, status check (<span class="code-chip">#status</span> / free text), generate report</div>
+        <div class="item i-purple">AI: category + sentiment + safety classification, geocode, photo vision</div>
+        <div class="item i-green">Becomes: a scored complaint → clustered into an issue → disposition</div>
+      </div>
+    </div>
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(80,144,255,.1);color:var(--blue)">VoO</div>
+        <div><div class="plat-name">Voice of the Organization — Laporan</div><div class="plat-sub">Field officers · system number</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-blue">Who: registered field officers only (admin onboards their number)</div>
+        <div class="item i-cyan">Captured: activity, location, volume, time window, documentation photos</div>
+        <div class="item i-purple">Intents: new report, completion, progress, cancellation, query, appeal, generate report</div>
+        <div class="item i-green">AI: field extraction, vision photo↔claim match, location-from-photo</div>
+        <div class="item i-orange">Becomes: a validated report scored by Activity Quality (AQS), correlated to issues</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Challenges -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d3">Engineering Challenges Solved</h3>
+  <div class="ch-grid rv d4">
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span> Two Voices, Two Databases</h4>
+      <p>Operational data (officers, reports) lives in one PostgreSQL DB; reality data (complaints, issues, scores) in another. They cannot be joined in a single query, so cross-database views (e.g. the unified photo gallery) are merged and re-sorted at the API layer.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(168,130,248,.12);color:var(--purple)">2</span> WhatsApp Privacy (@lid)</h4>
+      <p>WhatsApp may mask a sender as an <span class="code-chip">@lid</span> identity instead of a phone number, which broke officer recognition. The system resolves the real number through open-wa's contacts API and caches the alias so a registered officer is never mistaken for a stranger.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(50,212,164,.12);color:var(--green)">3</span> Photos Arrive as Base64</h4>
+      <p>open-wa delivers images inline as <span class="code-chip">data:image/jpeg;base64,…</span> — not URLs. The parser detects media, wraps it as a data-URL, and a single decode path stores it to object storage so vision analysis runs identically for complaints and reports.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,148,68,.12);color:var(--orange)">4</span> Auditable, Not Hallucinated Scores</h4>
+      <p>Decision-makers need numbers they can defend. The LLM only extracts indicators (safety signal, sentiment, evidence quality); every score is then computed by a fixed weighted formula, so the same inputs always produce the same, explainable result.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(34,212,228,.12);color:var(--cyan)">5</span> Conversational Memory</h4>
+      <p>Replies like "yes", "this week", or "2" are meaningless without context. A per-channel Redis buffer (TTL-bounded) feeds the last few turns into the intent classifier so the bot understands follow-ups across complaint, report, and chat channels.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,96,96,.12);color:var(--red)">6</span> Real-time Without Reliable WebSocket</h4>
+      <p>Behind some proxies the dashboard WebSocket upgrade fails. A 12-second HTTP-polling fallback fetches recent complaints and reports, de-duplicates, and fires the same click-to-fly notifications — so live alerts keep working regardless of the transport.</p>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== PIPELINE ========== -->
+<div class="sec" id="s-pipeline"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Pipeline</div>
+    <div class="sh-title">How a Message Becomes a <em>Scored, Routable Signal</em></div>
+    <div class="sh-desc">Two end-to-end pipelines run on the same intake. Complaints flow toward clustered issues and disposition; reports flow toward validation and correlation. Most stages are feature-flagged and run asynchronously.</div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:6px" class="rv d1"><span style="color:var(--orange)">●</span> Complaint Pipeline (Voice of the Public)</h3>
+  <div class="step-grid rv d1" style="margin-bottom:34px">
+    <div class="step">
+      <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.25)">1</div>
+      <div class="step-body"><h4 style="color:var(--orange)">Intake</h4><p>A citizen messages the complaint number. The service de-duplicates by message id, applies an anti-spam guard (rate-limit + cooldown), and walks a small state machine — asking for a location only when the text doesn't already contain one.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--blue);border-color:rgba(80,144,255,.25)">2</div>
+      <div class="step-body"><h4 style="color:var(--blue)">Geocode</h4><p>The location agent normalizes the place text and the Nominatim client resolves it to coordinates + administrative area (province / city / district / sub-district). Shared GPS is used directly when present.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--cyan);border-color:rgba(34,212,228,.25)">3</div>
+      <div class="step-body"><h4 style="color:var(--cyan)">Vision</h4><p>Attached photos are stored and analyzed: a caption is generated and matched against the complaint text (0–1), with location cues extracted from the image when possible.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--purple);border-color:rgba(168,130,248,.25)">4</div>
+      <div class="step-body"><h4 style="color:var(--purple)">Classify</h4><p>A classifier assigns category, sentiment, and safety threat. Below a confidence threshold the complaint is sent to an operator review queue with an SLA instead of being auto-trusted.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--green);border-color:rgba(50,212,164,.25)">5</div>
+      <div class="step-body"><h4 style="color:var(--green)">Embed &amp; Cluster</h4><p>The text is embedded and searched against the Qdrant vector store. Within a geo + time gate, a similarity ≥ 0.50 joins the complaint to an existing issue; otherwise a new issue is created (≥ 0.65 flags a likely duplicate).</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.25)">6</div>
+      <div class="step-body"><h4 style="color:var(--orange)">Score</h4><p>Deterministic engines compute complaint urgency, then issue-level Operational Gap (OGS), Problem Conflict (PCS), and the overall Reality Alignment Index (RAI) on a scheduled sweep.</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--red);border-color:rgba(240,100,100,.25)">7</div>
+      <div class="step-body"><h4 style="color:var(--red)">Disposition</h4><p>When an issue crosses the gap or conflict threshold, the recommendation engine builds a disposition. High-confidence recommendations support one-click approval; lower-confidence ones require validation.</p></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:6px" class="rv d2"><span style="color:var(--blue)">●</span> Report Pipeline (Voice of the Organization)</h3>
+  <div class="flow-row rv d2">
+    <div class="flow-step"><div class="fs-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">1</div><div class="fs-title" style="color:var(--blue)">Intent</div><div class="fs-desc">new report / completion / progress / cancel / query / appeal / generate-report</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">2</div><div class="fs-title" style="color:var(--cyan)">Extraction</div><div class="fs-desc">activity, location, volume, time, photos → structured</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">3</div><div class="fs-title" style="color:var(--purple)">Validation</div><div class="fs-desc">state machine asks for missing fields</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">4</div><div class="fs-title" style="color:var(--green)">Vision + AQS</div><div class="fs-desc">photo↔claim match feeds Activity Quality Score</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">5</div><div class="fs-title" style="color:var(--orange)">Anomaly / Appeal</div><div class="fs-desc">low-quality or mismatched → flagged for review</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--pink);border-color:rgba(228,116,180,.3)">6</div><div class="fs-title" style="color:var(--pink)">Correlate</div><div class="fs-desc">valid report paired to an active issue</div></div>
+  </div>
+  <p style="font-size:12px;color:var(--t3);line-height:1.7;max-width:640px" class="rv d3">Feature flags (intake, classification, clustering, scoring, disposition) let each stage be enabled independently, and most run as fire-and-forget async tasks plus a scheduled sweep — so a slow vision call or LLM timeout never blocks message acknowledgement.</p>
+</div></div>
+
+<!-- ========== AGENTS ========== -->
+<div class="sec" id="s-agents"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">AI Agents</div>
+    <div class="sh-title">12 <em>Specialized</em> Agents</div>
+    <div class="sh-desc">Each agent owns one understanding task and runs on the model best fit for it — frontier-small models for reasoning, a local Qwen for cost-sensitive classification and embeddings — all behind one client with automatic provider fallback.</div>
+  </div>
+
+  <div class="ctabs rv d1">
+    <button class="ctb on" data-c="all">All (12)</button>
+    <button class="ctb" data-c="intake">Routing &amp; Intake</button>
+    <button class="ctb" data-c="extract">Extraction</button>
+    <button class="ctb" data-c="vision">Vision</button>
+    <button class="ctb" data-c="cluster">Classify &amp; Cluster</button>
+    <button class="ctb" data-c="decision">Assistant &amp; Decision</button>
+  </div>
+
+  <div class="ag">
+    <div class="ac rv" data-c="intake"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">In</div><div><div class="an">Intent Classifier</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Routes every inbound message — distinguishing a new report from a completion, a question, a negated request ("don't make a report"), or an explicit document request — using per-channel history for context.</div></div>
+    <div class="ac rv" data-c="intake"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">Cr</div><div><div class="an">Completion Resolver</div><div class="am">OpenAI / local fallback</div></div></div><div class="ad">Handles completion, progress, and cancellation intents — transitioning a report's state machine and confirming back to the officer in natural language.</div></div>
+
+    <div class="ac rv" data-c="extract"><div class="ah"><div class="ai" style="background:rgba(34,212,228,.08);color:var(--cyan)">Ex</div><div><div class="an">Extraction Agent</div><div class="am">GPT-4o-mini / gpt-oss-20b</div></div></div><div class="ad">Parses free-text reports into a validated schema: activity, location text, volume, start/end time, area, description, and photo URLs — via Pydantic-typed output.</div></div>
+    <div class="ac rv" data-c="extract"><div class="ah"><div class="ai" style="background:rgba(34,212,228,.08);color:var(--cyan)">Lo</div><div><div class="an">Location Agent</div><div class="am">GPT-4o-mini</div></div></div><div class="ad">Normalizes messy place descriptions and resolves them to coordinates and administrative hierarchy via the Nominatim geocoder.</div></div>
+
+    <div class="ac rv" data-c="vision"><div class="ah"><div class="ai" style="background:rgba(168,130,248,.08);color:var(--purple)">Vi</div><div><div class="an">Vision Agent</div><div class="am">GPT-4o-mini (multimodal)</div></div></div><div class="ad">Captions each photo in Indonesian and scores how well it matches the report/complaint claim (0–1) — the core signal behind documentation anomaly detection. Retries with backoff.</div></div>
+    <div class="ac rv" data-c="vision"><div class="ah"><div class="ai" style="background:rgba(168,130,248,.08);color:var(--purple)">VL</div><div><div class="an">Vision Location Agent</div><div class="am">GPT-4o-mini</div></div></div><div class="ad">Reads visual cues — signage, landmarks, street furniture — to infer a location and confidence directly from the image when text or GPS is missing.</div></div>
+
+    <div class="ac rv" data-c="cluster"><div class="ah"><div class="ai" style="background:rgba(50,212,164,.08);color:var(--green)">Cl</div><div><div class="an">Complaint Classifier</div><div class="am">Qwen3.5-4B / GPT-4o-mini</div></div></div><div class="ad">Assigns category, sentiment, and safety threat to each complaint, with a confidence gate that diverts uncertain cases to a human review queue.</div></div>
+    <div class="ac rv" data-c="cluster"><div class="ah"><div class="ai" style="background:rgba(50,212,164,.08);color:var(--green)">Em</div><div><div class="an">Embedding Client</div><div class="am">Qwen3-0.6B · 1024-dim</div></div></div><div class="ad">Vectorizes complaint and issue text for similarity search in Qdrant — the basis for clustering, deduplication, and correlation.</div></div>
+    <div class="ac rv" data-c="cluster"><div class="ah"><div class="ai" style="background:rgba(50,212,164,.08);color:var(--green)">La</div><div><div class="an">Issue Labeler</div><div class="am">OpenAI / local fallback</div></div></div><div class="ad">Names each emerging cluster from its member complaints, giving operators a human-readable issue title instead of a vector centroid.</div></div>
+
+    <div class="ac rv" data-c="decision"><div class="ah"><div class="ai" style="background:rgba(228,116,180,.08);color:var(--pink)">As</div><div><div class="an">AI Assistant Agent</div><div class="am">GPT-4.1-mini · SSE</div></div></div><div class="ad">A talk-to-data assistant for executives: multi-turn, tool-using, and streamed over Server-Sent Events — answers questions across both complaints and reports.</div></div>
+    <div class="ac rv" data-c="decision"><div class="ah"><div class="ai" style="background:rgba(228,116,180,.08);color:var(--pink)">Ch</div><div><div class="an">Chat Agent</div><div class="am">GPT-4o-mini</div></div></div><div class="ad">Classifies executive/admin chat intent and extracts entities, including in-chat "generate report" requests.</div></div>
+    <div class="ac rv" data-c="decision"><div class="ah"><div class="ai" style="background:rgba(228,116,180,.08);color:var(--pink)">Re</div><div><div class="an">Recommendation &amp; Summary</div><div class="am">OpenAI / local fallback</div></div></div><div class="ad">Builds disposition recommendations for gap/conflict issues and writes executive summaries that fold all signals into one narrative.</div></div>
+  </div>
+</div></div>
+
+<!-- ========== SCORING ========== -->
+<div class="sec" id="s-scoring"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Scoring</div>
+    <div class="sh-title">Deterministic, <em>Auditable</em> Reality Scores</div>
+    <div class="sh-desc">AI extracts the indicators; fixed weighted formulas turn them into scores — so results are consistent, explainable, and defensible. Six engines, each 0–100.</div>
+  </div>
+
+  <div class="sg">
+    <div class="sc rv">
+      <h3 style="color:var(--red)">Complaint Urgency</h3><div class="sub">How fast this complaint must be answered · sets the SLA</div>
+      <div class="ar"><span class="al">Safety</span><div class="abg"><div class="ab" data-w="100" style="background:var(--red)"></div></div><span class="ap" style="color:var(--red)">35%</span></div>
+      <div class="ar"><span class="al">Population Impact</span><div class="abg"><div class="ab" data-w="86" style="background:var(--orange)"></div></div><span class="ap" style="color:var(--orange)">30%</span></div>
+      <div class="ar"><span class="al">Escalation</span><div class="abg"><div class="ab" data-w="57" style="background:var(--yellow)"></div></div><span class="ap" style="color:var(--yellow)">20%</span></div>
+      <div class="ar"><span class="al">Sensitivity</span><div class="abg"><div class="ab" data-w="43" style="background:var(--pink)"></div></div><span class="ap" style="color:var(--pink)">15%</span></div>
+      <div class="fm">urgency = Σ(aspect × weight)<br>SLA: ≥80 → 2h · ≥60 → 6h<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;≥40 → 24h · else → 72h</div>
+    </div>
+
+    <div class="sc rv d1">
+      <h3 style="color:var(--cyan)">Activity Quality — AQS</h3><div class="sub">Completeness &amp; trustworthiness of a report's evidence</div>
+      <div class="ar"><span class="al">GPS Match</span><div class="abg"><div class="ab" data-w="100" style="background:var(--cyan)"></div></div><span class="ap" style="color:var(--cyan)">30%</span></div>
+      <div class="ar"><span class="al">Admin Fields</span><div class="abg"><div class="ab" data-w="83" style="background:var(--blue)"></div></div><span class="ap" style="color:var(--blue)">25%</span></div>
+      <div class="ar"><span class="al">Timeliness</span><div class="abg"><div class="ab" data-w="67" style="background:var(--purple)"></div></div><span class="ap" style="color:var(--purple)">20%</span></div>
+      <div class="ar"><span class="al">Evidence</span><div class="abg"><div class="ab" data-w="50" style="background:var(--green)"></div></div><span class="ap" style="color:var(--green)">15%</span></div>
+      <div class="ar"><span class="al">Relevance</span><div class="abg"><div class="ab" data-w="33" style="background:var(--orange)"></div></div><span class="ap" style="color:var(--orange)">10%</span></div>
+      <div class="fm">aqs = Σ(aspect × weight)<br>multiplier: ≥80→1.0 · 60→0.85<br>&nbsp;&nbsp;40→0.65 · &lt;40→0.0 (needs review)</div>
+    </div>
+
+    <div class="sc rv d2">
+      <h3 style="color:var(--purple)">Correlation</h3><div class="sub">Likelihood a report belongs to an active issue</div>
+      <div class="ar"><span class="al">Similarity</span><div class="abg"><div class="ab" data-w="100" style="background:var(--purple)"></div></div><span class="ap" style="color:var(--purple)">35%</span></div>
+      <div class="ar"><span class="al">Geo Distance</span><div class="abg"><div class="ab" data-w="71" style="background:var(--cyan)"></div></div><span class="ap" style="color:var(--cyan)">25%</span></div>
+      <div class="ar"><span class="al">Temporal</span><div class="abg"><div class="ab" data-w="57" style="background:var(--blue)"></div></div><span class="ap" style="color:var(--blue)">20%</span></div>
+      <div class="ar"><span class="al">Op. Alignment</span><div class="abg"><div class="ab" data-w="43" style="background:var(--green)"></div></div><span class="ap" style="color:var(--green)">15%</span></div>
+      <div class="fm">score = Σ(aspect × weight) × AQS_mult<br>valid pairing if score ≥ 50</div>
+    </div>
+
+    <div class="sc rv">
+      <h3 style="color:var(--orange)">Operational Gap — OGS</h3><div class="sub">Urgency of issues that aren't being responded to</div>
+      <div class="ar"><span class="al">Urgency</span><div class="abg"><div class="ab" data-w="100" style="background:var(--red)"></div></div><span class="ap" style="color:var(--red)">35%</span></div>
+      <div class="ar"><span class="al">Population</span><div class="abg"><div class="ab" data-w="86" style="background:var(--orange)"></div></div><span class="ap" style="color:var(--orange)">30%</span></div>
+      <div class="ar"><span class="al">Duration</span><div class="abg"><div class="ab" data-w="57" style="background:var(--yellow)"></div></div><span class="ap" style="color:var(--yellow)">20%</span></div>
+      <div class="ar"><span class="al">Response Absence</span><div class="abg"><div class="ab" data-w="43" style="background:var(--pink)"></div></div><span class="ap" style="color:var(--pink)">15%</span></div>
+      <div class="fm">ogs = Σ(aspect × weight)<br>gap flagged if ogs ≥ 60 → emits event</div>
+    </div>
+
+    <div class="sc rv d1">
+      <h3 style="color:var(--pink)">Problem Conflict — PCS</h3><div class="sub">Persistence &amp; recurrence risk of unresolved issues</div>
+      <div class="ar"><span class="al">Recurrence</span><div class="abg"><div class="ab" data-w="100" style="background:var(--pink)"></div></div><span class="ap" style="color:var(--pink)">40%</span></div>
+      <div class="ar"><span class="al">Intensity</span><div class="abg"><div class="ab" data-w="75" style="background:var(--orange)"></div></div><span class="ap" style="color:var(--orange)">30%</span></div>
+      <div class="ar"><span class="al">Ineffectiveness</span><div class="abg"><div class="ab" data-w="75" style="background:var(--red)"></div></div><span class="ap" style="color:var(--red)">30%</span></div>
+      <div class="fm">pcs = Σ(aspect × weight)<br>conflict flagged if pcs ≥ 55</div>
+    </div>
+
+    <div class="sc rv d2">
+      <h3 style="color:var(--green)">Reality Alignment — RAI</h3><div class="sub">System-wide: is reality being responded to well? · 0–100</div>
+      <div class="ar"><span class="al">Issue Response</span><div class="abg"><div class="ab" data-w="100" style="background:var(--green)"></div></div><span class="ap" style="color:var(--green)">40%</span></div>
+      <div class="ar"><span class="al">Geographic</span><div class="abg"><div class="ab" data-w="63" style="background:var(--cyan)"></div></div><span class="ap" style="color:var(--cyan)">25%</span></div>
+      <div class="ar"><span class="al">Temporal</span><div class="abg"><div class="ab" data-w="50" style="background:var(--blue)"></div></div><span class="ap" style="color:var(--blue)">20%</span></div>
+      <div class="ar"><span class="al">Resource</span><div class="abg"><div class="ab" data-w="38" style="background:var(--purple)"></div></div><span class="ap" style="color:var(--purple)">15%</span></div>
+      <div class="fm">rai = Σ(aspect × weight)<br>≥80 aligned · ≥60 ok · ≥40 attention<br>≥20 critical · &lt;20 very critical</div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== DASHBOARD ========== -->
+<div class="sec" id="s-dashboard"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Dashboard</div>
+    <div class="sh-title">The <em>Command Center</em></div>
+    <div class="sh-desc">A React 19 tactical dashboard — 24 role-gated pages on a persistent, draggable grid — fed entirely by the gold API (the frontend never computes a score). Live map, talk-to-data assistant, and click-to-fly notifications tie it together.</div>
+  </div>
+
+  <!-- Page groups -->
+  <div class="tg2 rv d1" style="margin-bottom:18px">
+    <div class="tc"><div class="tc-cat" style="color:var(--blue)"><div class="td" style="background:var(--blue);width:7px;height:7px"></div>Situational</div><div class="tl"><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Home / Executive</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Aduan (Complaints)</span></div><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">Isu (Issues)</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Pemetaan (Map)</span></div></div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--cyan)"><div class="td" style="background:var(--cyan);width:7px;height:7px"></div>Action &amp; Decision</div><div class="tl"><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Disposisi</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Validasi</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Rekomendasi</span></div><div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Alert Center</span></div></div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--green)"><div class="td" style="background:var(--green);width:7px;height:7px"></div>Officer Reports</div><div class="tl"><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Laporan</span></div><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Galeri (Vision)</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Anomaly Alerts</span></div></div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--purple)"><div class="td" style="background:var(--purple);width:7px;height:7px"></div>Analytics</div><div class="tl"><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">Trend · Compliance</span></div><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Compare · Digest</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">KPI &amp; Inactive Petugas</span></div></div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--orange)"><div class="td" style="background:var(--orange);width:7px;height:7px"></div>Administration</div><div class="tl"><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Manajemen Pelapor</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Users · Audit Log</span></div><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">LLM Metrics</span></div></div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--pink)"><div class="td" style="background:var(--pink);width:7px;height:7px"></div>Help</div><div class="tl"><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Panduan Pengguna</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Settings</span></div></div></div>
+  </div>
+
+  <!-- Feature boxes -->
+  <div class="io-box rv d2">
+    <div class="io-hdr"><span style="color:var(--pink)">◆</span> AI Assistant — Talk to Your Data</div>
+    <div class="io-body">
+      <p style="margin-bottom:12px">A floating assistant streams answers over Server-Sent Events. It can read aggregate snapshots (KPIs, area stats, complaint summaries) and call detail tools — reports, complaint KPI, top categories, volume trend, compliance breakdown, period comparison, inactive officers — always keeping the complaint (public) vs. report (organization) distinction explicit.</p>
+      <div class="kv"><span class="k">Transport</span><span class="val"><span class="code-chip">POST /api/v1/assistant/chat</span> · SSE stream (content / tool_call / tool_result / done)</span></div>
+      <div class="kv"><span class="k">Data tools</span><span class="val">~10 read-only tools over both databases, max 2 tool-calls per turn</span></div>
+      <div class="kv"><span class="k">Guardrails</span><span class="val">Rate-limited per user; every call logged for LLM metrics &amp; cost</span></div>
+    </div>
+  </div>
+
+  <div class="io-box rv d3">
+    <div class="io-hdr"><span style="color:var(--green)">◆</span> Live Notifications → Fly-to-Map</div>
+    <div class="io-body">
+      <p style="margin-bottom:12px">New complaints and reports surface as real-time toasts and a notification bell. Clicking one with coordinates navigates to the map and flies straight to the point — complaints in amber, reports in blue. A dual transport keeps it alive everywhere.</p>
+      <div class="kv"><span class="k">Primary</span><span class="val">WebSocket <span class="code-chip">/ws/dashboard</span> with exponential-backoff reconnect</span></div>
+      <div class="kv"><span class="k">Fallback</span><span class="val">12-second HTTP polling of recent complaints + report locations, de-duplicated</span></div>
+      <div class="kv"><span class="k">Map</span><span class="val">Mapbox GL — complaint &amp; report POIs + administrative choropleth, <span class="code-chip">flyTo</span> on focus</span></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== INTEGRATIONS ========== -->
+<div class="sec" id="s-integrations"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Integrations</div>
+    <div class="sh-title">WhatsApp-native by <em>Design</em></div>
+    <div class="sh-desc">No app to install, no form to fill — the entire intake surface is WhatsApp via open-wa (wa-automate). Around it sit geocoding and object storage to turn raw messages into mapped, evidenced records.</div>
+  </div>
+
+  <div class="ch-grid rv d1">
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(50,212,164,.12);color:var(--green)">1</span> Two Numbers, Two Sessions</h4>
+      <p>open-wa runs two WhatsApp sessions — a system number for officers and a complaint number for citizens — both pointing at one webhook. Inbound is routed by the recipient number, and outbound replies are sent back through the matching session so each side always hears from the right number.</p>
+      <div class="ch-example">system  → +62 819 9967 9588  (officer reports)
+complaint → +62 878 1196 2146  (citizen aduan)</div>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(80,144,255,.12);color:var(--blue)">2</span> Inbound Webhook</h4>
+      <p>A single <span class="code-chip">POST /webhook</span> accepts the open-wa v5 envelope, optionally verifies a shared secret, returns 200 immediately, and processes the message on a background task — so WhatsApp is never kept waiting.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span> @lid Privacy Resolution</h4>
+      <p>When WhatsApp hides a sender behind an <span class="code-chip">@lid</span> identity, the system calls the contacts API to recover the real number and caches it as an alias — so a registered officer is recognized even when their number is masked.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(34,212,228,.12);color:var(--cyan)">4</span> Inline Base64 Photos</h4>
+      <p>Images arrive embedded as base64, not links. The parser wraps them as data-URLs and a unified decode path stores them to object storage, so the same vision pipeline runs for both complaints and reports.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,96,96,.12);color:var(--red)">5</span> Anti-Loop Guard</h4>
+      <p>Because the platform owns two numbers that can message each other, every inbound is checked against both system numbers and dropped if it originates from one — preventing an infinite bot-to-bot reply loop.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,148,68,.12);color:var(--orange)">6</span> Per-Channel Memory</h4>
+      <p>A Redis buffer keyed by <span class="code-chip">wa:ctx:{channel}:{phone}</span> keeps the last few turns (TTL-bounded) for the complaint, report, and chat channels — giving the intent classifier the context to understand follow-ups and one-word replies.</p>
+    </div>
+  </div>
+
+  <div class="plat-grid rv d2">
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(50,212,164,.1);color:var(--green)">Geo</div>
+        <div><div class="plat-name">Geocoding — Nominatim</div><div class="plat-sub">Place text → coordinates + admin area</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-green">Resolves location text to lat/lng plus province / city / district / sub-district</div>
+        <div class="item i-blue">Powers map POIs, the geo gate in clustering, and population-impact scoring</div>
+        <div class="item i-cyan">Async client with timeout; shared GPS used directly when a citizen sends a location pin</div>
+      </div>
+    </div>
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(228,116,180,.1);color:var(--pink)">S3</div>
+        <div><div class="plat-name">Object Storage — MinIO / S3</div><div class="plat-sub">Photos &amp; generated reports</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-pink">Stores complaint &amp; report photos and HTML reports generated on demand via WhatsApp</div>
+        <div class="item i-purple">Pre-signed URLs (1-hour TTL) give the dashboard read access without exposing keys</div>
+        <div class="item i-orange">Decodes inline base64, enforces a per-photo size limit, organizes keys by date</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== TECH ========== -->
+<div class="sec" id="s-tech"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Stack</div>
+    <div class="sh-title">Technology <em>Breakdown</em></div>
+  </div>
+
+  <div class="tg2" style="margin-top:8px">
+    <div class="tc rv"><div class="tc-cat" style="color:var(--purple)"><div class="td" style="background:var(--purple);width:7px;height:7px"></div>AI Models</div><div class="tl"><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">GPT-4.1-mini</span><span class="tr">Intent · assistant</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">GPT-4o-mini</span><span class="tr">Extract · vision · classify</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Qwen3.5-4B</span><span class="tr">Local classification</span></div><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Qwen3-0.6B</span><span class="tr">Embeddings (1024-d)</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">gpt-oss-20b</span><span class="tr">Local vLLM fallback</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--blue)"><div class="td" style="background:var(--blue);width:7px;height:7px"></div>Backend</div><div class="tl"><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Python · AsyncIO</span><span class="tr">Async runtime</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">FastAPI</span><span class="tr">API + webhook + SSE</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">asyncpg</span><span class="tr">PostgreSQL driver</span></div><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">APScheduler</span><span class="tr">Scoring sweeps</span></div><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Pydantic</span><span class="tr">Typed agent output</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--green)"><div class="td" style="background:var(--green);width:7px;height:7px"></div>Data &amp; Vector</div><div class="tl"><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">PostgreSQL · PostGIS</span><span class="tr">Operational + reality DB</span></div><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">Qdrant</span><span class="tr">Vector clustering</span></div><div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Redis</span><span class="tr">Context · cache</span></div><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">MinIO / S3</span><span class="tr">Photos &amp; reports</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--cyan)"><div class="td" style="background:var(--cyan);width:7px;height:7px"></div>Integration</div><div class="tl"><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">open-wa (wa-automate)</span><span class="tr">WhatsApp gateway</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Nominatim</span><span class="tr">Geocoding</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">WebSocket + SSE</span><span class="tr">Realtime + streaming</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--pink)"><div class="td" style="background:var(--pink);width:7px;height:7px"></div>Frontend</div><div class="tl"><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">React 19 · Vite</span><span class="tr">SPA</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Zustand</span><span class="tr">State stores</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">react-grid-layout</span><span class="tr">Persistent grid</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Mapbox GL · deck.gl</span><span class="tr">Map &amp; layers</span></div><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">D3 · Turf.js</span><span class="tr">Charts &amp; geo</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--orange)"><div class="td" style="background:var(--orange);width:7px;height:7px"></div>Reliability</div><div class="tl"><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Provider Fallback</span><span class="tr">OpenAI ↔ local vLLM</span></div><div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Retry + Backoff</span><span class="tr">Vision &amp; embeds</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Feature Flags</span><span class="tr">Per-pipeline stage</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Idempotency &amp; SLA</span><span class="tr">Intake guards</span></div></div></div>
+  </div>
+</div></div>
+
+<footer><div class="container"><p style="color:var(--t2);font-weight:600;margin-bottom:3px">Command AI — Reality Intelligence Platform</p><p>Voice of the Public × Voice of the Organization &bull; WhatsApp-native &bull; Deterministic, auditable scoring</p></div></footer>
+
+<script>
+// Tab navigation
+const tabs=document.querySelectorAll('.tab'),secs=document.querySelectorAll('.sec');
+function go(id){tabs.forEach(t=>t.classList.toggle('on',t.dataset.s===id));secs.forEach(s=>{const show=s.id==='s-'+id;s.classList.toggle('on',show);if(show){window.scrollTo({top:0,behavior:'instant'});setTimeout(()=>{s.querySelectorAll('.rv').forEach(r=>r.classList.add('v'));s.querySelectorAll('.ab').forEach(b=>{const w=b.dataset.w;if(w)setTimeout(()=>b.style.width=w+'%',150)})},40)}});}
+tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.s)));
+
+// Agent filter
+const ctbs=document.querySelectorAll('.ctb'),acs=document.querySelectorAll('.ac');
+ctbs.forEach(t=>t.addEventListener('click',()=>{ctbs.forEach(c=>c.classList.remove('on'));t.classList.add('on');const cat=t.dataset.c;acs.forEach(c=>{c.style.display=(cat==='all'||c.dataset.c===cat)?'':'none'})}));
+
+// Init overview reveals
+document.querySelectorAll('#s-overview .rv').forEach(r=>r.classList.add('v'));
+
+// Observer
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')})},{threshold:.06});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

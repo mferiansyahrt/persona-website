@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Deep Account Profiling Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#08080f;--bg2:#0e0e18;--bg3:#141422;--bg4:#1a1a2c;--bg5:#202036;
+--brd:#1c1c30;--brd2:#282845;--brd3:#363660;
+--t1:#f0f0f8;--t2:#9a9ab8;--t3:#6a6a88;--t4:#484868;
+--blue:#5090ff;--cyan:#22d4e4;--purple:#a882f8;--green:#32d4a4;
+--orange:#f09444;--red:#f06464;--pink:#e474b4;--yellow:#e8cc34;
+--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--r:14px;--rs:10px;--rx:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:3px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd)}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:54px;gap:10px}
+.brand{font-weight:800;font-size:13px;color:var(--blue);white-space:nowrap;letter-spacing:-.02em;flex-shrink:0}
+.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 14px;border-radius:var(--rx);font-size:11.5px;font-weight:600;color:var(--t4);cursor:pointer;white-space:nowrap;transition:all .2s;border:none;background:none;font-family:var(--sans);letter-spacing:.01em}
+.tab:hover{color:var(--t2);background:rgba(255,255,255,.03)}
+.tab.on{color:var(--t1);background:rgba(80,144,255,.12)}
+
+/* SECTIONS */
+.sec{display:none;min-height:100vh;padding:72px 0 60px}.sec.on{display:block}
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+
+/* SECTION HEADER — compact, no big title repetition */
+.sh{margin-bottom:36px;padding-top:12px}
+.sh-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sh-label::before{content:'';width:14px;height:1.5px;background:var(--blue);border-radius:1px}
+.sh-title{font-size:clamp(22px,3.2vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:8px}
+.sh-title em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sh-desc{font-size:14px;color:var(--t2);max-width:580px;line-height:1.75}
+
+/* ANIM */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}.rv.v{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}.d4{transition-delay:.24s}
+
+/* HERO */
+.hero-wrap{display:flex;align-items:center;min-height:100vh;padding-top:54px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-18%;left:22%;width:520px;height:520px;background:radial-gradient(circle,rgba(80,144,255,.06),transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-12%;right:12%;width:420px;height:420px;background:radial-gradient(circle,rgba(168,130,248,.04),transparent 70%);pointer-events:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--brd);background:rgba(80,144,255,.04);font-size:10.5px;font-weight:600;color:var(--blue);margin-bottom:22px}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:bk 2s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-wrap h1{font-size:clamp(32px,5.5vw,56px);font-weight:900;letter-spacing:-.04em;line-height:1.06;margin-bottom:16px}
+.hero-wrap h1 em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-wrap>div>p{font-size:clamp(14px,1.5vw,16px);color:var(--t2);max-width:520px;margin-bottom:28px;line-height:1.8}
+
+/* METRIC GRID */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:32px}
+.mc{padding:20px 16px;border-radius:var(--r);border:1px solid var(--brd);background:var(--bg2);position:relative;overflow:hidden;transition:all .25s}
+.mc:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.mc .gw{position:absolute;top:-30px;right:-30px;width:70px;height:70px;border-radius:50%;filter:blur(32px);opacity:.3}
+.mc .num{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px}
+.mc .lx{font-size:10.5px;color:var(--t3);font-weight:500}
+
+/* TAG */
+.tg{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.t{padding:5px 11px;border-radius:5px;font-size:10.5px;font-weight:600;font-family:var(--mono);border:1px solid var(--brd);background:var(--bg3);color:var(--t2);white-space:nowrap}
+
+/* ====== DATA COLLECTION SECTION ====== */
+.dc-arch{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:36px}
+.dc-layer{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative;overflow:hidden}
+.dc-layer::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:0 2px 2px 0}
+.dc-layer.l1::before{background:var(--blue)}.dc-layer.l2::before{background:var(--cyan)}.dc-layer.l3::before{background:var(--purple)}.dc-layer.l4::before{background:var(--green)}
+.dc-layer h4{font-size:13px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.dc-layer h4 .num-badge{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.dc-layer p{font-size:12.5px;color:var(--t2);line-height:1.7}
+
+/* PLATFORM CARDS */
+.plat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:32px}
+.plat-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden;transition:border-color .2s}
+.plat-card:hover{border-color:var(--brd2)}
+.plat-hdr{padding:16px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--brd)}
+.plat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+.plat-hdr .plat-name{font-size:14px;font-weight:700}
+.plat-hdr .plat-sub{font-size:10.5px;color:var(--t3);margin-top:1px}
+.plat-body{padding:14px 20px 18px}
+.plat-body .item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;color:var(--t2);line-height:1.65}
+.plat-body .item::before{content:'';width:5px;height:5px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.plat-body .item.i-blue::before{background:var(--blue)}.plat-body .item.i-cyan::before{background:var(--cyan)}.plat-body .item.i-green::before{background:var(--green)}.plat-body .item.i-orange::before{background:var(--orange)}.plat-body .item.i-red::before{background:var(--red)}.plat-body .item.i-purple::before{background:var(--purple)}.plat-body .item.i-pink::before{background:var(--pink)}
+
+/* CHALLENGE CARDS */
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:32px}
+.ch-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative}
+.ch-card h4{font-size:13.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.ch-card h4 .ch-num{font-family:var(--mono);font-size:10px;font-weight:800;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch-card p{font-size:12.5px;color:var(--t2);line-height:1.7}
+.ch-card .ch-example{margin-top:10px;padding:10px 14px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);font-family:var(--mono);font-size:10.5px;color:var(--t3);line-height:1.7;overflow-x:auto;white-space:pre-wrap}
+
+/* FLOW DIAGRAM */
+.flow-row{display:flex;align-items:stretch;gap:0;margin-bottom:32px;overflow-x:auto;padding-bottom:8px}
+.flow-step{flex:1;min-width:130px;text-align:center;position:relative;padding:16px 10px}
+.flow-step .fs-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin:0 auto 8px;border:2px solid var(--brd2)}
+.flow-step .fs-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.flow-step .fs-desc{font-size:10px;color:var(--t3);line-height:1.5}
+.flow-step:not(:last-child)::after{content:'';position:absolute;right:-1px;top:30px;width:calc(100% - 30px);height:2px;background:linear-gradient(90deg,transparent,var(--brd2),var(--brd2),transparent);z-index:-1;left:65%}
+
+/* ====== HOW IT WORKS ====== */
+.step-grid{display:grid;grid-template-columns:1fr;gap:0;position:relative}
+.step-grid::before{content:'';position:absolute;left:19px;top:28px;bottom:28px;width:2px;background:linear-gradient(180deg,var(--blue),var(--cyan),var(--purple),var(--green),var(--orange));border-radius:1px;opacity:.3}
+.step{display:flex;gap:20px;padding:18px 0;position:relative}
+.step-num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;border:2px solid var(--brd2);background:var(--bg);z-index:1}
+.step-body{flex:1;padding-top:4px}
+.step-body h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--t2);line-height:1.7}
+
+/* ====== AGENTS ====== */
+.ctabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px}
+.ctb{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--brd);background:none;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.ctb:hover{color:var(--t2);border-color:var(--brd2)}.ctb.on{color:var(--t1);background:rgba(80,144,255,.1);border-color:rgba(80,144,255,.25)}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.ac{border:1px solid var(--brd);border-radius:var(--rs);background:var(--bg2);padding:16px 18px;transition:all .2s}
+.ac:hover{border-color:var(--brd2)}
+.ah{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ai{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.an{font-size:13px;font-weight:700}.am{font-size:10px;color:var(--t4);margin-top:1px;font-family:var(--mono)}
+.ad{font-size:12px;color:var(--t2);line-height:1.65}
+
+/* ====== SCORING ====== */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.sc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:24px}
+.sc h3{font-size:16px;font-weight:800;margin-bottom:2px}
+.sub{font-size:11px;color:var(--t3);margin-bottom:18px}
+.ar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.al{width:130px;font-size:11.5px;font-weight:600;flex-shrink:0;color:var(--t2)}
+.abg{flex:1;height:6px;border-radius:3px;background:var(--bg4);overflow:hidden}
+.ab{height:100%;border-radius:3px;width:0;transition:width .8s ease}
+.ap{font-size:11px;font-weight:700;width:36px;text-align:right;flex-shrink:0}
+.fm{margin-top:16px;padding:12px 16px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);font-size:11.5px;color:var(--t3);line-height:1.7;font-family:var(--mono)}
+
+/* ====== RESULTS ====== */
+.io-grid{display:grid;grid-template-columns:280px 1fr;gap:14px}
+@media(max-width:768px){.io-grid{grid-template-columns:1fr}}
+.io-box{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden}
+.io-hdr{padding:12px 18px;font-size:12px;font-weight:700;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px}
+.io-body{padding:16px 18px}
+.url-card{padding:10px 14px;border-radius:var(--rx);border:1px solid var(--brd);margin-bottom:8px}
+.url-plat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.url-link{font-size:11px;color:var(--t3);font-family:var(--mono);word-break:break-all}
+.score-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.score-box{padding:16px;border-radius:var(--rs);border:1px solid var(--brd);text-align:center}
+.score-box .num{font-size:32px;font-weight:900;letter-spacing:-.03em}
+.score-box .lx{font-size:10px;margin-top:2px}
+.acc-item{border:1px solid var(--brd);border-radius:var(--rs);background:var(--bg2);margin-bottom:8px;overflow:hidden}
+.acc-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background .15s}
+.acc-hdr:hover{background:rgba(255,255,255,.015)}
+.acc-hdr h4{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.acc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+.acc-arrow{font-size:10px;color:var(--t4);transition:transform .2s}
+.acc-item.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{display:none;padding:0 18px 18px;border-top:1px solid var(--brd)}
+.acc-item.open .acc-body{display:block;padding-top:14px}
+.profile-card{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.profile-card img{width:42px;height:42px;border-radius:9px;object-fit:cover}
+.nm{font-size:14px;font-weight:700}.hn{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.kv{display:flex;gap:8px;margin-bottom:6px;font-size:12px;line-height:1.6}
+.kv .k{color:var(--t3);min-width:100px;flex-shrink:0;font-weight:600}
+.kv .val{color:var(--t2);flex:1}
+.divider{height:1px;background:var(--brd);margin:14px 0}
+.sub-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:10px}
+.tag-list{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.tg-sm{padding:3px 10px;border-radius:4px;font-size:10.5px;font-weight:600}
+.aff-row{padding:10px 14px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);margin-bottom:6px}
+.aff-name{font-size:12px;font-weight:700}
+.aff-type{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;margin-left:8px;vertical-align:middle}
+.aff-reason{font-size:11.5px;color:var(--t3);margin-top:4px;line-height:1.6}
+
+/* ====== TECH ====== */
+.tg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px;transition:border-color .2s}
+.tc:hover{border-color:var(--brd2)}
+.tc-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.tl{display:flex;flex-direction:column;gap:8px}
+.ti{display:flex;align-items:center;gap:10px;font-size:12px}
+.td{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tn{font-weight:600;flex:1}.tr{font-size:10.5px;color:var(--t4)}
+
+/* FOOTER */
+footer{padding:40px 0 32px;border-top:1px solid var(--brd);text-align:center;font-size:11.5px;color:var(--t4)}
+
+@media(max-width:640px){
+  .nav-in{height:48px;gap:8px}.brand{font-size:11px}
+  .tab{padding:5px 10px;font-size:10.5px}
+  .plat-grid,.ch-grid{grid-template-columns:1fr}
+  .ag{grid-template-columns:1fr}
+  .sg{grid-template-columns:1fr}
+  .tg2{grid-template-columns:1fr}
+  .io-grid{grid-template-columns:1fr}
+  .flow-row{flex-direction:column;align-items:stretch}
+  .flow-step:not(:last-child)::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav><div class="nav-in">
+  <div class="brand">DAPE</div>
+  <div class="tabs">
+    <button class="tab on" data-s="hero">Overview</button>
+    <button class="tab" data-s="data">Data Collection</button>
+    <button class="tab" data-s="how">Workflow</button>
+    <button class="tab" data-s="agents">Agents</button>
+    <button class="tab" data-s="scoring">Scoring</button>
+    <button class="tab" data-s="results">Profiling Results</button>
+    <button class="tab" data-s="tech">Tech Stack</button>
+  </div>
+</div></nav>
+
+<!-- ========== HERO / OVERVIEW ========== -->
+<div class="sec on" id="s-hero">
+  <div class="hero-wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="container">
+      <div class="pill rv"><span class="dot"></span> Production System</div>
+      <h1 class="rv d1">Deep Account<br><em>Profiling Engine</em></h1>
+      <p class="rv d2">A multi-agent AI intelligence system that automatically analyzes a person's digital footprint across multiple social media platforms and generates a comprehensive risk profile within minutes.</p>
+      <div class="tg rv d3">
+        <span class="t">Python</span><span class="t">AsyncIO</span><span class="t">FastAPI</span>
+        <span class="t">GPT-4.1-mini</span><span class="t">Gemini 2.5 Flash</span>
+        <span class="t">Elasticsearch</span><span class="t">Kafka</span><span class="t">Redis</span>
+      </div>
+      <div class="mg rv d4">
+        <div class="mc"><div class="gw" style="background:var(--blue)"></div><div class="num" style="color:var(--blue)">24</div><div class="lx">AI Agents</div></div>
+        <div class="mc"><div class="gw" style="background:var(--cyan)"></div><div class="num" style="color:var(--cyan)">6</div><div class="lx">Social Platforms</div></div>
+        <div class="mc"><div class="gw" style="background:var(--green)"></div><div class="num" style="color:var(--green)">~5m</div><div class="lx">Analysis Time</div></div>
+        <div class="mc"><div class="gw" style="background:var(--purple)"></div><div class="num" style="color:var(--purple)">12</div><div class="lx">Assessment Aspects</div></div>
+        <div class="mc"><div class="gw" style="background:var(--orange)"></div><div class="num" style="color:var(--orange)">5</div><div class="lx">AI Models</div></div>
+        <div class="mc"><div class="gw" style="background:var(--pink)"></div><div class="num" style="color:var(--pink)">3</div><div class="lx">Search Engines</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DATA COLLECTION ========== -->
+<div class="sec" id="s-data"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Data Collection</div>
+    <div class="sh-title">How Data is <em>Collected</em></div>
+    <div class="sh-desc">The biggest challenge in this system is collecting data from 6 different social media platforms — each with its own format, limitations, and access methods.</div>
+  </div>
+
+  <!-- Architecture Flow -->
+  <div class="flow-row rv d1">
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">1</div>
+      <div class="fs-title" style="color:var(--blue)">Social Platforms</div>
+      <div class="fs-desc">Instagram, TikTok, X, Facebook, YouTube, LinkedIn</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">2</div>
+      <div class="fs-title" style="color:var(--cyan)">RapidAPI Gateway</div>
+      <div class="fs-desc">API key management & rate limiting</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">3</div>
+      <div class="fs-title" style="color:var(--purple)">Internal Wrapper</div>
+      <div class="fs-desc">Response normalization & error handling</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">4</div>
+      <div class="fs-title" style="color:var(--green)">Python Application</div>
+      <div class="fs-desc">AsyncIO parallel fetch across 5 platforms simultaneously</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">5</div>
+      <div class="fs-title" style="color:var(--orange)">AI Agents</div>
+      <div class="fs-desc">24 agents analyze data in parallel</div>
+    </div>
+  </div>
+
+  <!-- Layered Architecture -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d2">Layered Architecture</h3>
+  <div class="dc-arch rv d2">
+    <div class="dc-layer l1">
+      <h4><span class="num-badge" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span> <span style="color:var(--blue)">External Data Sources</span></h4>
+      <p>Each social media platform provides data through third-party APIs (RapidAPI). The system does not directly access the platforms, but instead goes through the RapidAPI gateway which manages authentication, quotas, and rate limits. This means data availability depends on third-party reliability.</p>
+    </div>
+    <div class="dc-layer l2">
+      <h4><span class="num-badge" style="background:rgba(34,212,228,.12);color:var(--cyan)">2</span> <span style="color:var(--cyan)">Internal Wrapper Service</span></h4>
+      <p>An intermediary service built on internal infrastructure. Each platform has its own endpoints for: searching accounts, fetching detailed profiles, and downloading recent posts. This wrapper standardizes response formats and handles RapidAPI errors before forwarding data to the main application.</p>
+    </div>
+    <div class="dc-layer l3">
+      <h4><span class="num-badge" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span> <span style="color:var(--purple)">Normalization & Transformation</span></h4>
+      <p>Raw data from each platform has vastly different JSON structures. This stage maps all data to a common schema: name, username, bio, location, profile picture, posts, engagement counts, and images. It also extracts email, phone number, and birthdate from bios using pattern matching.</p>
+    </div>
+    <div class="dc-layer l4">
+      <h4><span class="num-badge" style="background:rgba(50,212,164,.12);color:var(--green)">4</span> <span style="color:var(--green)">Context for AI Agents</span></h4>
+      <p>Normalized data is combined with Elasticsearch search results (post history) and packaged into structured text. Each post is numbered sequentially with timestamps and image descriptions (from Visual AI analysis). This context becomes the input received by 24 AI agents.</p>
+    </div>
+  </div>
+
+  <!-- Per Platform -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d2">Data Collected per Platform</h3>
+  <div class="plat-grid rv d3">
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(224,116,180,.1);color:var(--pink)">IG</div>
+        <div><div class="plat-name">Instagram</div><div class="plat-sub">Profile + Posts + Carousel</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-pink">Profile: name, username, bio, country, photo (HD), follower/following/post count, verification status</div>
+        <div class="item i-blue">Posts: caption text, date (converted from Unix timestamp), like/comment/share counts</div>
+        <div class="item i-purple">Images: supports carousel (multiple images per post), fetches highest resolution</div>
+        <div class="item i-green">Extra: email, phone, birthdate extracted from bio via pattern matching</div>
+        <div class="item i-orange">Challenge: bio and location require a separate API call after the initial search</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(34,212,228,.1);color:var(--cyan)">TK</div>
+        <div><div class="plat-name">TikTok</div><div class="plat-sub">Profile + Video + Thumbnail</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-cyan">Profile: nickname, username, bio (signature), region, photo (3 resolutions), follower/heart/video counts</div>
+        <div class="item i-blue">Posts: video description, date (pre-formatted), like/comment/share counts</div>
+        <div class="item i-purple">Images: cover thumbnail and originCover from each video</div>
+        <div class="item i-green">Unique: date format is already standardized — no timestamp conversion needed</div>
+        <div class="item i-orange">Challenge: profile data is stored in a nested "user" object that differs from other platforms</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(80,144,255,.1);color:var(--blue)">X</div>
+        <div><div class="plat-name">X (Twitter)</div><div class="plat-sub">Profile + Tweet + Media</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-blue">Profile: name, screen_name, bio, location, photo (HTTPS), follower/following/tweet counts, verification</div>
+        <div class="item i-cyan">Posts: full text, date (Twitter-specific format), like/reply/retweet counts</div>
+        <div class="item i-purple">Images: extracted from media entities (photos only, not video)</div>
+        <div class="item i-orange">Challenge: timestamp uses a unique Twitter format that requires custom parsing — "Mon Feb 26 10:30:00 +0000 2024"</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(80,144,255,.1);color:var(--blue)">FB</div>
+        <div><div class="plat-name">Facebook</div><div class="plat-sub">Profile Only (Limited)</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-blue">Profile: name, ID, profile picture, location, hometown, work history</div>
+        <div class="item i-red">Posts: <strong>not available</strong> — the API does not provide access to user posts</div>
+        <div class="item i-orange">Search: uses a separate OSINT endpoint because the main API does not support Facebook user search</div>
+        <div class="item i-purple">Challenge: most limited data compared to other platforms, temporal analysis cannot be performed</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(240,96,96,.1);color:var(--red)">YT</div>
+        <div><div class="plat-name">YouTube</div><div class="plat-sub">Channel + Video Detail</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-red">Profile: channel name, description, video/subscriber count, photo (highest resolution), verification via badge</div>
+        <div class="item i-blue">Posts: video title, description, date (ISO 8601 UTC), view/like/comment counts</div>
+        <div class="item i-purple">Images: video thumbnails in 3 resolutions (default, medium, high)</div>
+        <div class="item i-green">Two modes: if detailed mode fails, automatically switches to basic mode with more concise data</div>
+        <div class="item i-orange">Challenge: timestamps in UTC must be converted to local time (UTC+7), search structure uses unique nested objects</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(80,144,255,.1);color:var(--blue)">IN</div>
+        <div><div class="plat-name">LinkedIn</div><div class="plat-sub">Profile via Job Search</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-blue">Profile: work history, skills, recommendations (if found)</div>
+        <div class="item i-orange">Indirect search: searches through job listings first, then matches names to obtain user IDs</div>
+        <div class="item i-red">Challenge: fragile search method — only finds profiles that appear in job search results, many profiles go undetected</div>
+        <div class="item i-purple">Fallback: if 50-result search fails, retries with 10 results</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Challenges -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d3">Key Challenges Solved</h3>
+  <div class="ch-grid rv d4">
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,96,96,.12);color:var(--red)">1</span> Every Platform Has a Different Format</h4>
+      <p>Instagram, TikTok, Twitter, Facebook, YouTube, and LinkedIn each return completely different JSON structures. Post text alone is stored in 5 different fields depending on the platform. All must be mapped to a single unified schema.</p>
+      <div class="ch-example">Instagram → caption.text
+TikTok   → post_desc
+Twitter  → full_text
+YouTube  → snippet.title + snippet.description
+Facebook → (not available)</div>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,148,68,.12);color:var(--orange)">2</span> Different Timestamp Formats</h4>
+      <p>Each platform uses a different timestamp format: Instagram uses Unix epoch (seconds since 1970), Twitter uses a custom text format, YouTube uses ISO 8601 UTC, and TikTok is pre-formatted. All must be converted to a single format.</p>
+      <div class="ch-example">Instagram → 1708976400 (Unix epoch)
+TikTok   → "2024-02-26 10:30:00" (ready to use)
+Twitter  → "Mon Feb 26 10:30:00 +0000 2024"
+YouTube  → "2024-02-26T10:30:00Z" (UTC)</div>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span> Parallel Fetching Across 5 Platforms</h4>
+      <p>All platforms are fetched simultaneously using AsyncIO to minimize wait time. However, this means an error on one platform must not halt the others. The system uses a 3x retry mechanism with 1-second delays between attempts.</p>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(34,212,228,.12);color:var(--cyan)">4</span> Images Must Be Analyzed by AI</h4>
+      <p>Every image from posts is downloaded and sent to a Vision Language Model to obtain image content descriptions, identified locations, and visible activities. This process runs in parallel but is prone to failures (deleted images, expired URLs), so it uses 3x retries with exponential backoff.</p>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(50,212,164,.12);color:var(--green)">5</span> Data from 3 Sources Combined</h4>
+      <p>For each account, data is collected from 3 different sources in parallel: the social media profiling API, RapidAPI wrapper, and Elasticsearch index (history). These three sources sometimes produce overlapping or differing versions of data, and must be merged into a single coherent context for agents.</p>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(224,116,180,.12);color:var(--pink)">6</span> Per-Platform Data Limitations</h4>
+      <p>Facebook does not provide posts, LinkedIn can only be accessed via job search, and some platforms require 2 API calls (search first, then fetch details). The system must handle each limitation gracefully without halting the overall process.</p>
+    </div>
+
+  </div>
+
+  <!-- Data Transformation -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d4">Data Transformation Pipeline</h3>
+  <div class="step-grid rv d4" style="margin-bottom:0">
+    <div class="step">
+      <div class="step-num" style="color:var(--blue);border-color:rgba(80,144,255,.25)">1</div>
+      <div class="step-body">
+        <h4 style="color:var(--blue)">Account Search</h4>
+        <p>The system receives a URL or username, then searches for the account across all platforms in parallel. Each platform has its own search endpoint. Search results are matched to find the correct user ID.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--cyan);border-color:rgba(34,212,228,.25)">2</div>
+      <div class="step-body">
+        <h4 style="color:var(--cyan)">Normalization to Common Schema</h4>
+        <p>Profile data from each platform is mapped to a uniform format: full name, username, bio, location, profile picture, follower count, verification status, and contact information extracted from bio.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--purple);border-color:rgba(168,130,248,.25)">3</div>
+      <div class="step-body">
+        <h4 style="color:var(--purple)">Post & Image Retrieval</h4>
+        <p>Recent posts are fetched along with metadata (dates, engagement, images). Each image is downloaded and analyzed by Vision AI to generate visual descriptions. Posts are numbered sequentially and packaged in markdown format.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--green);border-color:rgba(50,212,164,.25)">4</div>
+      <div class="step-body">
+        <h4 style="color:var(--green)">Enrichment from Elasticsearch</h4>
+        <p>Older post history is randomly sampled from the Elasticsearch index, providing richer temporal context. Data from 3 sources (social media API, RapidAPI, and Elasticsearch) is merged into a single context document.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.25)">5</div>
+      <div class="step-body">
+        <h4 style="color:var(--orange)">Context Assembly for Agents</h4>
+        <p>All data is packaged into structured text that AI can understand: account profile, numbered posts complete with image descriptions, and history. This context is what the 24 AI agents receive to perform deep analysis.</p>
+      </div>
+    </div>
+  </div>
+
+</div></div>
+
+<!-- ========== HOW IT WORKS ========== -->
+<div class="sec" id="s-how"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Workflow</div>
+    <div class="sh-title">From URL to <em>Complete Profile</em></div>
+    <div class="sh-desc">The entire process runs automatically — just enter a social media account link.</div>
+  </div>
+
+  <div class="step-grid">
+    <div class="step rv">
+      <div class="step-num" style="color:var(--blue);border-color:rgba(80,144,255,.25)">1</div>
+      <div class="step-body">
+        <h4 style="color:var(--blue)">Enter Account Link</h4>
+        <p>The user enters one or more social media account URLs to be analyzed. The system supports Instagram, TikTok, X (Twitter), Facebook, YouTube, and LinkedIn.</p>
+      </div>
+    </div>
+    <div class="step rv d1">
+      <div class="step-num" style="color:var(--cyan);border-color:rgba(34,212,228,.25)">2</div>
+      <div class="step-body">
+        <h4 style="color:var(--cyan)">Automatic Data Retrieval</h4>
+        <p>The system fetches profile data, recent posts, and images from each platform in parallel via RapidAPI. Each post image is analyzed by Vision AI to obtain visual content descriptions.</p>
+      </div>
+    </div>
+    <div class="step rv d2">
+      <div class="step-num" style="color:var(--purple);border-color:rgba(168,130,248,.25)">3</div>
+      <div class="step-body">
+        <h4 style="color:var(--purple)">24 Agents Analyze Simultaneously</h4>
+        <p>Normalized data is sent to 24 AI agents running concurrently: profile agents extract demographics, scoring agents assess risk and positive potential, criminal agents search for legal records, and visual agents analyze biometrics.</p>
+      </div>
+    </div>
+    <div class="step rv d3">
+      <div class="step-num" style="color:var(--green);border-color:rgba(50,212,164,.25)">4</div>
+      <div class="step-body">
+        <h4 style="color:var(--green)">Deterministic Scoring</h4>
+        <p>AI extracts indicators from content, then scores are calculated using fixed formulas (not AI) to ensure consistency. Digital Risk Score assesses risk across 6 aspects, Potential Positive Score assesses positive impact across 6 other aspects.</p>
+      </div>
+    </div>
+    <div class="step rv d4">
+      <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.25)">5</div>
+      <div class="step-body">
+        <h4 style="color:var(--orange)">Criminal Record Research</h4>
+        <p>Criminal agents autonomously search for news and legal records through Google Search and Brave Search. The agent determines its own search keywords, reads articles, compiles chronologies, and verifies whether the found records belong to the same person.</p>
+      </div>
+    </div>
+    <div class="step rv d4">
+      <div class="step-num" style="color:var(--red);border-color:rgba(240,100,100,.25)">6</div>
+      <div class="step-body">
+        <h4 style="color:var(--red)">Final Report</h4>
+        <p>All results are combined into a comprehensive profile with an executive summary, risk and positive scores, affiliation analysis, criminal records, and facial biometrics. Exported as a JSON file and 3 PDF reports.</p>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== AGENTS ========== -->
+<div class="sec" id="s-agents"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">AI Agents</div>
+    <div class="sh-title">24 <em>Specialized</em> Agents</div>
+    <div class="sh-desc">Each agent handles one aspect of analysis and runs in parallel using the AI model best suited for its task.</div>
+  </div>
+
+  <div class="ctabs rv d1">
+    <button class="ctb on" data-c="all">All (24)</button>
+    <button class="ctb" data-c="profiling">Profiling</button>
+    <button class="ctb" data-c="scoring">Scoring</button>
+    <button class="ctb" data-c="criminal">Criminal</button>
+    <button class="ctb" data-c="summary">Summary</button>
+    <button class="ctb" data-c="visual">Visual & Others</button>
+  </div>
+
+  <div class="ag">
+    <div class="ac rv" data-c="profiling"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">Pa</div><div><div class="an">Parser Agent</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Extracts structured data from profiles: name, age, occupation, education, social class, and personality (MBTI) — converting free text into processable format.</div></div>
+    <div class="ac rv" data-c="profiling"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">An</div><div><div class="an">Analysis Agent</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Writes an in-depth narrative analysis of a person based on their entire digital footprint — like a profiling report written by a human intelligence analyst.</div></div>
+    <div class="ac rv" data-c="profiling"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">Pa</div><div><div class="an">Post Activity Agent</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Analyzes posting activity patterns: frequency, posting times, dominant topics, sentiment, and behavioral change trends over time.</div></div>
+    <div class="ac rv" data-c="profiling"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">Af</div><div><div class="an">Affiliation Agent</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Detects a person's affiliations and relationships: organizations supported/criticized, associated figures, and ideological positions.</div></div>
+    <div class="ac rv" data-c="profiling"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">Fc</div><div><div class="an">Fact Check Agent</div><div class="am">GPT-4.1-mini + Search Engine</div></div></div><div class="ad">Autonomously verifies claims in posts — searches for facts on the internet using Google Search and Brave Search, then compares against what was posted.</div></div>
+    <div class="ac rv" data-c="profiling"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">Kr</div><div><div class="an">Knowledge Repo Agent</div><div class="am">GPT-4.1-mini + Google Search</div></div></div><div class="ad">An information-seeking agent that determines what to search on Google, evaluates results, and filters relevant information about the subject.</div></div>
+
+    <div class="ac rv" data-c="scoring"><div class="ah"><div class="ai" style="background:rgba(240,148,68,.08);color:var(--orange)">Dt</div><div><div class="an">Digital Risk Scorer</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Assesses digital risk level across 6 aspects: separatism, public order disruption, radicalism, criminal activity, negative behavior, and narcotics — scoring 0-100 per aspect.</div></div>
+    <div class="ac rv" data-c="scoring"><div class="ah"><div class="ai" style="background:rgba(50,212,164,.08);color:var(--green)">Pp</div><div><div class="an">Positive Impact Scorer</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Assesses positive impact potential across 6 aspects: national promotion, constructive influence, moderation, positive contribution, digital ethics, and health.</div></div>
+    <div class="ac rv" data-c="scoring"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">Cr</div><div><div class="an">Credibility Agent</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Evaluates how trustworthy a person's claims are by comparing what they say against evidence from multiple sources.</div></div>
+    <div class="ac rv" data-c="scoring"><div class="ah"><div class="ai" style="background:rgba(240,96,96,.08);color:var(--red)">Cd</div><div><div class="an">Controversy Detection</div><div class="am">GPT-4o-mini</div></div></div><div class="ad">Detects controversial matters from a person's digital footprint — identifying statements or activities that could potentially become public scrutiny.</div></div>
+
+    <div class="ac rv" data-c="criminal"><div class="ah"><div class="ai" style="background:rgba(240,96,96,.08);color:var(--red)">K</div><div><div class="an">Criminal Records Researcher</div><div class="am">GPT-4.1-mini + Search Engine</div></div></div><div class="ad">Autonomously searches for legal and criminal records through Google and Brave — determines its own search keywords, reads articles, and compiles complete chronologies with sources.</div></div>
+    <div class="ac rv" data-c="criminal"><div class="ah"><div class="ai" style="background:rgba(240,96,96,.08);color:var(--red)">Cp</div><div><div class="an">Criminal Parser</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Converts news text or legal documents into structured data: event chronology, violated statutes, imposed sanctions, and current legal status.</div></div>
+    <div class="ac rv" data-c="criminal"><div class="ah"><div class="ai" style="background:rgba(240,96,96,.08);color:var(--red)">Cv</div><div><div class="an">Criminal Verification</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Verifies whether found criminal records truly belong to the same person — matching name, profession, location, and temporal context.</div></div>
+    <div class="ac rv" data-c="criminal"><div class="ah"><div class="ai" style="background:rgba(240,96,96,.08);color:var(--red)">Cs</div><div><div class="an">Criminal Summarizer</div><div class="am">OpenAI</div></div></div><div class="ad">Summarizes all criminal records into an executive summary, while filtering which sources are credible and which are less relevant.</div></div>
+    <div class="ac rv" data-c="criminal"><div class="ah"><div class="ai" style="background:rgba(240,148,68,.08);color:var(--orange)">Sr</div><div><div class="an">Source Relevance Filter</div><div class="am">OpenAI</div></div></div><div class="ad">Evaluates source quality: whether Highly Relevant (official sources), Relevant (news media), Possibly Relevant, or Not Relevant.</div></div>
+
+    <div class="ac rv" data-c="summary"><div class="ah"><div class="ai" style="background:rgba(168,130,248,.08);color:var(--purple)">S</div><div><div class="an">Summary Agent</div><div class="am">GPT-4o-mini</div></div></div><div class="ad">Generates an executive summary of all results — combining findings from all accounts and all analysis aspects into a single cohesive narrative.</div></div>
+    <div class="ac rv" data-c="summary"><div class="ah"><div class="ai" style="background:rgba(168,130,248,.08);color:var(--purple)">Sv</div><div><div class="an">Summary Savine</div><div class="am">GPT-4o-mini / Qwen3-8B</div></div></div><div class="ad">A specialized enrichment summary that can use either cloud or local models depending on deployment requirements.</div></div>
+    <div class="ac rv" data-c="summary"><div class="ah"><div class="ai" style="background:rgba(168,130,248,.08);color:var(--purple)">Sm</div><div><div class="an">Social Media Summarizer</div><div class="am">OpenAI</div></div></div><div class="ad">Comprehensively summarizes social media profiles — customized per platform so Instagram results differ in style from X results.</div></div>
+    <div class="ac rv" data-c="summary"><div class="ah"><div class="ai" style="background:rgba(168,130,248,.08);color:var(--purple)">B</div><div><div class="an">BKW Orchestrator</div><div class="am">GPT-4o-mini</div></div></div><div class="ad">An orchestrator that runs 3 sub-agents simultaneously: one researches criminal records, one analyzes social media, and one analyzes facial biometrics.</div></div>
+
+    <div class="ac rv" data-c="visual"><div class="ah"><div class="ai" style="background:rgba(34,212,228,.08);color:var(--cyan)">Bi</div><div><div class="an">Biometrics Analyzer</div><div class="am">OpenAI</div></div></div><div class="ad">Analyzes facial photos: age estimation, facial feature distance measurements, and physical characteristic descriptions for identification purposes.</div></div>
+    <div class="ac rv" data-c="visual"><div class="ah"><div class="ai" style="background:rgba(34,212,228,.08);color:var(--cyan)">Fr</div><div><div class="an">Facial Reconstruction</div><div class="am">Gemini 2.5 Flash</div></div></div><div class="ad">Enhances blurry or low-resolution facial photos using AI vision, enabling more accurate biometric analysis.</div></div>
+    <div class="ac rv" data-c="visual"><div class="ah"><div class="ai" style="background:rgba(34,212,228,.08);color:var(--cyan)">G</div><div><div class="an">Gender Decider</div><div class="am">GPT-4.1-mini</div></div></div><div class="ad">Identifies the account owner's gender from profile context and posts to complete demographic data.</div></div>
+    <div class="ac rv" data-c="visual"><div class="ah"><div class="ai" style="background:rgba(34,212,228,.08);color:var(--cyan)">I</div><div><div class="an">Influencer Searcher</div><div class="am">GPT-4.1-mini + Search Engine</div></div></div><div class="ad">Automatically discovers influencer accounts affiliated with a brand or organization through internet searches.</div></div>
+  </div>
+</div></div>
+
+<!-- ========== SCORING ========== -->
+<div class="sec" id="s-scoring"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Scoring</div>
+    <div class="sh-title">Scoring <em>System</em></div>
+    <div class="sh-desc">AI extracts indicators from content, then scores are calculated by deterministic formulas to ensure consistent and auditable results.</div>
+  </div>
+
+  <div class="sg">
+    <div class="sc rv">
+      <h3 style="color:var(--red)">Digital Risk Score</h3><div class="sub">0-100 — Higher = higher risk</div>
+      <div class="ar"><span class="al">Separatism</span><div class="abg"><div class="ab" data-w="100" style="background:var(--red)"></div></div><span class="ap" style="color:var(--red)">25%</span></div>
+      <div class="ar"><span class="al">Public Order</span><div class="abg"><div class="ab" data-w="80" style="background:var(--orange)"></div></div><span class="ap" style="color:var(--orange)">20%</span></div>
+      <div class="ar"><span class="al">Radicalism</span><div class="abg"><div class="ab" data-w="80" style="background:var(--orange)"></div></div><span class="ap" style="color:var(--orange)">20%</span></div>
+      <div class="ar"><span class="al">Criminal Activity</span><div class="abg"><div class="ab" data-w="60" style="background:var(--yellow)"></div></div><span class="ap" style="color:var(--yellow)">15%</span></div>
+      <div class="ar"><span class="al">Negative Behavior</span><div class="abg"><div class="ab" data-w="60" style="background:var(--yellow)"></div></div><span class="ap" style="color:var(--yellow)">15%</span></div>
+      <div class="ar"><span class="al">Narcotics</span><div class="abg"><div class="ab" data-w="20" style="background:var(--pink)"></div></div><span class="ap" style="color:var(--pink)">5%</span></div>
+      <div class="fm">base score = sum(aspect x weight)<br>if criminal records exist:<br>&nbsp;&nbsp;score = base x tier multiplier <span style="color:var(--t4)">(1-4x)</span><br>&nbsp;&nbsp;minimum = floor threshold <span style="color:var(--t4)">(35/50/65/80)</span><br>final score = maximum 100</div>
+    </div>
+    <div class="sc rv d1">
+      <h3 style="color:var(--green)">Potential Positive Score</h3><div class="sub">0-100 — Higher = greater positive impact</div>
+      <div class="ar"><span class="al">National Promotion</span><div class="abg"><div class="ab" data-w="100" style="background:var(--green)"></div></div><span class="ap" style="color:var(--green)">25%</span></div>
+      <div class="ar"><span class="al">Constructive Influence</span><div class="abg"><div class="ab" data-w="80" style="background:var(--cyan)"></div></div><span class="ap" style="color:var(--cyan)">20%</span></div>
+      <div class="ar"><span class="al">Moderation & Tolerance</span><div class="abg"><div class="ab" data-w="80" style="background:var(--cyan)"></div></div><span class="ap" style="color:var(--cyan)">20%</span></div>
+      <div class="ar"><span class="al">Positive Contribution</span><div class="abg"><div class="ab" data-w="60" style="background:var(--blue)"></div></div><span class="ap" style="color:var(--blue)">15%</span></div>
+      <div class="ar"><span class="al">Digital Ethics</span><div class="abg"><div class="ab" data-w="60" style="background:var(--blue)"></div></div><span class="ap" style="color:var(--blue)">15%</span></div>
+      <div class="ar"><span class="al">Health & Wellbeing</span><div class="abg"><div class="ab" data-w="20" style="background:var(--purple)"></div></div><span class="ap" style="color:var(--purple)">5%</span></div>
+      <div class="fm">score = sum(aspect x weight)<br>minimum = 1 <span style="color:var(--t4)">if any aspect &gt; 0</span><br>achievement boost: <span style="color:var(--t4)">+20-80 per criterion</span></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== RESULTS ========== -->
+<div class="sec" id="s-results"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Real Output</div>
+    <div class="sh-title">Real <em>Profiling Results</em> Example</div>
+    <div class="sh-desc">The data below is taken from an actual profiling run — 3 social media accounts analyzed in ~5 minutes.</div>
+  </div>
+
+  <div class="io-grid rv d1">
+    <!-- INPUT -->
+    <div class="io-in">
+      <div class="io-box">
+        <div class="io-hdr"><span style="color:var(--blue)">&#9654;</span> Input</div>
+        <div class="io-body">
+          <p style="color:var(--t4);font-size:10px;margin-bottom:10px">The system receives account links to be analyzed:</p>
+          <div class="url-card" style="background:rgba(80,144,255,.03);border-color:rgba(80,144,255,.12)">
+            <div class="url-plat" style="color:var(--blue)">X (Twitter)</div>
+            <span class="url-link">https://x.com/kevinkfyam</span>
+          </div>
+          <div class="url-card" style="background:rgba(224,116,180,.03);border-color:rgba(224,116,180,.12)">
+            <div class="url-plat" style="color:var(--pink)">Instagram</div>
+            <span class="url-link" style="color:var(--pink)">https://instagram.com/kevinkfyam/</span>
+          </div>
+          <div class="url-card" style="background:rgba(34,212,228,.03);border-color:rgba(34,212,228,.12)">
+            <div class="url-plat" style="color:var(--cyan)">TikTok</div>
+            <span class="url-link" style="color:var(--cyan)">https://tiktok.com/@detectivealdo</span>
+          </div>
+          <div style="margin-top:14px;padding:10px;border-radius:var(--rx);background:rgba(50,212,164,.04);border:1px solid rgba(50,212,164,.1);text-align:center">
+            <div style="font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Processing Time</div>
+            <div style="font-size:16px;font-weight:800;color:var(--green)">4 minutes 49 seconds</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT -->
+    <div>
+      <!-- OVERALL SCORES -->
+      <div class="io-box" style="margin-bottom:10px">
+        <div class="io-hdr"><span style="color:var(--green)">&#9664;</span> Overall Scores (3 Accounts)</div>
+        <div class="io-body">
+          <div class="score-pair">
+            <div class="score-box" style="border-color:rgba(240,100,100,.2);background:rgba(240,100,100,.04)"><div class="num" style="color:var(--red)">28.0</div><div class="lx" style="color:var(--t4)">Average Risk Score</div></div>
+            <div class="score-box" style="border-color:rgba(50,212,164,.2);background:rgba(50,212,164,.04)"><div class="num" style="color:var(--green)">25.3</div><div class="lx" style="color:var(--t4)">Average Positive Score</div></div>
+          </div>
+          <p style="font-size:11px;color:var(--t4);line-height:1.6">Overall risk profile is categorized as <strong style="color:var(--green)">LOW</strong>. Account with the most significant risk: Kevin Yam (@kevinkfyam) — involved in pro-democracy activism and facing charges related to the Hong Kong National Security Law.</p>
+        </div>
+      </div>
+
+      <!-- ACCOUNT 1: TWITTER -->
+      <div class="acc-item open">
+        <div class="acc-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <h4><span style="color:var(--blue)">&#9679;</span> Account 1 — X (Twitter) <span class="acc-badge" style="background:rgba(240,100,100,.1);color:var(--red)">Risk: 65</span> <span class="acc-badge" style="background:rgba(50,212,164,.1);color:var(--green)">Positive: 31</span></h4>
+          <span class="acc-arrow">&#9660;</span>
+        </div>
+        <div class="acc-body">
+          <div class="profile-card"><img src="https://pbs.twimg.com/profile_images/1821800173816987648/iEwV29Ki_normal.jpg" alt=""><div><div class="nm">Kevin Yam 任建峰</div><div class="hn">@kevinkfyam</div></div></div>
+          <div class="kv"><span class="k">Age</span><span class="val">26-45 years old</span></div>
+          <div class="kv"><span class="k">Occupation</span><span class="val">Lecturer / PhD Candidate</span></div>
+          <div class="kv"><span class="k">Education</span><span class="val">Doctoral</span></div>
+          <div class="kv"><span class="k">Social Class</span><span class="val">Upper middle</span></div>
+          <div class="kv"><span class="k">Bio</span><span class="val">PhD candidate/Part-Time Lecturer, @melblawschool. Activist/ex-lawyer, #HongKong. Cricket tragic. @hawthornfc fan. Foodie.</span></div>
+          <div class="kv"><span class="k">Personality</span><span class="val">INTJ — The Hero — Expository, serious</span></div>
+          <div class="kv"><span class="k">Status</span><span class="val">Public &bull; 15,725 followers &bull; 13,866 posts &bull; Created: August 25, 2018</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Post Topics</div>
+          <div class="tag-list"><span class="tg-sm" style="background:rgba(80,144,255,.08);color:var(--blue)">Law</span><span class="tg-sm" style="background:rgba(80,144,255,.08);color:var(--blue)">Human Rights</span><span class="tg-sm" style="background:rgba(80,144,255,.08);color:var(--blue)">Activism</span><span class="tg-sm" style="background:rgba(168,130,248,.08);color:var(--purple)">International Politics</span><span class="tg-sm" style="background:rgba(168,130,248,.08);color:var(--purple)">International Conflicts</span><span class="tg-sm" style="background:rgba(224,116,180,.08);color:var(--pink)">Women's Rights</span><span class="tg-sm" style="background:rgba(240,148,68,.08);color:var(--orange)">Sports</span><span class="tg-sm" style="background:rgba(240,148,68,.08);color:var(--orange)">Culinary</span></div>
+          <div class="sub-title">Advocated Issues</div>
+          <div class="tag-list"><span class="tg-sm" style="background:rgba(240,100,100,.08);color:var(--red)">Hong Kong's Fate</span><span class="tg-sm" style="background:rgba(240,100,100,.08);color:var(--red)">HK Civil Liberties</span><span class="tg-sm" style="background:rgba(240,148,68,.08);color:var(--orange)">Iran Conflict</span><span class="tg-sm" style="background:rgba(240,148,68,.08);color:var(--orange)">Taiwan Politics</span><span class="tg-sm" style="background:rgba(168,130,248,.08);color:var(--purple)">Antisemitism</span><span class="tg-sm" style="background:rgba(224,116,180,.08);color:var(--pink)">Women's Rights</span><span class="tg-sm" style="background:rgba(240,100,100,.08);color:var(--red)">Uyghur Minority</span><span class="tg-sm" style="background:rgba(80,144,255,.08);color:var(--blue)">International Justice</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Detected Affiliations</div>
+          <div class="aff-row"><span class="aff-name">Hong Kong Pro-Democracy Activists</span><span class="aff-type" style="background:rgba(50,212,164,.1);color:var(--green)">Supports</span><div class="aff-reason">Actively defends pro-democracy activists through tweets and retweets, criticizing Chinese government repression.</div></div>
+          <div class="aff-row"><span class="aff-name">Melbourne Law School</span><span class="aff-type" style="background:rgba(80,144,255,.1);color:var(--blue)">Institution</span><div class="aff-reason">Part-time lecturer and PhD candidate at this institution.</div></div>
+          <div class="aff-row"><span class="aff-name">Jimmy Lai</span><span class="aff-type" style="background:rgba(50,212,164,.1);color:var(--green)">Supports</span><div class="aff-reason">Highlights legal cases and heavy sentences imposed on this pro-democracy activist.</div></div>
+          <div class="aff-row"><span class="aff-name">Huang Xueqin</span><span class="aff-type" style="background:rgba(50,212,164,.1);color:var(--green)">Supports</span><div class="aff-reason">Supports the imprisoned journalist and feminist through retweets.</div></div>
+          <div class="aff-row"><span class="aff-name">Chinese Communist Party</span><span class="aff-type" style="background:rgba(240,100,100,.1);color:var(--red)">Criticizes</span><div class="aff-reason">Frequently criticizes human rights violation policies, minority repression, and freedom restrictions in Hong Kong.</div></div>
+          <div class="aff-row"><span class="aff-name">Hawthorn Football Club</span><span class="aff-type" style="background:rgba(50,212,164,.1);color:var(--green)">Supports</span><div class="aff-reason">Expresses support and love for this Australian football club.</div></div>
+          <div class="aff-row"><span class="aff-name">Iranian Government</span><span class="aff-type" style="background:rgba(240,100,100,.1);color:var(--red)">Criticizes</span><div class="aff-reason">Criticizes the Iranian government's strategy and politics in the international context.</div></div>
+          <div class="divider"></div>
+          <div class="sub-title">Risk Score per Aspect</div>
+          <div class="kv"><span class="k" style="color:var(--red)">Separatism</span><span class="val">50/100 — Support for groups challenging China's sovereignty over Hong Kong</span></div>
+          <div class="kv"><span class="k" style="color:var(--orange)">Public Order</span><span class="val">20/100 — Harsh criticism of HK government may potentially incite social tension</span></div>
+          <div class="kv"><span class="k" style="color:var(--yellow)">Criminal</span><span class="val">40/100 — Wanted under HK National Security Law, lawyer license revoked</span></div>
+          <div class="kv"><span class="k" style="color:var(--t2)">Negative Behavior</span><span class="val">10/100 — Demeaning language toward authorities, but not personal harassment</span></div>
+          <div class="kv"><span class="k" style="color:var(--t2)">Radicalism</span><span class="val">5/100 — Critical but not extreme</span></div>
+          <div class="kv"><span class="k" style="color:var(--t2)">Narcotics</span><span class="val">0/100 — No indication</span></div>
+        </div>
+      </div>
+
+      <!-- ACCOUNT 2: INSTAGRAM -->
+      <div class="acc-item">
+        <div class="acc-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <h4><span style="color:var(--pink)">&#9679;</span> Account 2 — Instagram <span class="acc-badge" style="background:rgba(80,144,255,.1);color:var(--blue)">Risk: 17</span> <span class="acc-badge" style="background:rgba(50,212,164,.1);color:var(--green)">Positive: 31</span></h4>
+          <span class="acc-arrow">&#9660;</span>
+        </div>
+        <div class="acc-body">
+          <div class="profile-card"><div style="width:42px;height:42px;border-radius:9px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">K</div><div><div class="nm">Kevin Yam (任建峰)</div><div class="hn">@kevinkfyam</div></div></div>
+          <div class="kv"><span class="k">Bio</span><span class="val">PhD student-to-be @melblawschool. Activist/bounty over head/ex-lawyer, #HongKong. Senior Fellow, Georgetown Center for Asian Law.</span></div>
+          <div class="kv"><span class="k">Status</span><span class="val">Public &bull; 234 followers &bull; 24 posts</span></div>
+          <div class="kv"><span class="k">Personality</span><span class="val">Activist archetype — Analytical, serious</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Topics</div>
+          <div class="tag-list"><span class="tg-sm" style="background:rgba(80,144,255,.08);color:var(--blue)">Political Activism</span><span class="tg-sm" style="background:rgba(80,144,255,.08);color:var(--blue)">Law & Justice</span><span class="tg-sm" style="background:rgba(168,130,248,.08);color:var(--purple)">Struggle Stories</span><span class="tg-sm" style="background:rgba(240,148,68,.08);color:var(--orange)">Sports</span><span class="tg-sm" style="background:rgba(34,212,228,.08);color:var(--cyan)">Academic Book Reviews</span></div>
+          <div class="sub-title">Affiliations</div>
+          <div class="aff-row"><span class="aff-name">Georgetown Center for Asian Law</span><span class="aff-type" style="background:rgba(80,144,255,.1);color:var(--blue)">Institution</span><div class="aff-reason">Senior Fellow at the Asian law research center.</div></div>
+          <div class="aff-row"><span class="aff-name">Melbourne Law School</span><span class="aff-type" style="background:rgba(80,144,255,.1);color:var(--blue)">Institution</span><div class="aff-reason">PhD candidate at the law faculty.</div></div>
+          <div class="aff-row"><span class="aff-name">Hong Kong Government</span><span class="aff-type" style="background:rgba(240,100,100,.1);color:var(--red)">Criticizes</span><div class="aff-reason">Criticizes the revocation of lawyer licenses and implementation of the National Security Law.</div></div>
+        </div>
+      </div>
+
+      <!-- ACCOUNT 3: TIKTOK -->
+      <div class="acc-item">
+        <div class="acc-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <h4><span style="color:var(--cyan)">&#9679;</span> Account 3 — TikTok <span class="acc-badge" style="background:rgba(50,212,164,.1);color:var(--green)">Risk: 2</span> <span class="acc-badge" style="background:rgba(80,144,255,.1);color:var(--blue)">Positive: 14</span></h4>
+          <span class="acc-arrow">&#9660;</span>
+        </div>
+        <div class="acc-body">
+          <div class="profile-card"><div style="width:42px;height:42px;border-radius:9px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">D</div><div><div class="nm">Detective Aldo</div><div class="hn">@detectivealdo</div></div></div>
+          <div class="kv"><span class="k">Bio</span><span class="val">An Ordinary Storyteller</span></div>
+          <div class="kv"><span class="k">Age</span><span class="val">26-45 years old &bull; Investor &bull; Bachelor's degree</span></div>
+          <div class="kv"><span class="k">Personality</span><span class="val">ENFP — The Caregiver — Descriptive, informal</span></div>
+          <div class="kv"><span class="k">Status</span><span class="val">Public &bull; 11,895 followers &bull; 32 posts</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Topics</div>
+          <div class="tag-list"><span class="tg-sm" style="background:rgba(240,100,100,.08);color:var(--red)">Crime & Scandals</span><span class="tg-sm" style="background:rgba(34,212,228,.08);color:var(--cyan)">Video Games</span><span class="tg-sm" style="background:rgba(168,130,248,.08);color:var(--purple)">Occultism</span><span class="tg-sm" style="background:rgba(240,148,68,.08);color:var(--orange)">Social Issues</span></div>
+          <div class="sub-title">Risk Score per Aspect</div>
+          <div class="kv"><span class="k" style="color:var(--t2)">Negative Behavior</span><span class="val">10/100 — Questionable language without strong evidence against specific individuals</span></div>
+          <div class="kv"><span class="k" style="color:var(--green)">All other aspects</span><span class="val">0/100 — No risk indication</span></div>
+          <p style="font-size:10px;color:var(--t4);margin-top:8px">This account is not connected to the main subject's criminal records. Confidence match only 30%.</p>
+        </div>
+      </div>
+
+      <!-- CRIMINAL RECORDS -->
+      <div class="acc-item">
+        <div class="acc-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <h4><span style="color:var(--red)">&#9679;</span> Criminal Records <span class="acc-badge" style="background:rgba(240,100,100,.1);color:var(--red)">Detected</span></h4>
+          <span class="acc-arrow">&#9660;</span>
+        </div>
+        <div class="acc-body">
+          <div class="sub-title">Identity</div>
+          <div class="kv"><span class="k">Name</span><span class="val">Kevin Yam Kin-fung (任建峰)</span></div>
+          <div class="kv"><span class="k">Background</span><span class="val">Former lawyer and Hong Kong pro-democracy activist. Currently a PhD candidate and part-time lecturer at Melbourne Law School, Australia.</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Key Chronology</div>
+          <div class="kv"><span class="k" style="color:var(--cyan)">2022</span><span class="val">Returned to Australia after 20 years in Hong Kong</span></div>
+          <div class="kv"><span class="k" style="color:var(--cyan)">May 2023</span><span class="val">Testified before the Congressional-Executive Commission on China (CECC), calling for sanctions against HK judges and prosecutors</span></div>
+          <div class="kv"><span class="k" style="color:var(--orange)">2023</span><span class="val">Legal pressure increased: arrest warrant issued, HK passport revoked</span></div>
+          <div class="kv"><span class="k" style="color:var(--red)">Jul 2025</span><span class="val">Lawyer license revoked by the Solicitors Disciplinary Tribunal, ordered to pay HK$816,600 in investigation costs</span></div>
+          <div class="kv"><span class="k" style="color:var(--purple)">Oct 2025</span><span class="val">UN human rights experts condemned the actions as political repression</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Legal Charges</div>
+          <div class="kv"><span class="k">Violation</span><span class="val">Conduct unbecoming as a solicitor — calling for international sanctions against HK judiciary officials</span></div>
+          <div class="kv"><span class="k">Security Law</span><span class="val">Listed as a wanted person under the HK National Security Law with a HK$1 million bounty</span></div>
+          <div class="kv"><span class="k">Note</span><span class="val" style="color:var(--green)">Not a substantive criminal charge — rather a professional ethics and political violation</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Current Status</div>
+          <div class="kv"><span class="k">Residing in</span><span class="val">Melbourne, Australia — safe from extradition (treaty suspended since 2020)</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Information Sources</div>
+          <div class="aff-row"><span class="aff-name">Hong Kong Free Press</span><span class="aff-type" style="background:rgba(50,212,164,.1);color:var(--green)">Relevant</span><div class="aff-reason">Solicitor-activist Kevin Yam barred from practising over 'grave' misconduct linked to sanctions call</div></div>
+          <div class="aff-row"><span class="aff-name">The Guardian</span><span class="aff-type" style="background:rgba(50,212,164,.1);color:var(--green)">Relevant</span><div class="aff-reason">Australia-based lawyer Kevin Yam vows 'not to shut up' after Hong Kong arrest warrant</div></div>
+          <div class="aff-row"><span class="aff-name">JURIST</span><span class="aff-type" style="background:rgba(50,212,164,.1);color:var(--green)">Relevant</span><div class="aff-reason">UN experts condemn reprisals targeting Hong Kong lawyer Kevin Yam</div></div>
+        </div>
+      </div>
+
+      <!-- BIOMETRICS -->
+      <div class="acc-item">
+        <div class="acc-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <h4><span style="color:var(--cyan)">&#9679;</span> Facial Biometric Analysis</h4>
+          <span class="acc-arrow">&#9660;</span>
+        </div>
+        <div class="acc-body">
+          <p style="font-size:12px;color:var(--t2)">Available images were of low quality, making detailed facial characteristic identification impossible. The system recommends higher resolution photos for more accurate biometric analysis.</p>
+        </div>
+      </div>
+
+      <!-- OUTPUT FILES -->
+      <div class="acc-item">
+        <div class="acc-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <h4><span style="color:var(--green)">&#9679;</span> Output Files & Processing Time</h4>
+          <span class="acc-arrow">&#9660;</span>
+        </div>
+        <div class="acc-body">
+          <div class="kv"><span class="k">Profile PDF</span><span class="val">pdf_profile_kevinkfyam_[...].pdf</span></div>
+          <div class="kv"><span class="k">Criminal PDF</span><span class="val">pdf_profile_criminal_records_report_[...].pdf</span></div>
+          <div class="kv"><span class="k">Comprehensive PDF</span><span class="val">pdf_profile_comprehensive_[...].pdf</span></div>
+          <div class="divider"></div>
+          <div class="sub-title">Processing Time Breakdown</div>
+          <div class="kv"><span class="k">Data fetch</span><span class="val">45 seconds</span></div>
+          <div class="kv"><span class="k">Image analysis</span><span class="val">4 seconds</span></div>
+          <div class="kv"><span class="k">Profile build</span><span class="val">48 seconds</span></div>
+          <div class="kv"><span class="k">Criminal research</span><span class="val">77 seconds</span></div>
+          <div class="kv"><span class="k">Score & summary</span><span class="val">29 seconds</span></div>
+          <div class="kv"><span class="k">Profile enrichment</span><span class="val">74 seconds</span></div>
+          <div class="kv"><span class="k">PDF generation</span><span class="val">6 seconds</span></div>
+          <div class="kv"><span class="k" style="color:var(--green)">Total</span><span class="val" style="color:var(--green);font-weight:600">4 minutes 49 seconds</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== TECH ========== -->
+<div class="sec" id="s-tech"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Stack</div>
+    <div class="sh-title">Technology <em>Breakdown</em></div>
+  </div>
+
+  <div class="tg2" style="margin-top:8px">
+    <div class="tc rv"><div class="tc-cat" style="color:var(--purple)"><div class="td" style="background:var(--purple);width:7px;height:7px"></div>AI Models</div><div class="tl"><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">GPT-4.1-mini</span><span class="tr">Primary analysis model</span></div><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">GPT-4o-mini</span><span class="tr">Summary & relations</span></div><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Gemini 2.5 Flash</span><span class="tr">Facial reconstruction</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Qwen3-8B</span><span class="tr">Local model</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">EBDesk</span><span class="tr">Alternative provider</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--blue)"><div class="td" style="background:var(--blue);width:7px;height:7px"></div>Framework</div><div class="tl"><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Python + AsyncIO</span><span class="tr">Primary runtime</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">FastAPI + Uvicorn</span><span class="tr">HTTP server</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">eb_labs</span><span class="tr">Agent framework</span></div><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Pydantic</span><span class="tr">Data validation</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--orange)"><div class="td" style="background:var(--orange);width:7px;height:7px"></div>Search Engine</div><div class="tl"><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Google Search</span><span class="tr">Primary search</span></div><div class="ti"><div class="td" style="background:var(--yellow)"></div><span class="tn">Brave Search</span><span class="tr">Fallback search</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--cyan)"><div class="td" style="background:var(--cyan);width:7px;height:7px"></div>Data Collection</div><div class="tl"><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">RapidAPI Gateway</span><span class="tr">IG, TikTok, X, FB, YT</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">LinkedIn Crawler</span><span class="tr">LinkedIn profiles</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">VLM Analysis</span><span class="tr">Image analysis</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--green)"><div class="td" style="background:var(--green);width:7px;height:7px"></div>Storage</div><div class="tl"><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Elasticsearch</span><span class="tr">Indexing & search</span></div><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Redis</span><span class="tr">Queue & cache</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Apache Kafka</span><span class="tr">Event streaming</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">PostgreSQL</span><span class="tr">Criminal database</span></div><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">AWS S3</span><span class="tr">PDF & image files</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--red)"><div class="td" style="background:var(--red);width:7px;height:7px"></div>Processing</div><div class="tl"><div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Face Reranker</span><span class="tr">Face matching</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Text Reranker</span><span class="tr">Text relevance</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">PDF Generator</span><span class="tr">HTML to PDF</span></div></div></div>
+  </div>
+</div></div>
+
+<footer><div class="container"><p style="color:var(--t2);font-weight:600;margin-bottom:3px">Deep Account Profiling Engine</p><p>24 AI Agents &bull; 6 Platforms &bull; ~5 Minutes per Analysis</p></div></footer>
+
+<script>
+// Tab navigation
+const tabs=document.querySelectorAll('.tab'),secs=document.querySelectorAll('.sec');
+function go(id){tabs.forEach(t=>t.classList.toggle('on',t.dataset.s===id));secs.forEach(s=>{const show=s.id==='s-'+id;s.classList.toggle('on',show);if(show){window.scrollTo({top:0,behavior:'instant'});setTimeout(()=>{s.querySelectorAll('.rv').forEach(r=>r.classList.add('v'));s.querySelectorAll('.ab').forEach(b=>{const w=b.dataset.w;if(w)setTimeout(()=>b.style.width=w+'%',150)})},40)}});document.querySelector('.tabs').classList.remove('open')}
+tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.s)));
+
+// Agent filter
+const ctbs=document.querySelectorAll('.ctb'),acs=document.querySelectorAll('.ac');
+ctbs.forEach(t=>t.addEventListener('click',()=>{ctbs.forEach(c=>c.classList.remove('on'));t.classList.add('on');const cat=t.dataset.c;acs.forEach(c=>{c.style.display=(cat==='all'||c.dataset.c===cat)?'':'none'})}));
+
+// Init hero reveals
+document.querySelectorAll('#s-hero .rv').forEach(r=>r.classList.add('v'));
+
+// Observer
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')})},{threshold:.06});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

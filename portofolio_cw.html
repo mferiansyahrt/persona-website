@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Warfare Engine &mdash; Platform Intelijen Isu Berbasis AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e17;--bg2:#111827;--bg3:#1a2234;--bg4:#1e293b;
+  --border:#1e293b;--border2:#2d3a4f;
+  --text:#e2e8f0;--dim:#94a3b8;--muted:#64748b;
+  --blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;--pink:#ec4899;
+  --R:12px;--Rs:8px;--Rx:6px;
+  --F:'Inter',-apple-system,sans-serif;
+  --T:.3s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px}
+body{font-family:var(--F);background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+a{color:var(--blue);text-decoration:none}
+
+/* ===== NAV ===== */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,14,23,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.topbar-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.5rem}
+.logo{font-weight:800;font-size:.95rem;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ===== TABS ===== */
+.tab-bar{display:flex;gap:2px;background:var(--bg2);border-radius:10px;padding:3px}
+.tab-btn{font-family:var(--F);font-size:.78rem;font-weight:600;color:var(--muted);background:transparent;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;transition:all var(--T);white-space:nowrap}
+.tab-btn:hover{color:var(--dim)}
+.tab-btn.active{color:#fff;background:var(--blue);box-shadow:0 2px 12px rgba(59,130,246,.3)}
+
+/* ===== TAB CONTENT ===== */
+.tab-content{display:none;opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
+.tab-content.active{display:block;opacity:1;transform:translateY(0)}
+.page{max-width:1200px;margin:0 auto;padding:6rem 1.5rem 4rem}
+
+/* ===== REUSABLE ===== */
+.label{display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:.75rem}
+.label::before{content:'';width:20px;height:2px;background:var(--blue)}
+h2.title{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:.5rem}
+.subtitle{font-size:1rem;color:var(--dim);max-width:560px;margin-bottom:2.5rem;line-height:1.7}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--R);padding:1.5rem;transition:all var(--T)}
+.card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.badge{display:inline-block;font-size:.65rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--border2);color:var(--dim);white-space:nowrap}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+
+/* ===== HERO ===== */
+.hero{padding:7rem 1.5rem 4rem;max-width:1200px;margin:0 auto;position:relative}
+.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,.07),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:600;color:var(--cyan);padding:.35rem .85rem;border:1px solid rgba(6,182,212,.2);border-radius:999px;background:rgba(6,182,212,.05);margin-bottom:1.25rem}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;letter-spacing:-.04em;line-height:1.08;margin-bottom:1rem}
+.hero h1 .gr{background:linear-gradient(135deg,var(--blue),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--dim);max-width:600px;line-height:1.75;margin-bottom:2rem}
+.hero .tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.hero .tags .badge{transition:all var(--T)}.hero .tags .badge:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ===== STATS ===== */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin:3rem 0 0}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--R);padding:1.25rem;text-align:center;transition:all var(--T)}
+.stat:hover{border-color:var(--blue);box-shadow:0 0 25px rgba(59,130,246,.12);transform:translateY(-2px)}
+.stat-num{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.stat-label{font-size:.7rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-top:.2rem}
+
+/* ===== FLOW STEPS ===== */
+.flow{position:relative;padding:1rem 0}
+.step{display:flex;gap:1.5rem;padding:1.5rem 0;position:relative}
+.step-left{flex-shrink:0;display:flex;flex-direction:column;align-items:center;width:56px}
+.step-num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;background:var(--bg2);border:2px solid var(--border2);color:var(--dim);position:relative;z-index:2;transition:all var(--T)}
+.step:hover .step-num{border-color:var(--blue);color:var(--blue);box-shadow:0 0 20px rgba(59,130,246,.15)}
+.step-line{flex:1;width:2px;background:linear-gradient(180deg,var(--border2),rgba(59,130,246,.2));margin:4px 0}
+.step:last-child .step-line{display:none}
+.step-body{flex:1;padding-bottom:.5rem}
+.step-title{font-size:1rem;font-weight:700;margin-bottom:.3rem}
+.step-desc{font-size:.85rem;color:var(--dim);line-height:1.7}
+.step-badges{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+
+/* parallel block */
+.parallel-box{background:var(--bg2);border:1px dashed var(--border2);border-radius:var(--R);padding:1.25rem;margin:1rem 0 1rem 72px}
+.parallel-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:.75rem}
+.parallel-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.branch{background:var(--bg);border-radius:var(--Rx);padding:1rem}
+.branch-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.branch-title.a{color:var(--blue)}.branch-title.b{color:var(--amber)}
+.branch p{font-size:.82rem;color:var(--dim);line-height:1.7}
+
+/* ===== AGENT CARDS ===== */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem}
+.agent{position:relative;overflow:hidden}
+.agent::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--agent-c,var(--blue)),transparent);opacity:0;transition:opacity var(--T)}
+.agent:hover::before{opacity:1}
+.agent-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.agent-icon{width:38px;height:38px;border-radius:var(--Rs);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.agent-name{font-size:.95rem;font-weight:700}
+.agent-role{font-size:.7rem;color:var(--muted);margin-top:.15rem}
+.agent p{font-size:.84rem;color:var(--dim);line-height:1.65;margin-bottom:.75rem}
+.agent-io{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.io{background:var(--bg);border-radius:var(--Rx);padding:.65rem .75rem}
+.io-title{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.io-title.in{color:var(--cyan)}.io-title.out{color:var(--green)}
+.io ul{list-style:none;font-size:.75rem;color:var(--dim)}
+.io li{padding:.1rem 0}
+.io li::before{content:'\203A';margin-right:.35rem;color:var(--muted);font-weight:700}
+
+/* ===== SAMPLE I/O ===== */
+.sample-flow{display:flex;align-items:stretch;gap:0;margin:2rem 0}
+.sample-card{flex:1;border-radius:var(--R);overflow:hidden;border:1px solid var(--border)}
+.sample-card .header{padding:.75rem 1rem;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)}
+.sample-card.input .header{background:rgba(6,182,212,.08);color:var(--cyan)}
+.sample-card.output .header{background:rgba(16,185,129,.08);color:var(--green)}
+.sample-card .body{padding:1.25rem;background:var(--bg2);font-size:.82rem;color:var(--dim);line-height:1.7}
+.sample-arrow{display:flex;align-items:center;justify-content:center;padding:0 .75rem;flex-shrink:0}
+.sample-arrow svg{width:32px;height:32px}
+.field{display:flex;gap:.5rem;padding:.35rem 0;align-items:baseline}
+.field-label{font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;min-width:80px;flex-shrink:0}
+.field-value{font-size:.82rem;color:var(--text)}
+.result-group{background:var(--bg3);border-radius:var(--Rs);padding:1rem;margin-bottom:.75rem;border-left:3px solid var(--blue)}
+.result-group:last-child{margin-bottom:0}
+.result-group-title{font-size:.9rem;font-weight:700;margin-bottom:.5rem}
+.result-event{background:var(--bg);border-radius:var(--Rx);padding:.75rem;margin-top:.5rem}
+.result-event-name{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:.3rem}
+.result-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.35rem}
+.result-meta .badge{font-size:.58rem}
+.platform-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem}
+.platform-pill{font-size:.6rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg2);color:var(--dim);border:1px solid var(--border)}
+.platform-pill .ct{color:var(--blue);margin-left:.25rem}
+.sentiment-badge{font-size:.6rem;font-weight:700;padding:.2rem .5rem;border-radius:999px}
+.sentiment-badge.neg{background:rgba(239,68,68,.12);color:var(--red)}
+.sentiment-badge.pos{background:rgba(16,185,129,.12);color:var(--green)}
+.sentiment-badge.neu{background:rgba(245,158,11,.12);color:var(--amber)}
+.alert-score{display:inline-flex;align-items:center;gap:.25rem;font-size:.6rem;font-weight:700;padding:.2rem .5rem;border-radius:999px;background:rgba(239,68,68,.1);color:var(--red)}
+
+/* ===== TECH ===== */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.tech .cat{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);margin-bottom:.65rem}
+.tech ul{list-style:none}
+.tech li{display:flex;align-items:baseline;gap:.5rem;padding:.25rem 0;font-size:.84rem;color:var(--dim)}
+.tech li strong{color:var(--text);font-weight:600;min-width:110px;flex-shrink:0}
+
+/* ===== FOOTER ===== */
+footer{border-top:1px solid var(--border);padding:2.5rem 1.5rem;text-align:center}
+footer .fl{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;font-size:.9rem}
+footer p{font-size:.75rem;color:var(--muted);margin-top:.4rem}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .tab-bar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab-btn{font-size:.7rem;padding:.45rem .75rem}
+  .grid-2,.parallel-grid,.sample-flow,.agent-io{grid-template-columns:1fr;display:grid}
+  .sample-flow{flex-direction:column}
+  .sample-arrow{transform:rotate(90deg);padding:.5rem 0}
+  .agent-grid{grid-template-columns:1fr}
+  .grid-3,.grid-4{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:2rem}
+  .parallel-box{margin-left:0}
+}
+@media(max-width:480px){
+  .grid-3,.grid-4,.stats{grid-template-columns:1fr 1fr}
+  .page{padding:5rem 1rem 3rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">Cognitive Warfare Engine</div>
+    <div class="tab-bar" id="tabBar">
+      <button class="tab-btn active" data-tab="overview">Ringkasan</button>
+      <button class="tab-btn" data-tab="how">Cara Kerja</button>
+      <button class="tab-btn" data-tab="agents">Agent AI</button>
+      <button class="tab-btn" data-tab="results">Contoh Hasil</button>
+      <button class="tab-btn" data-tab="tech">Teknologi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: RINGKASAN
+     ============================================================ -->
+<div class="tab-content active" id="tab-overview">
+
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="dot"></span>Cognitive Warfare &mdash; Platform Intelijen Isu Berbasis AI</div>
+    <h1>Cognitive Warfare:<br><span class="gr">Deteksi Isu Sebelum Eskalasi</span></h1>
+    <p>Sistem intelijen cerdas yang memantau berita dan media sosial di seluruh Indonesia secara real-time, mendeteksi isu-isu yang sedang berkembang, mengelompokkannya menjadi kategori bermakna, dan menghasilkan laporan intelijen yang actionable &mdash; semuanya dalam hitungan menit.</p>
+    <div class="tags">
+      <span class="badge">Cognitive Warfare</span>
+      <span class="badge">Pemantauan Real-Time</span>
+      <span class="badge">13 Agent AI</span>
+      <span class="badge">8 Platform Sosial</span>
+      <span class="badge">Berita + Media Sosial</span>
+      <span class="badge">Analisis Sentimen</span>
+      <span class="badge">Laporan Otomatis</span>
+      <span class="badge">Pemrosesan Paralel</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-num" style="color:var(--blue)">13</div><div class="stat-label">Agent AI Bekerja Bersama</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--purple)">23</div><div class="stat-label">Langkah Pemrosesan</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--cyan)">8</div><div class="stat-label">Platform Dipantau</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--green)">3</div><div class="stat-label">Penyedia Model AI</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--amber)">6</div><div class="stat-label">Lapisan Filter Kualitas</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--pink)">~3K</div><div class="stat-label">Baris Logika Pipeline</div></div>
+    </div>
+  </div>
+
+  <!-- Apa yang Dilakukan -->
+  <div class="page" style="padding-top:1rem">
+    <div class="label">Apa yang Dilakukan</div>
+    <h2 class="title">Dari Data Mentah Menjadi Intelijen Siap Pakai</h2>
+    <p class="subtitle">Sistem Cognitive Warfare ini mengubah ribuan artikel berita dan postingan media sosial yang tidak terstruktur menjadi laporan isu yang terorganisir dan terprioritasi.</p>
+
+    <div class="grid-3" style="margin-bottom:2.5rem">
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x1F4F0;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Mengumpulkan</div>
+        <p style="font-size:.84rem;color:var(--dim)">Mengumpulkan ribuan artikel berita dan postingan media sosial dari 8 platform (Twitter, Facebook, YouTube, Instagram, TikTok, Bluesky, Threads, dan berita daring).</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x1F9E0;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Menganalisis</div>
+        <p style="font-size:.84rem;color:var(--dim)">13 agent AI spesialis bekerja bersama untuk mengidentifikasi event, menyaring noise, mengelompokkan event terkait menjadi isu utama, serta menilai sentimen dan urgensi.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x1F4CA;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Menyajikan</div>
+        <p style="font-size:.84rem;color:var(--dim)">Menghasilkan laporan terstruktur berisi hierarki isu, skor sentimen, level peringatan, data engagement per platform, dan query pencarian untuk investigasi lanjutan.</p>
+      </div>
+    </div>
+
+    <!-- Platform -->
+    <div class="label">Sumber yang Dipantau</div>
+    <h2 class="title">8 Platform, Satu Tampilan Terpadu</h2>
+    <p class="subtitle">Kami menarik data dari seluruh platform media sosial utama Indonesia dan portal berita daring.</p>
+    <div class="grid-4" style="margin-bottom:0">
+      <div class="card" style="text-align:center;padding:1.25rem">
+        <div style="font-size:1.3rem;margin-bottom:.5rem">&#x1D54F;</div>
+        <div style="font-weight:600;font-size:.85rem">Twitter / X</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1.25rem">
+        <div style="font-size:1.3rem;margin-bottom:.5rem">&#x0066;</div>
+        <div style="font-weight:600;font-size:.85rem">Facebook</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1.25rem">
+        <div style="font-size:1.3rem;margin-bottom:.5rem">&#x25B6;</div>
+        <div style="font-weight:600;font-size:.85rem">YouTube</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1.25rem">
+        <div style="font-size:1.3rem;margin-bottom:.5rem">&#x1F4F7;</div>
+        <div style="font-weight:600;font-size:.85rem">Instagram</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1.25rem">
+        <div style="font-size:1.3rem;margin-bottom:.5rem">&#x266B;</div>
+        <div style="font-weight:600;font-size:.85rem">TikTok</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1.25rem">
+        <div style="font-size:1.3rem;margin-bottom:.5rem">&#x1F98B;</div>
+        <div style="font-weight:600;font-size:.85rem">Bluesky</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1.25rem">
+        <div style="font-size:1.3rem;margin-bottom:.5rem">&#x1F9F5;</div>
+        <div style="font-weight:600;font-size:.85rem">Threads</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1.25rem">
+        <div style="font-size:1.3rem;margin-bottom:.5rem">&#x1F4F0;</div>
+        <div style="font-weight:600;font-size:.85rem">Berita Daring</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: CARA KERJA
+     ============================================================ -->
+<div class="tab-content" id="tab-how">
+  <div class="page">
+    <div class="label">Cara Kerja</div>
+    <h2 class="title">Dari Topik Menjadi Laporan Intelijen</h2>
+    <p class="subtitle">Sistem Cognitive Warfare ini mengikuti pipeline yang dirancang cermat untuk mengubah sebuah nama topik sederhana menjadi laporan intelijen hierarkis yang komprehensif. Berikut setiap langkahnya.</p>
+
+    <div class="flow">
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--cyan);color:var(--cyan)">1</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Memahami Topik</div>
+          <div class="step-desc">Sistem menerima nama topik (misalnya "Polri" atau "Program Makan Bergizi Gratis") lalu agent AI memperluas topik tersebut menjadi query pencarian yang kaya &mdash; menambahkan sinonim, istilah terkait, dan frasa alternatif agar tidak ada informasi yang terlewat.</div>
+          <div class="step-badges"><span class="badge">AI Perluasan Topik</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--blue);color:var(--blue)">2</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Mengumpulkan Artikel Berita</div>
+          <div class="step-desc">Menggunakan query yang telah diperluas, sistem mencari melalui database besar artikel berita daring. Sistem mengambil hingga 5.000 artikel relevan dari periode waktu yang ditentukan, lalu menghapus artikel yang hampir duplikat agar hanya menyisakan berita unik.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--blue);color:var(--blue)">3</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Mengelompokkan Berita ke Topik</div>
+          <div class="step-desc">Artikel berita dikelompokkan secara otomatis menjadi klaster berita yang saling terkait. Setiap klaster mewakili satu topik berita yang berbeda &mdash; misalnya, satu klaster tentang penangkapan koruptor, klaster lain tentang aksi protes. Artikel paling representatif di setiap klaster menjadi "jangkar" untuk topik tersebut.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--green);color:var(--green)">4</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Menyaring Klaster yang Relevan</div>
+          <div class="step-desc">Agent AI memeriksa setiap klaster berita dan membuang yang tidak benar-benar relevan dengan topik yang dipantau. Pemeriksaan dua tahap: apakah ini terkait dengan topik? Dan apakah ini cukup signifikan untuk dilaporkan? Klaster yang tidak relevan atau trivial dibuang.</div>
+          <div class="step-badges"><span class="badge">AI Filter Relevansi</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--blue);color:var(--blue)">5</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Mencari Reaksi Publik di Media Sosial</div>
+          <div class="step-desc">Untuk setiap klaster berita yang lolos filter, sistem mencari di media sosial bagaimana reaksi publik. Judul berita digunakan sebagai query pencarian di Twitter, Facebook, Instagram, TikTok, YouTube, Bluesky, dan Threads. Hasilnya diranking berdasarkan relevansi, hanya postingan yang benar-benar terkait yang disimpan.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--purple);color:var(--purple)">6</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Mengekstrak Event Spesifik</div>
+          <div class="step-desc">Dua agent AI bekerja secara bersamaan pada setiap klaster. Agent pertama mengidentifikasi hingga 5 event berbeda (misalnya "Keracunan Makanan di Sekolah Bandung Barat" bukan sekadar "Masalah Kualitas Makanan"). Agent kedua menggali postingan media sosial untuk mengekstrak kata kunci dan frasa yang sedang tren.</div>
+          <div class="step-badges"><span class="badge">AI Ekstraksi Event</span><span class="badge">AI Penambangan Kata Kunci</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--red);color:var(--red)">7</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Menghapus Duplikat &amp; Event Berkualitas Rendah</div>
+          <div class="step-desc">Filter kualitas khusus berjalan dua kali atas seluruh event yang diekstrak. Filter ini menghapus event yang tidak relevan untuk klien, menyaring deskripsi yang generik atau kabur, dan mengeliminasi duplikat dengan membandingkan SIAPA melakukan APA kepada SIAPA, DI MANA dan KAPAN. Hanya event berkualitas tinggi dan unik yang bertahan.</div>
+          <div class="step-badges"><span class="badge">AI Filter Kualitas (2 tahap)</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--cyan);color:var(--cyan)">8</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Memeriksa Memori Sistem</div>
+          <div class="step-desc">Setiap event dibandingkan dengan database memori event yang terdeteksi sebelumnya. Jika event yang sama sudah pernah dilaporkan di analisis sebelumnya, sistem menggunakan kembali nama yang sudah ada untuk menjaga konsistensi antar laporan. Event baru disimpan untuk referensi di masa depan.</div>
+        </div>
+      </div>
+
+    </div><!-- /flow -->
+
+    <!-- BLOK PARALEL -->
+    <div class="parallel-box">
+      <div class="parallel-label">Dua proses berikut berjalan bersamaan untuk menghemat waktu</div>
+      <div class="parallel-grid">
+        <div class="branch">
+          <div class="branch-title a">Mengelompokkan Event ke Isu Utama</div>
+          <p>Agent AI memeriksa apakah event-event cocok dengan isu yang sudah dikenal sebelumnya dari database. Event yang tidak cocok dikelompokkan ke dalam kategori isu utama baru (maksimal 10) dengan nama deskriptif. Sistem memastikan isu dunia nyata yang sama selalu mendapat identitas yang sama, bahkan di analisis yang berbeda.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title b">Analisis Sentimen &amp; Hitung Engagement</div>
+          <p>Untuk setiap event, sistem menghitung berapa banyak postingan yang membahasnya di setiap platform, mengumpulkan contoh postingan dengan metrik engagement, dan agent AI menilai sentimen (positif/negatif/netral), tingkat sensitivitas, serta menghasilkan skor peringatan 0-10 berdasarkan perspektif klien.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow">
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--amber);color:var(--amber)">9</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Menyusun Struktur Laporan</div>
+          <div class="step-desc">Event-event disusun di bawah isu utama induknya untuk membuat laporan hierarkis. Event dengan engagement media sosial nol atau di bawah ambang batas minimum disaring. Kelompok isu yang kosong (di mana semua event terbuang) dihapus sepenuhnya.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--pink);color:var(--pink)">10</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Pemeriksaan Kualitas &amp; Perbaikan</div>
+          <div class="step-desc">Agent AI menilai seberapa cocok setiap event di bawah isu induknya (skor 0-100). Event dengan skor di bawah 60 otomatis ditulis ulang &mdash; fakta-faktanya dipertahankan, namun penamaan dan deskripsinya diperbaiki agar lebih mencerminkan isu sebenarnya. Kemudian, agent AI lain memeriksa semua nama isu utama terhadap katalog historis untuk memastikan konsistensi antar laporan.</div>
+          <div class="step-badges"><span class="badge">AI Skor Koherensi</span><span class="badge">AI Penulisan Ulang</span><span class="badge">AI Konsistensi</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--cyan);color:var(--cyan)">11</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Membuat Query Pencarian &amp; Memperkaya Kata Kunci</div>
+          <div class="step-desc">Untuk setiap event, sistem menghasilkan query pencarian yang teroptimasi (sintaks Lucene) yang dapat digunakan untuk pengambilan data lebih lanjut. Secara bersamaan, kata kunci diperkaya dari postingan media sosial yang sebenarnya untuk menangkap bahasa nyata yang digunakan publik saat membahas setiap event.</div>
+          <div class="step-badges"><span class="badge">AI Pembuat Query</span><span class="badge">AI Pengayaan Kata Kunci</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--green);color:var(--green);box-shadow:0 0 15px rgba(16,185,129,.2)">&#10003;</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title" style="color:var(--green)">Menyampaikan Laporan Intelijen</div>
+          <div class="step-desc">Laporan terstruktur final disusun lengkap dengan data waktu pemrosesan, log kendali kualitas, dan dikirim melalui API. Laporan berisi hierarki isu lengkap dengan event, analisis sentimen, metrik engagement per platform, contoh postingan, dan query pencarian.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: AGEN AI
+     ============================================================ -->
+<div class="tab-content" id="tab-agents">
+  <div class="page">
+    <div class="label">Agent AI</div>
+    <h2 class="title">13 Agent AI, Satu Misi</h2>
+    <p class="subtitle">Setiap agent adalah spesialis dengan peran yang jelas. Mereka bekerja bersama dalam pipeline terkoordinasi, meneruskan hasil dari satu tahap ke tahap berikutnya.</p>
+
+    <div class="agent-grid">
+
+      <div class="card agent" style="--agent-c:var(--cyan)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(6,182,212,.1);color:var(--cyan)">&#x1F50D;</div>
+          <div><div class="agent-name">Perluasan Topik</div><div class="agent-role">Penyempurnaan Query</div></div>
+        </div>
+        <p>Mengambil nama topik singkat dan menghasilkan query pencarian komprehensif dengan sinonim dan istilah terkait, agar sistem tidak melewatkan konten yang relevan.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Nama topik</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Query pencarian diperluas</li><li>Istilah pencarian terkait</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--green)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(16,185,129,.1);color:var(--green)">&#x1F3AF;</div>
+          <div><div class="agent-name">Filter Relevansi</div><div class="agent-role">Penyaringan Centroid</div></div>
+        </div>
+        <p>Memeriksa klaster berita dan membuang yang tidak relevan atau tidak signifikan. Menggunakan pengecekan dua tahap: apakah terkait? Dan apakah cukup penting untuk dilaporkan?</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Daftar klaster berita</li><li>Konteks topik</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Daftar klaster tersaring</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--purple)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(139,92,246,.1);color:var(--purple)">&#x26A1;</div>
+          <div><div class="agent-name">Ekstraktor Event</div><div class="agent-role">Deteksi Event</div></div>
+        </div>
+        <p>Membaca setiap klaster berita beserta reaksi media sosialnya dan mengidentifikasi hingga 5 event berbeda. Memberi nama setiap event secara spesifik (misalnya "Demo Mahasiswa di Kampus UI" bukan sekadar "Demo").</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Konteks berita + medsos</li><li>Rentang tanggal dan topik</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Nama &amp; deskripsi event</li><li>Kategori &amp; kata kunci</li><li>Tanggal pertama terdeteksi</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--purple)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(139,92,246,.1);color:var(--purple)">&#x1F511;</div>
+          <div><div class="agent-name">Penambang Kata Kunci</div><div class="agent-role">Formasi Kata Kunci</div></div>
+        </div>
+        <p>Mengekstrak kata dan frasa yang sebenarnya digunakan publik di postingan media sosial tentang setiap event. Menangkap entitas (siapa/apa) dan klaim (apa yang mereka katakan).</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Nama event</li><li>Postingan media sosial</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Kata kunci entitas (7-12)</li><li>Kata kunci topik (10-15)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--red)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(239,68,68,.1);color:var(--red)">&#x1F6AB;</div>
+          <div><div class="agent-name">Penjaga Kualitas</div><div class="agent-role">Penghapusan Isu (2 tahap)</div></div>
+        </div>
+        <p>Filter paling ketat di pipeline. Berjalan dua kali dengan 4 lapisan: memeriksa relevansi klien, keselarasan topik, menghapus deskripsi generik, dan mengeliminasi duplikat semantik menggunakan fingerprinting insiden (siapa melakukan apa kepada siapa, di mana, kapan).</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Semua event terekstrak</li><li>Konteks klien &amp; topik</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Hanya event yang lolos</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--amber)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(245,158,11,.1);color:var(--amber)">&#x1F4CC;</div>
+          <div><div class="agent-name">Pencocokan Katalog</div><div class="agent-role">Pemetaan Isu</div></div>
+        </div>
+        <p>Membandingkan setiap event dengan katalog isu yang sudah dikenal sebelumnya. Menggunakan 5 kriteria pencocokan (topik, jenis aksi, aktor, sudut pandang, peran entitas) untuk menentukan apakah event tersebut termasuk isu yang sudah ada.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Event-event</li><li>Katalog isu historis</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Event yang cocok</li><li>Event baru (tidak cocok)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--amber)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(245,158,11,.1);color:var(--amber)">&#x1F4C1;</div>
+          <div><div class="agent-name">Pengorganisir Isu</div><div class="agent-role">Pengelompokan Isu</div></div>
+        </div>
+        <p>Mengelompokkan event terkait ke dalam kategori isu utama (maksimal 10). Membuat nama isu ringkas 3 kata dan memastikan event dikelompokkan berdasarkan kecocokan topik, jenis aksi, aktor, dan perspektif.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Event belum terkelompok</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Grup isu dengan nama</li><li>Deskripsi isu</li><li>Penugasan event</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--pink)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(236,72,153,.1);color:var(--pink)">&#x2705;</div>
+          <div><div class="agent-name">Pemeriksa Koherensi</div><div class="agent-role">Penilaian Koherensi Event</div></div>
+        </div>
+        <p>Menilai seberapa cocok setiap event di bawah isu utama yang ditugaskan (skor 0-100) menggunakan 5 kriteria. Event dengan skor di bawah 60 ditandai untuk penulisan ulang otomatis.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Event + isu induk</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Skor koherensi (0-100)</li><li>Alasan perbaikan</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--pink)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(236,72,153,.1);color:var(--pink)">&#x270F;&#xFE0F;</div>
+          <div><div class="agent-name">Penulis Ulang Event</div><div class="agent-role">Perbaikan Otomatis</div></div>
+        </div>
+        <p>Menulis ulang event dengan skor rendah agar lebih selaras dengan isu induknya. Semua fakta dipertahankan &mdash; hanya penamaan, deskripsi, dan keselarasan kata kunci yang diperbaiki. Menggunakan contoh postingan media sosial sebagai konteks.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Event skor rendah</li><li>Konteks isu induk</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Nama event diperbaiki</li><li>Deskripsi disempurnakan</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--pink)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(236,72,153,.1);color:var(--pink)">&#x1F504;</div>
+          <div><div class="agent-name">Penjaga Konsistensi</div><div class="agent-role">Konsistensi Lintas Laporan</div></div>
+        </div>
+        <p>Memastikan isu dunia nyata yang sama selalu mendapat nama dan ID yang sama di berbagai laporan. Mencocokkan isu saat ini dengan katalog historis menggunakan verifikasi 5 langkah. Mencegah pergeseran nama isu dari waktu ke waktu.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Nama isu saat ini</li><li>Katalog historis</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Nama + ID terstandarisasi</li><li>Penanda baru/lama</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--cyan)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(6,182,212,.1);color:var(--cyan)">&#x1F50E;</div>
+          <div><div class="agent-name">Pembuat Query Pencarian</div><div class="agent-role">Pembuatan Query Lucene (2 tahap)</div></div>
+        </div>
+        <p>Menghasilkan query pencarian teroptimasi untuk setiap event yang dapat digunakan untuk menemukan konten terkait lebih lanjut. Tahap pertama membuat query; tahap kedua menyempurnakan untuk spesifikasi media sosial dan mencegah kebocoran topik.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Detail event</li><li>Kata kunci</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Query pencarian teroptimasi</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--blue)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(59,130,246,.1);color:var(--blue)">&#x1F4AC;</div>
+          <div><div class="agent-name">Analis Sentimen</div><div class="agent-role">Analisis Perspektif Klien</div></div>
+        </div>
+        <p>Menganalisis setiap event dari perspektif spesifik klien. Menentukan sentimen (positif/negatif/netral), tingkat sensitivitas, dan memberikan skor peringatan (0-10). Menggunakan pohon keputusan khusus per tipe klien.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Deskripsi event</li><li>Identitas &amp; peran klien</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Sentimen &amp; sensitivitas</li><li>Skor peringatan (0-10)</li><li>Alasan terperinci</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--purple)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(139,92,246,.1);color:var(--purple)">&#x1F9F9;</div>
+          <div><div class="agent-name">Kurator Katalog</div><div class="agent-role">Deduplikasi Offline</div></div>
+        </div>
+        <p>Agent pemeliharaan latar belakang yang secara berkala membersihkan katalog isu dengan menggabungkan entri yang secara semantik serupa dan memilih nama representatif terbaik. Menjaga katalog tetap ramping dan konsisten dari waktu ke waktu.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Menerima</div><ul><li>Katalog isu lengkap</li></ul></div>
+          <div class="io"><div class="io-title out">Menghasilkan</div><ul><li>Katalog terdeduplikasi</li><li>Nama isu kanonik</li></ul></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: CONTOH HASIL
+     ============================================================ -->
+<div class="tab-content" id="tab-results">
+  <div class="page">
+    <div class="label">Contoh Hasil</div>
+    <h2 class="title">Lihat Cognitive Warfare Beraksi</h2>
+    <p class="subtitle">Berikut contoh realistis dari apa yang masuk dan apa yang keluar saat memantau topik "Polri" (Kepolisian Negara Republik Indonesia).</p>
+
+    <!-- INPUT CONTOH -->
+    <div class="sample-flow">
+      <div class="sample-card input" style="flex:2">
+        <div class="header">&#x2B05; Yang Dimasukkan</div>
+        <div class="body">
+          <div class="field"><span class="field-label">Topik</span><span class="field-value" style="font-weight:700;font-size:.95rem">Polri</span></div>
+          <div class="field"><span class="field-label">Rentang Waktu</span><span class="field-value">3 Maret 2026 &mdash; Seharian penuh</span></div>
+          <div class="field"><span class="field-label">Klien</span><span class="field-value">Polri &mdash; Kantor Kapolri</span></div>
+          <div class="field" style="align-items:flex-start"><span class="field-label">Cakupan</span><span class="field-value" style="font-size:.78rem;line-height:1.6">Seluruh aspek penegakan hukum dan keamanan publik: kasus kriminal, ketertiban masyarakat, keamanan lalu lintas, terorisme, bencana, persepsi publik, narasi media, serta urusan internal termasuk akuntabilitas dan reformasi.</span></div>
+        </div>
+      </div>
+      <div class="sample-arrow">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M6 16h20M20 10l6 6-6 6" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="sample-card" style="flex:1;border-color:var(--border)">
+        <div class="header" style="background:rgba(139,92,246,.08);color:var(--purple)">&#x2699; Proses Engine</div>
+        <div class="body" style="display:flex;flex-direction:column;gap:.5rem;font-size:.78rem">
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Topik diperluas menjadi 12 istilah pencarian</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Mengambil 3.847 artikel berita</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Ditemukan 142 klaster berita</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Disaring menjadi 68 klaster relevan</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Mengambil 12.450 postingan media sosial</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Mengekstrak 89 event mentah</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Disaring kualitas menjadi 31 event</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Dikelompokkan menjadi 7 isu utama</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Selesai dalam ~78 detik</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT CONTOH -->
+    <div style="margin-top:3rem">
+      <div class="label">Yang Dihasilkan</div>
+      <h2 class="title" style="font-size:1.5rem">Laporan Intelijen Terstruktur</h2>
+      <p class="subtitle">Output berupa laporan hierarkis di mana isu utama berisi event-event terkait, masing-masing dilengkapi sentimen, metrik engagement, dan contoh postingan.</p>
+    </div>
+
+    <!-- Isu 1 -->
+    <div class="result-group" style="border-color:var(--red)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+        <div class="result-group-title">&#x1F6A8; Penangkapan Pejabat Daerah Korupsi</div>
+        <div class="alert-score">&#x26A0; Skor Peringatan: 8/10</div>
+      </div>
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:.75rem">3 event terdeteksi &mdash; Sensitivitas tinggi untuk peran koordinasi anti-korupsi Polri</div>
+
+      <div class="result-event">
+        <div class="result-event-name">KPK Tangkap Walikota Sidoarjo Kasus Suap</div>
+        <div style="font-size:.75rem;color:var(--dim);margin-bottom:.3rem">Komisi Pemberantasan Korupsi melakukan operasi tangkap tangan terhadap Walikota Sidoarjo atas tuduhan menerima suap terkait proyek infrastruktur.</div>
+        <div class="result-meta">
+          <span class="sentiment-badge neg">Negatif untuk Polri</span>
+          <span class="badge">Penegakan Hukum</span>
+          <span class="badge">Pertama terlihat: 3 Mar, 08:15</span>
+        </div>
+        <div class="platform-row">
+          <span class="platform-pill">Twitter <span class="ct">847</span></span>
+          <span class="platform-pill">Facebook <span class="ct">234</span></span>
+          <span class="platform-pill">TikTok <span class="ct">156</span></span>
+          <span class="platform-pill">Instagram <span class="ct">89</span></span>
+          <span class="platform-pill">Berita <span class="ct">42</span></span>
+        </div>
+      </div>
+
+      <div class="result-event">
+        <div class="result-event-name">Tuntutan Publik Keterlibatan Polisi dalam Korupsi Daerah</div>
+        <div style="font-size:.75rem;color:var(--dim);margin-bottom:.3rem">Pengguna media sosial mempertanyakan mengapa Polri tidak terlibat dalam operasi tersebut dan menuntut aksi kepolisian yang lebih besar terhadap pejabat korup.</div>
+        <div class="result-meta">
+          <span class="sentiment-badge neg">Negatif untuk Polri</span>
+          <span class="badge">Kepercayaan Publik</span>
+        </div>
+        <div class="platform-row">
+          <span class="platform-pill">Twitter <span class="ct">1.203</span></span>
+          <span class="platform-pill">Facebook <span class="ct">567</span></span>
+          <span class="platform-pill">YouTube <span class="ct">23</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Isu 2 -->
+    <div class="result-group" style="border-color:var(--amber)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+        <div class="result-group-title">&#x270A; Aksi Protes Anti-Polisi</div>
+        <div class="alert-score" style="background:rgba(245,158,11,.1);color:var(--amber)">&#x26A0; Skor Peringatan: 7/10</div>
+      </div>
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:.75rem">2 event terdeteksi &mdash; Dampak langsung pada citra publik Polri</div>
+
+      <div class="result-event">
+        <div class="result-event-name">Aksi "Muak dengan Polisi" di Purwokerto</div>
+        <div style="font-size:.75rem;color:var(--dim);margin-bottom:.3rem">Ratusan warga melakukan aksi protes di depan kantor polisi Purwokerto menuntut akuntabilitas atas dugaan kekerasan polisi dalam penangkapan baru-baru ini.</div>
+        <div class="result-meta">
+          <span class="sentiment-badge neg">Negatif untuk Polri</span>
+          <span class="badge">Ketertiban Masyarakat</span>
+          <span class="badge">Pertama terlihat: 3 Mar, 10:30</span>
+        </div>
+        <div class="platform-row">
+          <span class="platform-pill">Twitter <span class="ct">2.341</span></span>
+          <span class="platform-pill">TikTok <span class="ct">789</span></span>
+          <span class="platform-pill">Instagram <span class="ct">445</span></span>
+          <span class="platform-pill">Facebook <span class="ct">312</span></span>
+          <span class="platform-pill">Berita <span class="ct">18</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Isu 3 -->
+    <div class="result-group" style="border-color:var(--green)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+        <div class="result-group-title">&#x1F6E1; Keberhasilan Operasi Penggerebekan Narkoba</div>
+        <div style="display:flex;gap:.4rem">
+          <span class="sentiment-badge pos">Positif untuk Polri</span>
+          <span class="alert-score" style="background:rgba(16,185,129,.1);color:var(--green)">Peringatan: 2/10</span>
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:.75rem">2 event terdeteksi &mdash; Liputan positif atas operasi kepolisian</div>
+
+      <div class="result-event">
+        <div class="result-event-name">Penyitaan Besar Sabu di Pelabuhan Batam</div>
+        <div style="font-size:.75rem;color:var(--dim);margin-bottom:.3rem">Divisi narkotika Polri menyita 120kg sabu di pelabuhan Batam, menangkap jaringan penyelundupan internasional yang terhubung ke Malaysia.</div>
+        <div class="result-meta">
+          <span class="sentiment-badge pos">Positif</span>
+          <span class="badge">Narkotika</span>
+          <span class="badge">Pertama terlihat: 3 Mar, 06:45</span>
+        </div>
+        <div class="platform-row">
+          <span class="platform-pill">Berita <span class="ct">67</span></span>
+          <span class="platform-pill">Twitter <span class="ct">534</span></span>
+          <span class="platform-pill">Facebook <span class="ct">189</span></span>
+          <span class="platform-pill">YouTube <span class="ct">45</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ringkasan -->
+    <div class="card" style="margin-top:2rem;border-color:var(--blue);background:rgba(59,130,246,.03)">
+      <div style="font-weight:700;margin-bottom:.5rem;color:var(--blue)">&#x1F4CB; Ringkasan Laporan</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;font-size:.84rem;color:var(--dim)">
+        <div><strong style="color:var(--text)">7</strong> isu utama teridentifikasi</div>
+        <div><strong style="color:var(--text)">31</strong> event unik terekstrak</div>
+        <div><strong style="color:var(--text)">12.450</strong> postingan medsos dianalisis</div>
+        <div><strong style="color:var(--text)">8</strong> platform tercakup</div>
+        <div><strong style="color:var(--text)">78d</strong> total waktu pemrosesan</div>
+        <div><strong style="color:var(--text)">3</strong> event ditandai peringatan tinggi</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: TEKNOLOGI
+     ============================================================ -->
+<div class="tab-content" id="tab-tech">
+  <div class="page">
+    <div class="label">Teknologi</div>
+    <h2 class="title">Dibangun dengan Infrastruktur Modern</h2>
+    <p class="subtitle">Engine Cognitive Warfare ini menggabungkan model AI mutakhir dengan infrastruktur data yang handal untuk menyajikan intelijen real-time dalam skala besar.</p>
+
+    <div class="tech-grid">
+      <div class="card tech">
+        <div class="cat">Model AI</div>
+        <ul>
+          <li><strong>GPT-4.1 Mini</strong>Penyaringan, perluasan query</li>
+          <li><strong>GPT-4o Mini</strong>Kendali kualitas, konsistensi</li>
+          <li><strong>GPT-OSS-120B</strong>Ekstraksi event (konteks besar)</li>
+          <li><strong>Qwen3-8B</strong>Model lokal self-hosted</li>
+          <li><strong>Claude Sonnet</strong>Pemeliharaan katalog</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Penyimpanan Data</div>
+        <ul>
+          <li><strong>Elasticsearch</strong>Pencarian berita + medsos</li>
+          <li><strong>Qdrant</strong>Memori AI (dual-node, failover)</li>
+          <li><strong>Redis</strong>Antrean tugas latar belakang</li>
+          <li><strong>Kafka</strong>Streaming output real-time</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Kapabilitas AI</div>
+        <ul>
+          <li><strong>Clustering</strong>Pengelompokan berita otomatis</li>
+          <li><strong>Reranking</strong>Penilaian relevansi cerdas</li>
+          <li><strong>Embeddings</strong>Vektor semantik 1024 dimensi</li>
+          <li><strong>5 Mode Pencarian</strong>Semantik, BM25, hybrid, dll.</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Lapisan Aplikasi</div>
+        <ul>
+          <li><strong>Python 3.10+</strong>Runtime engine inti</li>
+          <li><strong>FastAPI</strong>Antarmuka REST API</li>
+          <li><strong>Pipeline Async</strong>Eksekusi agent paralel</li>
+          <li><strong>Pydantic</strong>Lapisan validasi data</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Keputusan Arsitektur Utama</div>
+        <ul>
+          <li><strong>Berita Dahulu</strong>Berita = jangkar topik, medsos = reaksi</li>
+          <li><strong>Hierarkis</strong>Event dikelompokkan di bawah isu utama</li>
+          <li><strong>Sistem Memori</strong>Konsistensi lintas laporan via cache vektor</li>
+          <li><strong>Eksekusi Ganda</strong>Pengelompokan + pengayaan berjalan paralel</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Jaminan Kualitas</div>
+        <ul>
+          <li><strong>6 Lapisan Filter</strong>Penghapusan noise multi-tahap</li>
+          <li><strong>Anti-Halusinasi</strong>Validasi output AI vs sumber</li>
+          <li><strong>Skor Koherensi</strong>Penulisan ulang otomatis event rendah</li>
+          <li><strong>15+ Log Langkah</strong>Jejak audit lengkap untuk QC</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="fl">Cognitive Warfare &mdash; Engine Deteksi Isu</div>
+  <p>13 Agent AI &middot; 23 Langkah Pemrosesan &middot; 8 Platform &middot; Intelijen Real-Time</p>
+  <p>Portofolio Arsitektur &middot; 2026</p>
+</footer>
+
+<!-- ===== JS ===== -->
+<script>
+// Perpindahan tab
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    tabContents.forEach(tc => {
+      tc.classList.remove('active');
+      if (tc.id === 'tab-' + target) {
+        requestAnimationFrame(() => {
+          tc.classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    });
+  });
+});
+
+// Animasi muncul saat scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('vis');
+  });
+}, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll('.card, .step, .stat, .result-group, .parallel-box, .sample-flow').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity .5s ease, transform .5s ease';
+  observer.observe(el);
+});
+
+const style = document.createElement('style');
+style.textContent = '.vis{opacity:1!important;transform:translateY(0)!important}';
+document.head.appendChild(style);
+
+// Efek stagger pada elemen anak
+document.querySelectorAll('.agent-grid, .tech-grid, .grid-3, .grid-4, .stats').forEach(container => {
+  Array.from(container.children).forEach((child, i) => {
+    child.style.transitionDelay = (i * 0.06) + 's';
+  });
+});
+</script>
+</body>
+</html>
