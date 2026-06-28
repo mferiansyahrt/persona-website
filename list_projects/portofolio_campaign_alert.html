@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Alert Agent &mdash; AI-Powered Crisis Response Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e17;--bg2:#111827;--bg3:#1a2234;--bg4:#1e293b;
+  --border:#1e293b;--border2:#2d3a4f;
+  --text:#e2e8f0;--dim:#94a3b8;--muted:#64748b;
+  --blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;--pink:#ec4899;
+  --R:12px;--Rs:8px;--Rx:6px;
+  --F:'Inter',-apple-system,sans-serif;
+  --T:.3s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px}
+body{font-family:var(--F);background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+a{color:var(--blue);text-decoration:none}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,14,23,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.topbar-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.5rem}
+.logo{font-weight:800;font-size:.95rem;background:linear-gradient(135deg,var(--red),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.tab-bar{display:flex;gap:2px;background:var(--bg2);border-radius:10px;padding:3px}
+.tab-btn{font-family:var(--F);font-size:.78rem;font-weight:600;color:var(--muted);background:transparent;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;transition:all var(--T);white-space:nowrap}
+.tab-btn:hover{color:var(--dim)}
+.tab-btn.active{color:#fff;background:var(--red);box-shadow:0 2px 12px rgba(239,68,68,.3)}
+
+.tab-content{display:none;opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
+.tab-content.active{display:block;opacity:1;transform:translateY(0)}
+.page{max-width:1200px;margin:0 auto;padding:6rem 1.5rem 4rem}
+
+.label{display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:.75rem}
+.label::before{content:'';width:20px;height:2px;background:var(--red)}
+h2.title{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:.5rem}
+.subtitle{font-size:1rem;color:var(--dim);max-width:620px;margin-bottom:2.5rem;line-height:1.7}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--R);padding:1.5rem;transition:all var(--T)}
+.card:hover{border-color:var(--red);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.badge{display:inline-block;font-size:.65rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--border2);color:var(--dim);white-space:nowrap}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+
+.hero{padding:7rem 1.5rem 4rem;max-width:1200px;margin:0 auto;position:relative}
+.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(239,68,68,.07),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:600;color:var(--amber);padding:.35rem .85rem;border:1px solid rgba(245,158,11,.2);border-radius:999px;background:rgba(245,158,11,.05);margin-bottom:1.25rem}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;letter-spacing:-.04em;line-height:1.08;margin-bottom:1rem}
+.hero h1 .gr{background:linear-gradient(135deg,var(--red),var(--amber),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--dim);max-width:640px;line-height:1.75;margin-bottom:2rem}
+.hero .tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.hero .tags .badge{transition:all var(--T)}.hero .tags .badge:hover{border-color:var(--red);color:var(--red)}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin:3rem 0 0}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--R);padding:1.25rem;text-align:center;transition:all var(--T)}
+.stat:hover{border-color:var(--red);box-shadow:0 0 25px rgba(239,68,68,.12);transform:translateY(-2px)}
+.stat-num{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.stat-label{font-size:.7rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-top:.2rem}
+
+.flow{position:relative;padding:1rem 0}
+.step{display:flex;gap:1.5rem;padding:1.5rem 0;position:relative}
+.step-left{flex-shrink:0;display:flex;flex-direction:column;align-items:center;width:56px}
+.step-num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;background:var(--bg2);border:2px solid var(--border2);color:var(--dim);position:relative;z-index:2;transition:all var(--T)}
+.step:hover .step-num{border-color:var(--red);color:var(--red);box-shadow:0 0 20px rgba(239,68,68,.15)}
+.step-line{flex:1;width:2px;background:linear-gradient(180deg,var(--border2),rgba(239,68,68,.2));margin:4px 0}
+.step:last-child .step-line{display:none}
+.step-body{flex:1;padding-bottom:.5rem}
+.step-title{font-size:1rem;font-weight:700;margin-bottom:.3rem}
+.step-desc{font-size:.85rem;color:var(--dim);line-height:1.7}
+.step-badges{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+
+.parallel-box{background:var(--bg2);border:1px dashed var(--border2);border-radius:var(--R);padding:1.25rem;margin:1rem 0 1rem 72px}
+.parallel-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:.75rem}
+.parallel-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.branch{background:var(--bg);border-radius:var(--Rx);padding:1rem}
+.branch-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.branch-title.a{color:var(--blue)}.branch-title.b{color:var(--amber)}
+.branch-title.c{color:var(--purple)}
+.branch p{font-size:.82rem;color:var(--dim);line-height:1.7}
+
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem}
+.agent{position:relative;overflow:hidden}
+.agent::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--agent-c,var(--red)),transparent);opacity:0;transition:opacity var(--T)}
+.agent:hover::before{opacity:1}
+.agent-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.agent-icon{width:38px;height:38px;border-radius:var(--Rs);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.agent-name{font-size:.95rem;font-weight:700}
+.agent-role{font-size:.7rem;color:var(--muted);margin-top:.15rem}
+.agent p{font-size:.84rem;color:var(--dim);line-height:1.65;margin-bottom:.75rem}
+.agent-io{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.io{background:var(--bg);border-radius:var(--Rx);padding:.65rem .75rem}
+.io-title{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.io-title.in{color:var(--cyan)}.io-title.out{color:var(--green)}
+.io ul{list-style:none;font-size:.75rem;color:var(--dim)}
+.io li{padding:.1rem 0}
+.io li::before{content:'\203A';margin-right:.35rem;color:var(--muted);font-weight:700}
+
+.sample-flow{display:flex;align-items:stretch;gap:0;margin:2rem 0}
+.sample-card{flex:1;border-radius:var(--R);overflow:hidden;border:1px solid var(--border)}
+.sample-card .header{padding:.75rem 1rem;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)}
+.sample-card.input .header{background:rgba(6,182,212,.08);color:var(--cyan)}
+.sample-card.output .header{background:rgba(16,185,129,.08);color:var(--green)}
+.sample-card .body{padding:1.25rem;background:var(--bg2);font-size:.82rem;color:var(--dim);line-height:1.7}
+.sample-arrow{display:flex;align-items:center;justify-content:center;padding:0 .75rem;flex-shrink:0}
+.sample-arrow svg{width:32px;height:32px}
+.field{display:flex;gap:.5rem;padding:.35rem 0;align-items:baseline}
+.field-label{font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;min-width:110px;flex-shrink:0}
+.field-value{font-size:.82rem;color:var(--text)}
+.result-group{background:var(--bg3);border-radius:var(--Rs);padding:1rem;margin-bottom:.75rem;border-left:3px solid var(--red)}
+.result-group:last-child{margin-bottom:0}
+.result-group-title{font-size:.9rem;font-weight:700;margin-bottom:.5rem}
+.result-event{background:var(--bg);border-radius:var(--Rx);padding:.75rem;margin-top:.5rem}
+.result-event-name{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:.3rem}
+.result-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.35rem}
+.result-meta .badge{font-size:.58rem}
+.platform-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem}
+.platform-pill{font-size:.6rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg2);color:var(--dim);border:1px solid var(--border)}
+.platform-pill .ct{color:var(--blue);margin-left:.25rem}
+.sentiment-badge{font-size:.6rem;font-weight:700;padding:.2rem .5rem;border-radius:999px}
+.sentiment-badge.neg{background:rgba(239,68,68,.12);color:var(--red)}
+.sentiment-badge.pos{background:rgba(16,185,129,.12);color:var(--green)}
+.sentiment-badge.neu{background:rgba(245,158,11,.12);color:var(--amber)}
+.level-badge{display:inline-flex;align-items:center;gap:.25rem;font-size:.6rem;font-weight:700;padding:.2rem .5rem;border-radius:999px}
+.level-badge.war{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.level-badge.crisis{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.level-badge.normal{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+
+.level-matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.level-card{padding:1.5rem;border-radius:var(--R);text-align:center;position:relative;overflow:hidden;transition:transform var(--T)}
+.level-card:hover{transform:translateY(-3px)}
+.level-card.normal{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.02));border:1px solid rgba(16,185,129,.25)}
+.level-card.crisis{background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(245,158,11,.02));border:1px solid rgba(245,158,11,.25)}
+.level-card.war{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(239,68,68,.03));border:1px solid rgba(239,68,68,.3)}
+.level-name{font-size:1.2rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.3rem}
+.level-name.normal{color:var(--green)}
+.level-name.crisis{color:var(--amber)}
+.level-name.war{color:var(--red)}
+.level-range{font-size:.7rem;font-weight:600;color:var(--muted);margin-bottom:.7rem}
+.level-desc{font-size:.78rem;color:var(--dim);line-height:1.6}
+
+.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin:1rem 0 0}
+.client-card{padding:1.1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--Rs);transition:all var(--T)}
+.client-card:hover{border-color:var(--red);transform:translateY(-2px)}
+.client-icon{font-size:1.4rem;margin-bottom:.4rem}
+.client-name{font-size:.85rem;font-weight:700;margin-bottom:.25rem}
+.client-mandate{font-size:.7rem;color:var(--muted);line-height:1.55}
+
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.tech .cat{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);margin-bottom:.65rem}
+.tech ul{list-style:none}
+.tech li{display:flex;align-items:baseline;gap:.5rem;padding:.25rem 0;font-size:.84rem;color:var(--dim)}
+.tech li strong{color:var(--text);font-weight:600;min-width:120px;flex-shrink:0}
+
+.dataflow{display:flex;flex-direction:column;gap:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--R);padding:1.5rem;margin:1.5rem 0}
+.df-row{display:grid;grid-template-columns:160px 50px 1fr;gap:1rem;align-items:center}
+.df-source{font-size:.75rem;font-weight:700;color:var(--cyan);text-align:right}
+.df-arrow{color:var(--muted);text-align:center}
+.df-target{font-size:.78rem;color:var(--dim);line-height:1.6}
+.df-target strong{color:var(--text);font-weight:600}
+
+footer{border-top:1px solid var(--border);padding:2.5rem 1.5rem;text-align:center}
+footer .fl{background:linear-gradient(135deg,var(--red),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;font-size:.9rem}
+footer p{font-size:.75rem;color:var(--muted);margin-top:.4rem}
+
+@media(max-width:768px){
+  .tab-bar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab-btn{font-size:.7rem;padding:.45rem .75rem}
+  .grid-2,.parallel-grid,.sample-flow,.agent-io,.level-matrix{grid-template-columns:1fr;display:grid}
+  .sample-flow{flex-direction:column}
+  .sample-arrow{transform:rotate(90deg);padding:.5rem 0}
+  .agent-grid{grid-template-columns:1fr}
+  .grid-3,.grid-4{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:2rem}
+  .parallel-box{margin-left:0}
+  .df-row{grid-template-columns:1fr;text-align:left}
+  .df-source{text-align:left}
+}
+@media(max-width:480px){
+  .grid-3,.grid-4,.stats{grid-template-columns:1fr 1fr}
+  .page{padding:5rem 1rem 3rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">Campaign Alert Agent</div>
+    <div class="tab-bar" id="tabBar">
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="how">How It Works</button>
+      <button class="tab-btn" data-tab="agents">AI Agents</button>
+      <button class="tab-btn" data-tab="results">Sample Results</button>
+      <button class="tab-btn" data-tab="tech">Technology</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: OVERVIEW
+     ============================================================ -->
+<div class="tab-content active" id="tab-overview">
+
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="dot"></span>Campaign Alert Agent &mdash; AI-Powered Crisis Response Pipeline</div>
+    <h1>From Issue Detection to<br><span class="gr">Strategic Communication Action</span></h1>
+    <p>This system continues from the detection output of the <strong>Cognitive Warfare Engine</strong> &mdash; ingesting every detected <em>main_issue</em>, re-analyzing it from the client's perspective (Polri, BSSN, BGN, TNI, and more), determining urgency levels of <strong>Normal / Crisis / War</strong>, and automatically generating reply post recommendations and ready-to-execute campaign plans.</p>
+    <div class="tags">
+      <span class="badge">Multi-Client</span>
+      <span class="badge">Async Pipeline</span>
+      <span class="badge">14 AI Agents</span>
+      <span class="badge">3 Urgency Levels</span>
+      <span class="badge">Velocity-Based Decision</span>
+      <span class="badge">Per-Event Timeline</span>
+      <span class="badge">Kafka + Campaign API</span>
+      <span class="badge">Precision Scoring PDF</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-num" style="color:var(--red)">14</div><div class="stat-label">Specialist AI Agents</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--amber)">3</div><div class="stat-label">Urgency Levels</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--cyan)">10+</div><div class="stat-label">Institutional Clients</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--purple)">6</div><div class="stat-label">ES Indices Accessed</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--green)">3</div><div class="stat-label">Kafka Output Topics</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--pink)">~60s</div><div class="stat-label">Avg per Issue</div></div>
+    </div>
+  </div>
+
+  <!-- What It Does -->
+  <div class="page" style="padding-top:1rem">
+    <div class="label">What It Does</div>
+    <h2 class="title">From Raw Signals to Action Plans</h2>
+    <p class="subtitle">This engine is not an issue detector &mdash; it receives issues already detected by the Cognitive Warfare Engine, then transforms them into concrete response decisions.</p>
+
+    <div class="grid-3" style="margin-bottom:2.5rem">
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x1F4E1;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Ingest</div>
+        <p style="font-size:.84rem;color:var(--dim)">Every 60 minutes, the scheduler fetches the list of newly-emerged <em>main_issue_id</em>s from the Elasticsearch index <code>cw-campaign-issue-event-monitoring</code> &mdash; the output of the Cognitive Warfare Engine.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x2696;&#xFE0F;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Evaluate</div>
+        <p style="font-size:.84rem;color:var(--dim)">14 AI agents work sequentially &amp; in parallel: refine sentiment from the client's perspective, compute velocity, jurisdiction, monitoring decision, action decision (Normal/Crisis/War), and chronological timeline.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x1F3AF;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Respond</div>
+        <p style="font-size:.84rem;color:var(--dim)">When <strong>action is required</strong>, the system generates reply content recommendations per platform, a precision scoring PDF, and automatically posts to targets via the Campaign API. Results are pushed to 3 Kafka topics.</p>
+      </div>
+    </div>
+
+    <!-- Clients served -->
+    <div class="label">Multi-Client Architecture</div>
+    <h2 class="title">10+ Institutions, One Engine</h2>
+    <p class="subtitle">Every client has a unique persona &amp; mandate that all AI agents use as context for decision-making.</p>
+
+    <div class="client-grid">
+      <div class="client-card">
+        <div class="client-icon">&#x1F46E;</div>
+        <div class="client-name">Polri &mdash; Kapolri</div>
+        <div class="client-mandate">Security, public order, law enforcement</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F3D7;&#xFE0F;</div>
+        <div class="client-name">TNI</div>
+        <div class="client-mandate">Defense, national sovereignty</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F3F0;</div>
+        <div class="client-name">Kodam Radin Inten</div>
+        <div class="client-mandate">Regional territorial defense</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F4BB;</div>
+        <div class="client-name">BSSN</div>
+        <div class="client-mandate">Cybersecurity, digital infrastructure</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F35B;</div>
+        <div class="client-name">National Nutrition Agency</div>
+        <div class="client-mandate">Nutrition improvement, MBG, stunting</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F3DB;&#xFE0F;</div>
+        <div class="client-name">Ministry of Home Affairs</div>
+        <div class="client-mandate">Domestic governance, regional autonomy</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F511;</div>
+        <div class="client-name">Immigration &amp; Corrections</div>
+        <div class="client-mandate">Immigration &amp; corrections services</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F477;</div>
+        <div class="client-name">Ministry of Manpower</div>
+        <div class="client-mandate">Workforce, labor protection</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F451;</div>
+        <div class="client-name">President Prabowo</div>
+        <div class="client-mandate">Governance, leadership legitimacy</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F50E;</div>
+        <div class="client-name">RETS Framework</div>
+        <div class="client-mandate">Radicalism, Extremism, Terrorism, Separatism</div>
+      </div>
+    </div>
+
+    <!-- 3 Urgency Levels -->
+    <div style="margin-top:3.5rem">
+      <div class="label">Three Decision Tiers</div>
+      <h2 class="title">Normal &middot; Crisis &middot; War</h2>
+      <p class="subtitle">After full analysis, the engine assigns an urgency level based on velocity, sentiment, weighted triggers, and client sensitivity. Each level triggers a different response.</p>
+    </div>
+
+    <div class="level-matrix">
+      <div class="level-card normal">
+        <div class="level-name normal">Normal</div>
+        <div class="level-range">Score 0&ndash;39</div>
+        <div class="level-desc">Preventive awareness. Positive/neutral sentiment, low velocity. Routine monitoring every 72 hours over 45 days. No campaign action.</div>
+      </div>
+      <div class="level-card crisis">
+        <div class="level-name crisis">Crisis</div>
+        <div class="level-range">Score 40&ndash;79</div>
+        <div class="level-desc">Crisis containment. Negative sentiment, moderate-to-high velocity, triggers &ge;3.0. Strategic/selective action every 48&ndash;96 hours over 21&ndash;30 days.</div>
+      </div>
+      <div class="level-card war">
+        <div class="level-name war">War</div>
+        <div class="level-range">Score 80&ndash;100</div>
+        <div class="level-desc">Narrative domination. Highly negative sentiment (&gt;60%), critical velocity, mission-critical issue. Urgent action every 12 hours over 14 days, auto-post to targets.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: HOW IT WORKS
+     ============================================================ -->
+<div class="tab-content" id="tab-how">
+  <div class="page">
+    <div class="label">How It Works</div>
+    <h2 class="title">From Main Issue to Campaign Execution</h2>
+    <p class="subtitle">This pipeline runs for every <em>main_issue_id</em> that passes selection. Each stage has conditional gates &mdash; irrelevant issues are skipped early to save LLM resources.</p>
+
+    <div class="flow">
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--cyan);color:var(--cyan)">1</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Scheduler Selects Active Issues</div>
+          <div class="step-desc">Every 60 minutes, the scheduler queries Elasticsearch <code>cw-campaign-issue-event-monitoring</code> for <em>main_issue_id</em>s with <code>agent_process_time</code> within the last 1-hour window. Result: unique <em>main_issue_id</em>s per client (max 100).</div>
+          <div class="step-badges"><span class="badge">ES Aggregation</span><span class="badge">Per-client filter</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--blue);color:var(--blue)">2</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Fetch All Events for the Issue</div>
+          <div class="step-desc">Per <em>main_issue_id</em>, fetch all related events (max 30, sorted by <code>agent_process_time desc</code>) &mdash; with no time filter. Each event is a variant/case of the same main_issue (e.g., main_issue "MBG Poisoning Crisis" → events in Bandung, Bekasi, Jakarta).</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--purple);color:var(--purple)">3</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Event Deduplication</div>
+          <div class="step-desc">The dedup agent filters similar events based on WHO-WHAT-WHERE-WHEN, capped at 7 unique events. Done before aggregation to prevent narrative duplication that would skew sentiment.</div>
+          <div class="step-badges"><span class="badge">AI Event Dedup</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--blue);color:var(--blue)">4</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Multi-Event Context Aggregation</div>
+          <div class="step-desc">Merges all events into a single document: combines <em>issue_platform_mentioned_count</em> with post_url-based dedup, sorts posts by follower desc, takes the top 10 per platform. Descriptions are filtered to the last 7 days only. Lucene queries are joined with OR.</div>
+          <div class="step-badges"><span class="badge">Top 10 per platform</span><span class="badge">Dedup by URL</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--amber);color:var(--amber)">5</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Sentiment Refinement from Client Perspective</div>
+          <div class="step-desc">The sentiment agent maps each event to <em>in-scope / out-of-scope</em> of the client's mandate, then renders an overall verdict: <strong>Positive/Negative/Neutral</strong> with an alert score 0&ndash;100. Polri has a dedicated protocol (self-inflicted, decision tree).</div>
+          <div class="step-badges"><span class="badge">AI Sentiment</span><span class="badge">Per-event mandate map</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--red);color:var(--red)">6</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Gate: Urgency Filter</div>
+          <div class="step-desc">The filter agent evaluates whether the issue is threatening enough to the client's reputation to warrant a campaign. Score &lt;70 or verdict false → pipeline stops here (saving dozens of LLM calls). Output is always sent to the Kafka topic <code>cw-campaign-issue-urgency</code> unconditionally.</div>
+          <div class="step-badges"><span class="badge">Gate Filter</span><span class="badge">Kafka: urgency</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--cyan);color:var(--cyan)">7</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Building the Crisis Context</div>
+          <div class="step-desc">Pulls additional data for full context: NCW summary &amp; lifecycle from an external API, hourly velocity from the <code>cw-data-*</code> index over 3 days, and sentiment distribution from <code>prod-social-media-*</code>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARALLEL BLOCK 1 -->
+    <div class="parallel-box">
+      <div class="parallel-label">The following 3 processes run in parallel</div>
+      <div class="parallel-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="branch">
+          <div class="branch-title a">Summary Description</div>
+          <p>Builds an executive summary of the issue plus 5W info (what/who/when/where/why/how) in a dashboard-ready format.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title b">Jurisdiction Extraction</div>
+          <p>Determines the geographic scope (province, regency, sub-district, village) and confidence level based on event content.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title c">Monitoring Decision</div>
+          <p>Decides whether the issue needs monitoring, for how long, and at what check interval.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow">
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--red);color:var(--red)">8</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Gate: Monitoring Required?</div>
+          <div class="step-desc">If the monitoring agent returns <code>required=False</code>, the pipeline stops. If True, it proceeds to the action decision &mdash; simultaneously refetching the latest posts from <code>prod-social-media-*</code> (12 days) and reranking to obtain relevant sample posts.</div>
+          <div class="step-badges"><span class="badge">Early Skip</span><span class="badge">Refetch + Rerank</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--amber);color:var(--amber)">9</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Action Decision: Normal/Crisis/War</div>
+          <div class="step-desc">The pipeline core. Computes <code>velocity_impact_score = peak_velocity &times; sentiment_multiplier</code>, compares it against the client's sensitivity threshold, validates with weighted triggers (CRITICAL=3.0, HIGH=2.5, MEDIUM=1.5), and applies override logic. Outputs a level + score 0&ndash;100.</div>
+          <div class="step-badges"><span class="badge">Velocity Logic</span><span class="badge">Weighted Triggers</span><span class="badge">Override Rules</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARALLEL BLOCK 2 -->
+    <div class="parallel-box">
+      <div class="parallel-label">The following 4 processes run in parallel (when action is required)</div>
+      <div class="parallel-grid" style="grid-template-columns:1fr 1fr">
+        <div class="branch">
+          <div class="branch-title a">Action Detail</div>
+          <p>Assembles concrete action details: action type, target audience, talking points, duration, and category tags.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title b">Campaign Planner</div>
+          <p>Produces a complete campaign plan with reasoning, intervention type, and integration with crisis metrics.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title a">Key Profiles Extraction</div>
+          <p>Identifies originators, amplifiers, tier-1 media outlets, influential accounts, and regular accounts spreading the narrative.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title b">Chronological Timeline</div>
+          <p>For tag <em>specific</em>: a 3-stage timeline agent (extract → confidence scorer → strict remapper). For <em>generic</em>: per-event timeline in parallel with search tools (Brave Search + Knowledge Repo).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow">
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--purple);color:var(--purple)">10</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Exposure Tracking via Redis</div>
+          <div class="step-desc">On every run, current exposure (velocity + sentiment metrics) is stored in Redis under a per-(<em>main_issue_id + client</em>) key. The latest exposure (from the previous run) is also retrieved for trend comparison.</div>
+          <div class="step-badges"><span class="badge">Redis Cache</span><span class="badge">Trend Tracking</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--red);color:var(--red)">11</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Gate: Action Required &amp; Negative Sentiment &amp; Level War/Crisis</div>
+          <div class="step-desc">Only when all three conditions are met does the pipeline proceed to post-processing agents 10&ndash;11. Otherwise it is just pushed to the Kafka log for audit trail without any concrete action.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--pink);color:var(--pink)">12</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Platform Post Recommendation</div>
+          <div class="step-desc">The agent produces reply content recommendations per platform (Twitter, Facebook, IG, TikTok, etc.): posting schedule, posts-per-day, total posts, total comments, reasoning, and image/video metadata.</div>
+          <div class="step-badges"><span class="badge">AI Content Generator</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--amber);color:var(--amber)">13</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Precision Scoring + PDF</div>
+          <div class="step-desc">The precision agent computes 5 dimensions (legitimacy_impact, persistence_escalation, reach_media, sentiment, velocity_exposure), validates consistency against the target level score, and generates a PDF report uploaded to S3.</div>
+          <div class="step-badges"><span class="badge">5-Dimension Scoring</span><span class="badge">S3 Upload</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--green);color:var(--green);box-shadow:0 0 15px rgba(16,185,129,.2)">&#10003;</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title" style="color:var(--green)">Execution: Kafka + Campaign API</div>
+          <div class="step-desc">The final output is published to <code>cw-campaign-main-issue-monitoring-idea</code> (downstream consumer), <code>cw-campaign-main-issue-monitoring-log-idea</code> (audit log), and via the Campaign API for automatic comment/content posting to relevant social media targets.</div>
+          <div class="step-badges"><span class="badge">Kafka: idea</span><span class="badge">Kafka: log</span><span class="badge">Campaign API: comment</span><span class="badge">Campaign API: content</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: AI AGENTS
+     ============================================================ -->
+<div class="tab-content" id="tab-agents">
+  <div class="page">
+    <div class="label">AI Agents</div>
+    <h2 class="title">14 AI Agents, One Response Mission</h2>
+    <p class="subtitle">Each agent is a narrow-scope specialist. They work in a coordinated async pipeline, with some running in parallel to save wall-clock time.</p>
+
+    <div class="agent-grid">
+
+      <div class="card agent" style="--agent-c:var(--purple)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(139,92,246,.1);color:var(--purple)">&#x1F501;</div>
+          <div><div class="agent-name">Event Dedup</div><div class="agent-role">Duplication Filter</div></div>
+        </div>
+        <p>Filters similar events based on WHO-WHAT-WHERE-WHEN before aggregation. Prevents sentiment inflation caused by the same narrative repeated across multiple events.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>List of all events</li><li>Main issue name</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>Max 7 unique events</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--amber)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(245,158,11,.1);color:var(--amber)">&#x1F60A;</div>
+          <div><div class="agent-name">Sentiment Refinement</div><div class="agent-role">Per-Client Mandate Mapping</div></div>
+        </div>
+        <p>Assesses sentiment from the client's mandate perspective. MUST tag each event as in-scope/out-of-scope. Polri has a dedicated protocol (decision tree, self-inflicted, 3 validations).</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Main issue + events</li><li>Client persona</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>sentiment, sensitivity</li><li>alert_score 0&ndash;100</li><li>reasoning array</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--red)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(239,68,68,.1);color:var(--red)">&#x1F6AB;</div>
+          <div><div class="agent-name">Filtering Issue Campaign</div><div class="agent-role">Urgency Gate</div></div>
+        </div>
+        <p>Early pipeline gate. Assesses whether the issue is threatening enough to the client's reputation to warrant a campaign. Score &lt;70 or verdict false → pipeline stops, saving dozens of LLM calls.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Full issue context</li><li>Platform distribution</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>urgency_score 0&ndash;100</li><li>urgency_verdict bool</li><li>reasoning</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--blue)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(59,130,246,.1);color:var(--blue)">&#x1F4DD;</div>
+          <div><div class="agent-name">Summary Description</div><div class="agent-role">Executive Summary</div></div>
+        </div>
+        <p>Writes an executive summary of the issue in a dashboard-ready format, plus structured 5W info (what/who/when/where/why/how).</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Combined description</li><li>Client + persona</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>summary description</li><li>summary_info (5W)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--green)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(16,185,129,.1);color:var(--green)">&#x1F5FA;&#xFE0F;</div>
+          <div><div class="agent-name">Jurisdiction Extraction</div><div class="agent-role">Geographic Scoping</div></div>
+        </div>
+        <p>Extracts the geographic scope with granularity from province down to village/sub-district. Confidence level and reasoning are included for auditing.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Issue description</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>scope (national/regional)</li><li>location_details</li><li>confidence + reasoning</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--cyan)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(6,182,212,.1);color:var(--cyan)">&#x1F441;&#xFE0F;</div>
+          <div><div class="agent-name">Monitoring Decision</div><div class="agent-role">Watchlist Manager</div></div>
+        </div>
+        <p>Decides whether the issue needs to be monitored, for how long, and at what check interval (in hours). A required=False verdict stops the pipeline early.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Crisis context</li><li>NCW lifecycle</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>required (bool)</li><li>level, duration, interval</li><li>justification</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--red)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(239,68,68,.1);color:var(--red)">&#x26A1;</div>
+          <div><div class="agent-name">Action Decision</div><div class="agent-role">Normal/Crisis/War</div></div>
+        </div>
+        <p>Pipeline brain. Determines the urgency level via velocity logic + weighted triggers + sensitivity. The output level (Normal/Crisis/War) + score 0&ndash;100 determines downstream flow.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Crisis context</li><li>Sentiment metrics</li><li>Velocity buckets</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>required, level, level_score</li><li>triggers_met[]</li><li>start/end date, type</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--amber)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(245,158,11,.1);color:var(--amber)">&#x1F3AC;</div>
+          <div><div class="agent-name">Action Detail</div><div class="agent-role">Tactical Detailer</div></div>
+        </div>
+        <p>Concrete action details: type, talking points, target audience, category tags, and optional integration with the Agenda Settings API for brief production.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Monitoring decision</li><li>Action decision</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>detail_action[]</li><li>action_detail_s3url</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--purple)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(139,92,246,.1);color:var(--purple)">&#x1F4CB;</div>
+          <div><div class="agent-name">Campaign Planner</div><div class="agent-role">Strategic Planner</div></div>
+        </div>
+        <p>Designs a full campaign plan with reasoning, intervention type (proactive/reactive/balanced), and crisis metrics markdown for downstream LLM context.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Action detail</li><li>Crisis metrics</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>planner.type</li><li>planner.reasoning</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--green)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(16,185,129,.1);color:var(--green)">&#x1F465;</div>
+          <div><div class="agent-name">Key Profiles Extraction</div><div class="agent-role">Influence Mapping</div></div>
+        </div>
+        <p>Identifies originators (early spreaders), amplifiers (mass spreaders), tier-1 media outlets, influential accounts, and regular accounts &mdash; how the narrative propagates.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Posts data</li><li>Triggers met</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>originators, amplifiers</li><li>media coverage</li><li>tier1/influential/regular</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--cyan)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(6,182,212,.1);color:var(--cyan)">&#x1F4C5;</div>
+          <div><div class="agent-name">Chronological Timeline</div><div class="agent-role">3-Stage (Tag: Specific)</div></div>
+        </div>
+        <p>3-stage pipeline: timeline extraction → confidence scorer (threshold 85) → strict re-mapper. Output: structured chronological timeline with formatted_timeline string.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Related issue + desc</li><li>NCW lifecycle</li><li>Events list</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>chronological_timeline[]</li><li>formatted_timeline (str)</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--blue)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(59,130,246,.1);color:var(--blue)">&#x1F50D;</div>
+          <div><div class="agent-name">Event Chrono Timeline</div><div class="agent-role">Per-Event (Tag: Generic)</div></div>
+        </div>
+        <p>For the generic tag, runs in parallel per event (within 7 days). Uses search tools (Brave Search + Knowledge Repository) to enrich temporal data.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Event name + desc</li><li>Posts data</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>chronology per event</li><li>main_event + details</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--pink)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(236,72,153,.1);color:var(--pink)">&#x1F4AC;</div>
+          <div><div class="agent-name">Platform Post Recommendation</div><div class="agent-role">Content Generator</div></div>
+        </div>
+        <p>When level is War/Crisis: generates reply content per platform. Output: posting schedule, total posts per day, comments per post, image/video metadata.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Issue context</li><li>Action detail</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>posts per platform</li><li>posting_schedule</li><li>reasoning_to_post</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--amber)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(245,158,11,.1);color:var(--amber)">&#x1F4CA;</div>
+          <div><div class="agent-name">Precision Scoring</div><div class="agent-role">5-Dimension Validator</div></div>
+        </div>
+        <p>Validates level consistency across 5 dimensions: legitimacy_impact, persistence_escalation, reach_media, sentiment, velocity_exposure. Generates a PDF report + uploads to S3.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Issue data</li><li>Target level score</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>5-dim breakdown</li><li>weighted_sum</li><li>S3 PDF URL</li></ul></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: SAMPLE RESULTS
+     ============================================================ -->
+<div class="tab-content" id="tab-results">
+  <div class="page">
+    <div class="label">Real-World Sample Results</div>
+    <h2 class="title">Real Run: 3 Different Scenarios</h2>
+    <p class="subtitle">Three real scenarios from the production pipeline, each triggering a different decision based on velocity, sentiment, and client mandate.</p>
+
+    <!-- INPUT scenario -->
+    <div class="sample-flow">
+      <div class="sample-card input" style="flex:2">
+        <div class="header">&#x2B05; Pipeline Input</div>
+        <div class="body">
+          <div class="field"><span class="field-label">main_issue_id</span><span class="field-value" style="font-family:monospace;font-size:.78rem">de6f901c66de237ca6923b0bf553af86</span></div>
+          <div class="field"><span class="field-label">main_issue</span><span class="field-value" style="font-weight:700;font-size:.92rem">Armed Conflict Radicalism</span></div>
+          <div class="field"><span class="field-label">Client</span><span class="field-value">National Cyber and Crypto Agency (BSSN)</span></div>
+          <div class="field"><span class="field-label">Events Found</span><span class="field-value">10 events in ES, deduped to 7</span></div>
+          <div class="field"><span class="field-label">Social Posts</span><span class="field-value">~186 total posts (twitter, news, youtube, instagram, threads)</span></div>
+          <div class="field"><span class="field-label">ES Raw Sentiment</span><span class="field-value">Negative: 1,222 &middot; Positive: 740 &middot; Neutral: 304</span></div>
+        </div>
+      </div>
+      <div class="sample-arrow">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M6 16h20M20 10l6 6-6 6" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="sample-card" style="flex:1;border-color:var(--border)">
+        <div class="header" style="background:rgba(139,92,246,.08);color:var(--purple)">&#x2699; Pipeline Process</div>
+        <div class="body" style="display:flex;flex-direction:column;gap:.5rem;font-size:.78rem">
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Fetched 10 events from ES</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Deduped to 7 unique events</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Aggregated: top 10 per platform</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Sentiment: per-event mapping</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Urgency gate: pass / skip</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Velocity calculation</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Action decision</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Completed in ~98 seconds</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT 3 scenarios -->
+    <div style="margin-top:3rem">
+      <div class="label">Outputs by Scenario</div>
+      <h2 class="title" style="font-size:1.5rem">3 Scenarios, 3 Different Decisions</h2>
+      <p class="subtitle">The same scenario can produce different decisions depending on client and data conditions &mdash; proof of the importance of mandate-aware processing.</p>
+    </div>
+
+    <!-- Scenario A: BSSN -->
+    <div class="result-group" style="border-color:var(--green)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+        <div class="result-group-title">&#x1F4BB; Scenario A: BSSN &mdash; Armed Conflict Radicalism</div>
+        <div style="display:flex;gap:.4rem">
+          <span class="sentiment-badge pos">Positive</span>
+          <span class="level-badge normal">Level: Normal</span>
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:.75rem">7 events, only 2 in-scope for BSSN (radicalism detection barcode + TikTok video) &mdash; the rest are international military operations and Polri cases</div>
+
+      <div class="result-event">
+        <div class="result-event-name">Per-Event Mandate Analysis (Sentiment Agent)</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.7">
+          1. Radicalism Detection Barcode (Tanjung Jabung) &mdash; <strong style="color:var(--green)">IN-SCOPE</strong> &middot; BSSN success story<br>
+          2. Terrorism Africa Book Publication &mdash; out-of-scope, academic<br>
+          3. Elimination of Abu-Bilal Al-Minuki &mdash; out-of-scope, US-Nigeria operation<br>
+          4. Paydari Sabotage Iran-US &mdash; out-of-scope, geopolitical<br>
+          5. Armed Child Video Sudan on TikTok &mdash; <strong style="color:var(--amber)">IN-SCOPE</strong> &middot; digital radical content<br>
+          6&ndash;7. Polri Case MayDay Bandung &mdash; out-of-scope
+        </div>
+        <div class="result-meta">
+          <span class="badge">Alert score: 58</span>
+          <span class="badge">Sensitivity: Medium</span>
+          <span class="badge">Action: Not required</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenario B: Polri -->
+    <div class="result-group" style="border-color:var(--green)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+        <div class="result-group-title">&#x1F46E; Scenario B: Polri &mdash; Methamphetamine Suspect Arrest Batu Bara</div>
+        <div style="display:flex;gap:.4rem">
+          <span class="sentiment-badge pos">Positive</span>
+          <span class="level-badge normal">Level: Normal</span>
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:.75rem">1 event, fully in-scope for Polri's mandate as a narcotics responder &mdash; a regency-scale success story</div>
+
+      <div class="result-event">
+        <div class="result-event-name">Sentiment Refinement Result (Deepseek-v4-Pro)</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.7">
+          &ldquo;This sole event is entirely within Polri's mandate as a law enforcement agency, particularly in narcotics suppression. The arrest of two methamphetamine suspects by Polres Batu Bara reflects the execution of the criminal investigation function, which is its core mandate.&rdquo;
+        </div>
+        <div class="result-meta">
+          <span class="badge">Alert score: 45</span>
+          <span class="badge">Sensitivity: Low</span>
+          <span class="badge">Scale: Regency</span>
+        </div>
+        <div class="platform-row">
+          <span class="platform-pill">Twitter <span class="ct">5</span></span>
+          <span class="platform-pill">News <span class="ct">6</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenario C: BGN -->
+    <div class="result-group" style="border-color:var(--red)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+        <div class="result-group-title">&#x1F35B; Scenario C: BGN &mdash; MBG Poisoning Crisis</div>
+        <div style="display:flex;gap:.4rem">
+          <span class="sentiment-badge neg">Negative</span>
+          <span class="level-badge war">Level: War</span>
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:.75rem">4 events, all in-scope for BGN (MBG program = core mandate). Systemic poisoning across multiple cities &mdash; flagship program failure</div>
+
+      <div class="result-event">
+        <div class="result-event-name">War-Level Trigger Conditions</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.7">
+          &middot; Velocity: 178/hour (CRITICAL)<br>
+          &middot; Sentiment: Negative &gt; 60%<br>
+          &middot; Weighted triggers: 8.5 (CRITICAL: casualties, contradicts core mission, legitimacy threat)<br>
+          &middot; Lifecycle: RISING (peak 8 hours ago)<br>
+          &middot; 3+ events from different locations (systemic pattern)
+        </div>
+        <div class="result-meta">
+          <span class="badge">Alert score: 92</span>
+          <span class="badge">Sensitivity: Critical</span>
+          <span class="badge">Action type: Urgent</span>
+          <span class="badge">Duration: 14 days</span>
+          <span class="badge">Interval: 12 hours</span>
+        </div>
+      </div>
+
+      <div class="result-event">
+        <div class="result-event-name">Auto-Triggered Downstream Actions</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.7">
+          &#x2705; Platform Post Recommendation Agent &mdash; generate reply content for Twitter, IG, Facebook<br>
+          &#x2705; Precision Scoring Agent &mdash; 5-dim breakdown + PDF upload to S3<br>
+          &#x2705; Push to Kafka topic <code>cw-campaign-main-issue-monitoring-idea</code><br>
+          &#x2705; Campaign API &mdash; auto-post comments to viral target posts
+        </div>
+        <div class="result-meta">
+          <span class="badge">Kafka: idea + log</span>
+          <span class="badge">Campaign API: hit</span>
+          <span class="badge">S3 PDF: uploaded</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card" style="margin-top:2rem;border-color:var(--red);background:rgba(239,68,68,.03)">
+      <div style="font-weight:700;margin-bottom:.5rem;color:var(--red)">&#x1F4CB; Why 3 Different Scenarios?</div>
+      <div style="font-size:.84rem;color:var(--dim);line-height:1.75">
+        <strong style="color:var(--text)">Mandate-aware processing</strong> &mdash; the same "radicalism" issue is barely relevant to BSSN because most events fall outside the cyber mandate. Conversely, BGN with MBG events 100% in-scope and high velocity escalates straight to War. Polri in a small narcotics case still receives a Positive sentiment because of the success story, but the alert is not inflated due to the low scale. <strong style="color:var(--text)">This system refuses one-size-fits-all.</strong>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: TECHNOLOGY
+     ============================================================ -->
+<div class="tab-content" id="tab-tech">
+  <div class="page">
+    <div class="label">Technology</div>
+    <h2 class="title">Multi-Provider, Multi-Storage Architecture</h2>
+    <p class="subtitle">This engine combines several LLM models from different providers with a battle-tested data stack for production scale.</p>
+
+    <!-- Data Flow -->
+    <div class="dataflow">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--amber);margin-bottom:.5rem">&#x1F4E1; Data Flow Architecture</div>
+      <div class="df-row">
+        <div class="df-source">Cognitive Warfare Engine</div>
+        <div class="df-arrow">&#x2192;</div>
+        <div class="df-target">Writes to <strong>cw-campaign-issue-event-monitoring</strong> (ES)</div>
+      </div>
+      <div class="df-row">
+        <div class="df-source">Campaign Alert Agent</div>
+        <div class="df-arrow">&#x2192;</div>
+        <div class="df-target">Reads from ES every 60 minutes (1-hour window)</div>
+      </div>
+      <div class="df-row">
+        <div class="df-source">Pipeline V2</div>
+        <div class="df-arrow">&#x2192;</div>
+        <div class="df-target">Refetches posts from <strong>prod-social-media-*</strong>, velocity from <strong>cw-data-*</strong></div>
+      </div>
+      <div class="df-row">
+        <div class="df-source">Output</div>
+        <div class="df-arrow">&#x2192;</div>
+        <div class="df-target">3 Kafka topics + S3 (PDF) + Campaign API (auto-posting)</div>
+      </div>
+    </div>
+
+    <div class="tech-grid">
+      <div class="card tech">
+        <div class="cat">AI Models (Multi-Provider)</div>
+        <ul>
+          <li><strong>GPT-4o-mini</strong>Default agent (via OpenRouter :nitro)</li>
+          <li><strong>GPT-OSS-120B</strong>Event dedup, sentiment (OpenRouter)</li>
+          <li><strong>Deepseek-V4-Pro</strong>Sentiment refinement (OpenRouter)</li>
+          <li><strong>GPT-4.1-mini</strong>Filtering, summary (OpenAI direct)</li>
+          <li><strong>Qwen3 Local</strong>On-prem fallback option</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Data Storage</div>
+        <ul>
+          <li><strong>Elasticsearch</strong>6 indices used (issue, social media, cw-data, NCW)</li>
+          <li><strong>Redis</strong>Per-(issue+client) exposure state</li>
+          <li><strong>Kafka</strong>3 output topics (urgency, idea, log)</li>
+          <li><strong>S3 (Asura)</strong>Precision scoring PDF storage</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">External Tools &amp; APIs</div>
+        <ul>
+          <li><strong>Brave Search</strong>Search tool for timeline enrichment</li>
+          <li><strong>Knowledge Repo</strong>Internal knowledge base search</li>
+          <li><strong>NCW Summary API</strong>Lifecycle &amp; executive summary</li>
+          <li><strong>Rerank API</strong>Cross-encoder relevance scoring</li>
+          <li><strong>Campaign API</strong>Auto-posting comments/content</li>
+          <li><strong>Agenda Settings API</strong>Brief production for clients</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Application Layer</div>
+        <ul>
+          <li><strong>Python 3.11</strong>Conda env <code>campaign-alert</code></li>
+          <li><strong>asyncio</strong>Concurrency engine (gather/to_thread)</li>
+          <li><strong>ThreadPoolExecutor</strong>Parallel rerank API calls</li>
+          <li><strong>FastAPI</strong>Optional service endpoint</li>
+          <li><strong>scheduler.py</strong>60-min loop with retry</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Key Architectural Decisions</div>
+        <ul>
+          <li><strong>Mandate-aware</strong>Per-event in/out-of-scope mapping</li>
+          <li><strong>Hierarchical Gates</strong>3 skip layers (urgency, monitoring, action)</li>
+          <li><strong>Trust Existing</strong>ES posts not reranked, only refetched</li>
+          <li><strong>Dedup by URL</strong>Cross-event posts deduped by post_url</li>
+          <li><strong>Top 10 per platform</strong>Bound posts_example for LLM context</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Output Channels</div>
+        <ul>
+          <li><strong>Kafka: urgency</strong>Audit of all issues passing the filter</li>
+          <li><strong>Kafka: idea</strong>Final result for downstream consumers</li>
+          <li><strong>Kafka: log</strong>Full document for audit/replay</li>
+          <li><strong>Campaign API</strong>Auto-posting comments to platforms</li>
+          <li><strong>S3 PDF</strong>Shareable precision scoring report</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="fl">Campaign Alert Agent &mdash; Automated Crisis Response</div>
+  <p>14 AI Agents &middot; 13 Pipeline Stages &middot; 10+ Clients &middot; 3 Urgency Levels</p>
+  <p>Architecture Portfolio &middot; Continuation of the Cognitive Warfare Engine &middot; 2026</p>
+</footer>
+
+<!-- ===== JS ===== -->
+<script>
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    tabContents.forEach(tc => {
+      tc.classList.remove('active');
+      if (tc.id === 'tab-' + target) {
+        requestAnimationFrame(() => {
+          tc.classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    });
+  });
+});
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('vis');
+  });
+}, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll('.card, .step, .stat, .result-group, .parallel-box, .sample-flow, .level-card, .client-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity .5s ease, transform .5s ease';
+  observer.observe(el);
+});
+
+const style = document.createElement('style');
+style.textContent = '.vis{opacity:1!important;transform:translateY(0)!important}';
+document.head.appendChild(style);
+
+document.querySelectorAll('.agent-grid, .tech-grid, .grid-3, .grid-4, .stats, .client-grid, .level-matrix').forEach(container => {
+  Array.from(container.children).forEach((child, i) => {
+    child.style.transitionDelay = (i * 0.06) + 's';
+  });
+});
+</script>
+</body>
+</html>

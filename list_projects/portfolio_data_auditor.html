@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VERIDOCS — AI Document Audit Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#08080f;--bg2:#0e0e18;--bg3:#141422;--bg4:#1a1a2c;--bg5:#202036;
+--brd:#1c1c30;--brd2:#282845;--brd3:#363660;
+--t1:#f0f0f8;--t2:#9a9ab8;--t3:#6a6a88;--t4:#484868;
+--blue:#5090ff;--cyan:#22d4e4;--purple:#a882f8;--green:#32d4a4;
+--orange:#f09444;--red:#f06464;--pink:#e474b4;--yellow:#e8cc34;
+--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--r:14px;--rs:10px;--rx:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:3px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd)}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:54px;gap:10px}
+.brand{font-weight:800;font-size:13px;color:var(--blue);white-space:nowrap;letter-spacing:-.02em;flex-shrink:0}
+.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 14px;border-radius:var(--rx);font-size:11.5px;font-weight:600;color:var(--t4);cursor:pointer;white-space:nowrap;transition:all .2s;border:none;background:none;font-family:var(--sans);letter-spacing:.01em}
+.tab:hover{color:var(--t2);background:rgba(255,255,255,.03)}
+.tab.on{color:var(--t1);background:rgba(80,144,255,.12)}
+
+/* SECTIONS */
+.sec{display:none;min-height:100vh;padding:72px 0 60px}.sec.on{display:block}
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+
+/* SECTION HEADER */
+.sh{margin-bottom:36px;padding-top:12px}
+.sh-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sh-label::before{content:'';width:14px;height:1.5px;background:var(--blue);border-radius:1px}
+.sh-title{font-size:clamp(22px,3.2vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:8px}
+.sh-title em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sh-desc{font-size:14px;color:var(--t2);max-width:640px;line-height:1.75}
+
+/* ANIM */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}.rv.v{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}.d4{transition-delay:.24s}
+
+/* HERO */
+.hero-wrap{display:flex;align-items:center;min-height:100vh;padding-top:54px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-18%;left:22%;width:520px;height:520px;background:radial-gradient(circle,rgba(80,144,255,.06),transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-12%;right:12%;width:420px;height:420px;background:radial-gradient(circle,rgba(168,130,248,.04),transparent 70%);pointer-events:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--brd);background:rgba(80,144,255,.04);font-size:10.5px;font-weight:600;color:var(--blue);margin-bottom:22px}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:bk 2s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-wrap h1{font-size:clamp(32px,5.5vw,56px);font-weight:900;letter-spacing:-.04em;line-height:1.06;margin-bottom:16px}
+.hero-wrap h1 em{font-style:normal;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-wrap>div>p{font-size:clamp(14px,1.5vw,16px);color:var(--t2);max-width:600px;margin-bottom:28px;line-height:1.8}
+
+/* METRIC GRID */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:32px}
+.mc{padding:20px 16px;border-radius:var(--r);border:1px solid var(--brd);background:var(--bg2);position:relative;overflow:hidden;transition:all .25s}
+.mc:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.mc .gw{position:absolute;top:-30px;right:-30px;width:70px;height:70px;border-radius:50%;filter:blur(32px);opacity:.3}
+.mc .num{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px}
+.mc .lx{font-size:10.5px;color:var(--t3);font-weight:500}
+
+/* TAG */
+.tg{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.t{padding:5px 11px;border-radius:5px;font-size:10.5px;font-weight:600;font-family:var(--mono);border:1px solid var(--brd);background:var(--bg3);color:var(--t2);white-space:nowrap}
+
+/* DATA / ARCH */
+.dc-arch{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:36px}
+.dc-layer{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative;overflow:hidden}
+.dc-layer::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:0 2px 2px 0}
+.dc-layer.l1::before{background:var(--blue)}.dc-layer.l2::before{background:var(--cyan)}.dc-layer.l3::before{background:var(--purple)}.dc-layer.l4::before{background:var(--green)}.dc-layer.l5::before{background:var(--orange)}
+.dc-layer h4{font-size:13px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.dc-layer h4 .num-badge{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.dc-layer p{font-size:12.5px;color:var(--t2);line-height:1.7}
+
+/* PLATFORM CARDS */
+.plat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:32px}
+.plat-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden;transition:border-color .2s}
+.plat-card:hover{border-color:var(--brd2)}
+.plat-hdr{padding:16px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--brd)}
+.plat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
+.plat-hdr .plat-name{font-size:14px;font-weight:700}
+.plat-hdr .plat-sub{font-size:10.5px;color:var(--t3);margin-top:1px}
+.plat-body{padding:14px 20px 18px}
+.plat-body .item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;color:var(--t2);line-height:1.65}
+.plat-body .item::before{content:'';width:5px;height:5px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.plat-body .item.i-blue::before{background:var(--blue)}.plat-body .item.i-cyan::before{background:var(--cyan)}.plat-body .item.i-green::before{background:var(--green)}.plat-body .item.i-orange::before{background:var(--orange)}.plat-body .item.i-red::before{background:var(--red)}.plat-body .item.i-purple::before{background:var(--purple)}.plat-body .item.i-pink::before{background:var(--pink)}
+
+/* CHALLENGE CARDS */
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:32px}
+.ch-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative}
+.ch-card h4{font-size:13.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.ch-card h4 .ch-num{font-family:var(--mono);font-size:10px;font-weight:800;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch-card p{font-size:12.5px;color:var(--t2);line-height:1.7}
+.ch-card .ch-example{margin-top:10px;padding:10px 14px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);font-family:var(--mono);font-size:10.5px;color:var(--t3);line-height:1.7;overflow-x:auto;white-space:pre-wrap}
+
+/* FLOW DIAGRAM */
+.flow-row{display:flex;align-items:stretch;gap:0;margin-bottom:32px;overflow-x:auto;padding-bottom:8px}
+.flow-step{flex:1;min-width:130px;text-align:center;position:relative;padding:16px 10px}
+.flow-step .fs-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin:0 auto 8px;border:2px solid var(--brd2)}
+.flow-step .fs-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.flow-step .fs-desc{font-size:10px;color:var(--t3);line-height:1.5}
+.flow-step:not(:last-child)::after{content:'';position:absolute;right:-1px;top:30px;width:calc(100% - 30px);height:2px;background:linear-gradient(90deg,transparent,var(--brd2),var(--brd2),transparent);z-index:-1;left:65%}
+
+/* HOW IT WORKS / STEP TIMELINE */
+.step-grid{display:grid;grid-template-columns:1fr;gap:0;position:relative}
+.step-grid::before{content:'';position:absolute;left:19px;top:28px;bottom:28px;width:2px;background:linear-gradient(180deg,var(--blue),var(--cyan),var(--purple),var(--green),var(--orange));border-radius:1px;opacity:.3}
+.step{display:flex;gap:20px;padding:18px 0;position:relative}
+.step-num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;border:2px solid var(--brd2);background:var(--bg);z-index:1}
+.step-body{flex:1;padding-top:4px}
+.step-body h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--t2);line-height:1.7}
+.step-body .tg{margin-top:9px}
+
+/* AGENTS */
+.ctabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px}
+.ctb{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--brd);background:none;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.ctb:hover{color:var(--t2);border-color:var(--brd2)}.ctb.on{color:var(--t1);background:rgba(80,144,255,.1);border-color:rgba(80,144,255,.25)}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.ac{border:1px solid var(--brd);border-radius:var(--rs);background:var(--bg2);padding:16px 18px;transition:all .2s}
+.ac:hover{border-color:var(--brd2)}
+.ah{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ai{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
+.an{font-size:13px;font-weight:700}.am{font-size:10px;color:var(--t4);margin-top:1px;font-family:var(--mono)}
+.ad{font-size:12px;color:var(--t2);line-height:1.65}
+.ad .tg{margin-top:9px}
+
+/* SCORING */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+.sc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:22px}
+.sc h3{font-size:15px;font-weight:800;margin-bottom:2px}
+.sub{font-size:11px;color:var(--t3);margin-bottom:16px}
+.ar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.al{width:160px;font-size:11px;font-weight:600;flex-shrink:0;color:var(--t2)}
+.abg{flex:1;height:6px;border-radius:3px;background:var(--bg4);overflow:hidden}
+.ab{height:100%;border-radius:3px;width:0;transition:width .8s ease}
+.ap{font-size:11px;font-weight:700;width:36px;text-align:right;flex-shrink:0}
+.fm{margin-top:16px;padding:12px 16px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);font-size:11px;color:var(--t3);line-height:1.7;font-family:var(--mono)}
+
+/* IO / FEATURE BOX */
+.io-box{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden;margin-bottom:14px}
+.io-hdr{padding:13px 18px;font-size:12.5px;font-weight:700;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px}
+.io-body{padding:16px 18px}
+.io-body p{font-size:12.5px;color:var(--t2);line-height:1.7}
+.kv{display:flex;gap:8px;margin-bottom:7px;font-size:12px;line-height:1.6}
+.kv .k{color:var(--t3);min-width:128px;flex-shrink:0;font-weight:600}
+.kv .val{color:var(--t2);flex:1}
+.divider{height:1px;background:var(--brd);margin:14px 0}
+.code-chip{font-family:var(--mono);font-size:11px;color:var(--cyan);background:rgba(34,212,228,.06);border:1px solid rgba(34,212,228,.14);padding:1px 7px;border-radius:5px}
+.btn-link{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--rx);background:rgba(80,144,255,.1);border:1px solid rgba(80,144,255,.28);color:var(--blue);font-size:12px;font-weight:700;text-decoration:none;transition:all .2s;font-family:var(--sans)}
+.btn-link:hover{background:rgba(80,144,255,.18);transform:translateY(-1px)}
+
+/* TECH */
+.tg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px;transition:border-color .2s}
+.tc:hover{border-color:var(--brd2)}
+.tc-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.tl{display:flex;flex-direction:column;gap:8px}
+.ti{display:flex;align-items:center;gap:10px;font-size:12px}
+.td{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tn{font-weight:600;flex:1}.tr{font-size:10.5px;color:var(--t4);text-align:right}
+
+footer{padding:40px 0 32px;border-top:1px solid var(--brd);text-align:center;font-size:11.5px;color:var(--t4)}
+
+@media(max-width:640px){
+  .nav-in{height:48px;gap:8px}.brand{font-size:11px}
+  .tab{padding:5px 10px;font-size:10.5px}
+  .plat-grid,.ch-grid{grid-template-columns:1fr}
+  .ag{grid-template-columns:1fr}
+  .sg{grid-template-columns:1fr}
+  .tg2{grid-template-columns:1fr}
+  .flow-row{flex-direction:column;align-items:stretch}
+  .flow-step:not(:last-child)::after{display:none}
+  .al{width:128px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav><div class="nav-in">
+  <div class="brand">VERIDOCS</div>
+  <div class="tabs">
+    <button class="tab on" data-s="overview">Overview</button>
+    <button class="tab" data-s="architecture">Architecture</button>
+    <button class="tab" data-s="pipeline">Pipeline</button>
+    <button class="tab" data-s="agents">AI Agents</button>
+    <button class="tab" data-s="scoring">Scoring</button>
+    <button class="tab" data-s="output">Sample Output</button>
+    <button class="tab" data-s="integrations">Integrations</button>
+    <button class="tab" data-s="tech">Tech Stack</button>
+  </div>
+</div></nav>
+
+<!-- ========== OVERVIEW ========== -->
+<div class="sec on" id="s-overview">
+  <div class="hero-wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="container">
+      <div class="pill rv"><span class="dot"></span> Multi-Agent Audit Pipeline · Government-grade</div>
+      <h1 class="rv d1">VERIDOCS<br><em>AI Document Audit Engine</em></h1>
+      <p class="rv d2">A multi-agent pipeline that audits Indonesian government documents — <strong>BUMD Feasibility Studies</strong> and <strong>Draft Regional Budget Regulations (Perda APBD)</strong> — against statutory frameworks. It ingests a PDF/DOCX, audits it chunk-by-chunk on four weighted indicators, verifies data claims against live web sources, computes a <strong>deterministic, auditable score</strong>, and renders an official letterhead infographic and A4 PDF report.</p>
+      <div class="tg rv d3">
+        <span class="t">Python · AsyncIO</span><span class="t">FastAPI</span>
+        <span class="t">Redis Queue</span><span class="t">eb_labs Agents</span>
+        <span class="t">PyMuPDF4LLM</span><span class="t">Docling</span><span class="t">LangChain Splitters</span>
+        <span class="t">Brave Search</span><span class="t">GPT-5.4-mini</span><span class="t">Claude Sonnet 4.5</span>
+      </div>
+      <div class="mg rv d4">
+        <div class="mc"><div class="gw" style="background:var(--blue)"></div><div class="num" style="color:var(--blue)">5</div><div class="lx">Pipeline Stages</div></div>
+        <div class="mc"><div class="gw" style="background:var(--cyan)"></div><div class="num" style="color:var(--cyan)">3</div><div class="lx">LLM Agents</div></div>
+        <div class="mc"><div class="gw" style="background:var(--green)"></div><div class="num" style="color:var(--green)">2</div><div class="lx">Audit Categories</div></div>
+        <div class="mc"><div class="gw" style="background:var(--purple)"></div><div class="num" style="color:var(--purple)">4</div><div class="lx">Weighted Indicators</div></div>
+        <div class="mc"><div class="gw" style="background:var(--orange)"></div><div class="num" style="color:var(--orange)">160</div><div class="lx">Chunks / Doc (max seen)</div></div>
+        <div class="mc"><div class="gw" style="background:var(--pink)"></div><div class="num" style="color:var(--pink)">3</div><div class="lx">LLM Providers</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ARCHITECTURE ========== -->
+<div class="sec" id="s-architecture"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Architecture</div>
+    <div class="sh-title">From a Raw PDF to an <em>Official Audit Infographic</em></div>
+    <div class="sh-desc">One document URL enters the pipeline. It is extracted to Markdown, split into context-aware chunks, audited in parallel by a tool-using agent, aggregated hierarchically into a deterministic score, written up as a Markdown report, and finally rendered as a government letterhead HTML + A4 PDF.</div>
+  </div>
+
+  <!-- Top-level flow -->
+  <div class="flow-row rv d1">
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">1</div>
+      <div class="fs-title" style="color:var(--blue)">Parse</div>
+      <div class="fs-desc">PDF/DOCX → Markdown → heading-aware chunks</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">2</div>
+      <div class="fs-title" style="color:var(--cyan)">Audit Chunks</div>
+      <div class="fs-desc">4 indicators per chunk · parallel batches of 20 · web + calculator tools</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">3</div>
+      <div class="fs-title" style="color:var(--purple)">Summarize</div>
+      <div class="fs-desc">Hierarchical map-reduce + deterministic scoring</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">4</div>
+      <div class="fs-title" style="color:var(--green)">Report</div>
+      <div class="fs-desc">Structured Markdown audit report</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">5</div>
+      <div class="fs-title" style="color:var(--orange)">Infographic</div>
+      <div class="fs-desc">Letterhead HTML + A4 PDF via render API</div>
+    </div>
+  </div>
+
+  <!-- Layered architecture -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d2">Layered Architecture</h3>
+  <div class="dc-arch rv d2">
+    <div class="dc-layer l1">
+      <h4><span class="num-badge" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span> <span style="color:var(--blue)">Extraction Layer — DocumentParser</span></h4>
+      <p>Downloads the document from an S3/HTTP URL (or reads a local path) and converts it to Markdown via one of two methods: a local path (<span class="code-chip">pymupdf4llm</span> for PDF, <span class="code-chip">python-docx</span> for DOCX, tables preserved) or a remote <span class="code-chip">Docling</span> API with primary→fallback endpoints and OCR. Markdown is split by H1–H3 headings, falling back to page-break / recursive character splitting (~10k chars, 1k overlap), keeping each chunk's heading context. Multiple documents can be merged into one PDF or parsed in parallel.</p>
+    </div>
+    <div class="dc-layer l2">
+      <h4><span class="num-badge" style="background:rgba(34,212,228,.12);color:var(--cyan)">2</span> <span style="color:var(--cyan)">Audit Layer — ChunkAuditorAgent</span></h4>
+      <p>Each chunk is audited against four category-specific indicators. The agent is tool-using: it calls <span class="code-chip">brave_search_single</span> + <span class="code-chip">fetch_url_content</span> to verify statistical claims against official sources (BPS, Kemenkeu, DJPK), and a <span class="code-chip">calculator</span> toolkit for precise ratio math on budget thresholds. Chunks run in parallel batches of 20 for throughput.</p>
+    </div>
+    <div class="dc-layer l3">
+      <h4><span class="num-badge" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span> <span style="color:var(--purple)">Aggregation Layer — SummarizerAgent</span></h4>
+      <p>Scores are computed <em>deterministically</em> from every chunk (weighted average) and then <strong>override</strong> the LLM output — the model only writes the qualitative narrative, never the number. For large documents it summarizes hierarchically: partial summaries per batch of 10 → recursive merge → one final summary, so token budgets stay bounded at any document size.</p>
+    </div>
+    <div class="dc-layer l4">
+      <h4><span class="num-badge" style="background:rgba(50,212,164,.12);color:var(--green)">4</span> <span style="color:var(--green)">Reporting Layer — ReportGeneratorAgent</span></h4>
+      <p>Turns the summary plus a lightweight per-section scores table into a structured Markdown report — executive summary, scorecard, per-indicator breakdown, completeness checklist, critical findings, and prioritized recommendations — strictly avoiding any internal "chunk" wording in favour of document section names.</p>
+    </div>
+    <div class="dc-layer l5">
+      <h4><span class="num-badge" style="background:rgba(240,148,68,.12);color:var(--orange)">5</span> <span style="color:var(--orange)">Rendering Layer — InfographicGenerator</span></h4>
+      <p>Prepends a strict design spec (locked CSS + mandatory section order) and POSTs the report to a rendering API (Claude Sonnet 4.5 via OpenRouter), then converts the result to an A4 PDF. Header/footer toggles between official <strong>Kemendagri</strong> letterhead (logo + Directorate General of Regional Financial Development) and neutral <strong>VERIDOCS</strong> branding.</p>
+    </div>
+  </div>
+
+  <!-- Two categories -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d2">One Pipeline, Two Audit Domains</h3>
+  <div class="plat-grid rv d3">
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(80,144,255,.1);color:var(--blue)">FS</div>
+        <div><div class="plat-name">Feasibility Study — BUMD</div><div class="plat-sub">category = "fs" · PP 54/2017</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-blue">Audits whether a Regional-Owned Enterprise (BUMD) is feasible to establish</div>
+        <div class="item i-cyan">4 indicators: Data Anomaly 30% · Business Feasibility 30% · Writing Structure 20% · Substance Completeness 20%</div>
+        <div class="item i-purple">Checks the full Lampiran I checklist (RPJMD, market, NPV/IRR/BCR, 3 scenarios, SDM, tech)</div>
+        <div class="item i-green">Verdict: score ≥ 70 → LAYAK (feasible), &lt; 70 → TIDAK LAYAK</div>
+      </div>
+    </div>
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(50,212,164,.1);color:var(--green)">APBD</div>
+        <div><div class="plat-name">Draft Perda APBD</div><div class="plat-sub">category = "perda" · CACS framework</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-green">Audits a regional budget regulation draft for statutory compliance</div>
+        <div class="item i-cyan">4 dimensions: Mandatory Thresholds 40% · Planning Consistency 25% · Substance + Admin 20% · Structure 15%</div>
+        <div class="item i-orange">Verifies thresholds T-01…T-09 (education ≥20%, health ≥10%, personnel ≤30% …) with the calculator tool</div>
+        <div class="item i-pink">CACS bands: 85+ Ready · 70+ Minor Revision · 55+ Major Revision · &lt;55 Not Eligible</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Challenges -->
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d3">Engineering Challenges Solved</h3>
+  <div class="ch-grid rv d4">
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span> Auditable, Not Hallucinated Scores</h4>
+      <p>Government decisions need defensible numbers. The LLM only assigns per-indicator scores and writes prose; the pipeline recomputes the weighted total deterministically and overwrites whatever the model reported — identical inputs always yield the identical, explainable score.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(168,130,248,.12);color:var(--purple)">2</span> Documents of Any Size</h4>
+      <p>Inputs range from a 2-chunk draft to a 160-chunk merged budget book. A hierarchical map-reduce summarizer (partial → recursive merge → final) keeps every LLM call within its context window regardless of page count.</p>
+      <div class="ch-example">observed: 2 → 160 chunks/doc
+runtime: ~3 min → ~35 min end-to-end</div>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(50,212,164,.12);color:var(--green)">3</span> Verifying Claims Against Reality</h4>
+      <p>Anomaly detection can't rely on the model's memory. The auditor searches Brave for official statistics (BPS / Kemenkeu), scrapes the source page through a knowledge-repository proxy, and only then classifies a claim VALID / ANOMALI / UNVERIFIABLE — never inventing a ground truth.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,148,68,.12);color:var(--orange)">4</span> Precise Budget Math</h4>
+      <p>Threshold compliance hinges on exact ratios. Instead of trusting LLM arithmetic, the Perda auditor delegates every division/percentage to a deterministic <span class="code-chip">calculator</span> toolkit, so "education = 18.5% of APBD" is computed, not guessed.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(34,212,228,.12);color:var(--cyan)">5</span> Resilient Long-Running Jobs</h4>
+      <p>A 35-minute audit can't block an HTTP request. Jobs are enqueued in Redis and run by an async worker pool (semaphore-bounded), with a <span class="code-chip">resume_from_step3</span> path that re-runs summary→report→infographic from saved chunk audits without re-auditing.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,96,96,.12);color:var(--red)">6</span> Print-Safe Infographics</h4>
+      <p>The render output must survive HTML→A4 PDF conversion on mobile and print. The design spec bans wide tables, fixed widths and media queries, mandates card-list layouts for findings, and ships a locked CSS block the renderer must copy verbatim.</p>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== PIPELINE ========== -->
+<div class="sec" id="s-pipeline"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Pipeline</div>
+    <div class="sh-title">How a Document Becomes a <em>Scored Audit Report</em></div>
+    <div class="sh-desc">Five orchestrated stages run inside <span class="code-chip">MainProcessor.process()</span>. Every stage writes a trace artifact (<span class="code-chip">step1…step5</span> + <span class="code-chip">final_result.json</span>) so any run is fully reproducible and resumable.</div>
+  </div>
+
+  <div class="step-grid rv d1">
+    <div class="step">
+      <div class="step-num" style="color:var(--blue);border-color:rgba(80,144,255,.25)">1</div>
+      <div class="step-body"><h4 style="color:var(--blue)">Document Parsing</h4>
+      <p>Download (or read locally) the main document plus optional supporting documents. Convert to Markdown, then split by headings into context-retaining chunks. Auto-detect the document title from the first chunk and persist <span class="code-chip">step1_parsed_chunks.json</span>.</p>
+      <div class="tg"><span class="t">pymupdf4llm / docling</span><span class="t">heading split</span><span class="t">merge or parallel</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--cyan);border-color:rgba(34,212,228,.25)">2</div>
+      <div class="step-body"><h4 style="color:var(--cyan)">Chunk Auditing</h4>
+      <p>For each chunk, the ChunkAuditorAgent scores all four indicators, calling web-search/scrape and calculator tools as needed. Chunks process in parallel batches of 20; failures degrade gracefully into a safe error result so one bad chunk never sinks the run. Each chunk's weighted score is recomputed in code.</p>
+      <div class="tg"><span class="t">batch_size = 20</span><span class="t">tool-calling</span><span class="t">graceful degradation</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--purple);border-color:rgba(168,130,248,.25)">3</div>
+      <div class="step-body"><h4 style="color:var(--purple)">Summarization &amp; Scoring</h4>
+      <p>Deterministic weighted averages and anomaly counts are computed across all chunks. The qualitative summary is produced directly for small docs, or hierarchically (partial batches of 10 → recursive merge → final) for large ones — then the deterministic scores are stamped back over the LLM result.</p>
+      <div class="tg"><span class="t">map-reduce</span><span class="t">deterministic override</span><span class="t">SUMMARY_BATCH=10</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--green);border-color:rgba(50,212,164,.25)">4</div>
+      <div class="step-body"><h4 style="color:var(--green)">Report Generation</h4>
+      <p>The ReportGeneratorAgent assembles the final summary and a per-section scores table into a complete Markdown report following a mandated structure, ready to be visualized. A fallback report is emitted from raw scores if the LLM call fails.</p>
+      <div class="tg"><span class="t">structured markdown</span><span class="t">section-named</span><span class="t">fallback-safe</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.25)">5</div>
+      <div class="step-body"><h4 style="color:var(--orange)">Infographic Rendering</h4>
+      <p>The report is injected into a category-specific design prompt (with the chosen header/footer block) and rendered to an HTML infographic, then converted to a download-ready A4 PDF. Three retries with exponential backoff protect against transient render failures.</p>
+      <div class="tg"><span class="t">render API</span><span class="t">A4 PDF</span><span class="t">retry × 3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider rv"></div>
+
+  <h3 style="font-size:14px;font-weight:700;margin:8px 0 14px" class="rv d2"><span style="color:var(--purple)">●</span> Hierarchical Summarization (Stage 3, large documents)</h3>
+  <div class="flow-row rv d2">
+    <div class="flow-step"><div class="fs-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">A</div><div class="fs-title" style="color:var(--cyan)">All chunk audits</div><div class="fs-desc">strip heavy fields for token budget</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">B</div><div class="fs-title" style="color:var(--blue)">Partial summaries</div><div class="fs-desc">batches of 10, run in parallel</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">C</div><div class="fs-title" style="color:var(--purple)">Recursive merge</div><div class="fs-desc">while partials &gt; 10, re-batch</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">D</div><div class="fs-title" style="color:var(--green)">Final summary</div><div class="fs-desc">one comprehensive JSON</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">E</div><div class="fs-title" style="color:var(--orange)">Score override</div><div class="fs-desc">deterministic scores stamped in</div></div>
+  </div>
+</div></div>
+
+<!-- ========== AGENTS ========== -->
+<div class="sec" id="s-agents"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">AI Agents &amp; Tools</div>
+    <div class="sh-title">3 LLM Agents + <em>Tool Belt</em></div>
+    <div class="sh-desc">Every agent extends one <span class="code-chip">BaseAgent</span> that wraps three interchangeable providers — OpenAI, OpenRouter, and a local vLLM — through the <span class="code-chip">eb_labs</span> framework. Each audit category loads its own prompt set (<span class="code-chip">prompt_fs.py</span> / <span class="code-chip">prompt_perda.py</span>).</div>
+  </div>
+
+  <div class="ctabs rv d1">
+    <button class="ctb on" data-c="all">All</button>
+    <button class="ctb" data-c="agent">LLM Agents</button>
+    <button class="ctb" data-c="tool">Tools</button>
+    <button class="ctb" data-c="infra">Foundation</button>
+  </div>
+
+  <div class="ag">
+    <div class="ac rv" data-c="agent"><div class="ah"><div class="ai" style="background:rgba(34,212,228,.08);color:var(--cyan)">CA</div><div><div class="an">Chunk Auditor Agent</div><div class="am">tool-using · per chunk</div></div></div><div class="ad">Audits a single chunk on all four indicators and returns strict JSON. Uses Brave Search to verify data claims (FS) and a calculator for threshold ratios (Perda). Re-weights the chunk score in code and tags a per-chunk verdict.
+      <div class="tg"><span class="t">BraveSearch</span><span class="t">Calculator</span><span class="t">strict JSON</span></div></div></div>
+
+    <div class="ac rv" data-c="agent"><div class="ah"><div class="ai" style="background:rgba(168,130,248,.08);color:var(--purple)">SU</div><div><div class="an">Summarizer Agent</div><div class="am">map-reduce · no tools</div></div></div><div class="ad">Aggregates all chunk audits into one summary. Computes deterministic weighted scores + anomaly tallies, then writes the qualitative narrative — directly for small docs, hierarchically (partial → merge → final) for large ones.
+      <div class="tg"><span class="t">partial agent</span><span class="t">final agent</span><span class="t">deterministic scores</span></div></div></div>
+
+    <div class="ac rv" data-c="agent"><div class="ah"><div class="ai" style="background:rgba(50,212,164,.08);color:var(--green)">RG</div><div><div class="an">Report Generator Agent</div><div class="am">markdown writer · no tools</div></div></div><div class="ad">Composes the final structured Markdown audit report from the summary and a per-section scores table — executive summary, scorecard, indicator breakdowns, checklists, findings, recommendations — with a guaranteed fallback report on failure.
+      <div class="tg"><span class="t">structured output</span><span class="t">fallback report</span></div></div></div>
+
+    <div class="ac rv" data-c="tool"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">BS</div><div><div class="an">Brave Search Tools</div><div class="am">brave_search_single · fetch_url_content</div></div></div><div class="ad">Searches the web (region/lang ID, optional date range) by scraping Brave results through a proxy, then fetches full page content via a knowledge-repository endpoint — the evidence backbone for anomaly verification.
+      <div class="tg"><span class="t">aiohttp</span><span class="t">BeautifulSoup</span><span class="t">proxy</span></div></div></div>
+
+    <div class="ac rv" data-c="tool"><div class="ah"><div class="ai" style="background:rgba(240,148,68,.08);color:var(--orange)">Ca</div><div><div class="an">Calculator Tools</div><div class="am">add · subtract · multiply · divide …</div></div></div><div class="ad">A deterministic math toolkit (incl. exponentiate, factorial, sqrt, is-prime) so the Perda auditor computes budget ratios and percentages exactly instead of relying on the LLM's arithmetic.
+      <div class="tg"><span class="t">precise ratios</span><span class="t">JSON results</span></div></div></div>
+
+    <div class="ac rv" data-c="tool"><div class="ah"><div class="ai" style="background:rgba(228,116,180,.08);color:var(--pink)">IG</div><div><div class="an">Infographic Generator</div><div class="am">render API · A4 PDF</div></div></div><div class="ad">Not an LLM agent but the final tool: injects header/footer blocks into a category-specific design spec, POSTs to the rendering API (Claude Sonnet 4.5), and produces the letterhead HTML plus a download-ready A4 PDF.
+      <div class="tg"><span class="t">Kemendagri / VERIDOCS</span><span class="t">retry × 3</span></div></div></div>
+
+    <div class="ac rv" data-c="infra"><div class="ah"><div class="ai" style="background:rgba(80,144,255,.08);color:var(--blue)">Ba</div><div><div class="an">BaseAgent</div><div class="am">eb_labs · 3 providers</div></div></div><div class="ad">Abstract base that initializes OpenAI, OpenRouter and local-vLLM models with shared temperature/timeout settings and a <span class="code-chip">_select_model()</span> switch — so any agent can swap providers per call.
+      <div class="tg"><span class="t">OpenAI</span><span class="t">OpenRouter</span><span class="t">vLLM</span></div></div></div>
+
+    <div class="ac rv" data-c="infra"><div class="ah"><div class="ai" style="background:rgba(50,212,164,.08);color:var(--green)">DP</div><div><div class="an">Document Parser</div><div class="am">extract + chunk</div></div></div><div class="ad">Dual extraction (manual pymupdf4llm/python-docx or Docling API with fallback), heading-aware splitting with page-break/recursive fallbacks, and multi-document merge — the deterministic front door of the pipeline.
+      <div class="tg"><span class="t">PDF + DOCX</span><span class="t">tables preserved</span></div></div></div>
+  </div>
+</div></div>
+
+<!-- ========== SCORING ========== -->
+<div class="sec" id="s-scoring"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Scoring</div>
+    <div class="sh-title">Two Weighted, <em>Deterministic</em> Frameworks</div>
+    <div class="sh-desc">The LLM scores each indicator 0–100 per chunk; the engine averages them with fixed category weights and overrides the model's total. Same inputs → same score, every time.</div>
+  </div>
+
+  <div class="sg">
+    <div class="sc rv">
+      <h3 style="color:var(--blue)">Feasibility Study — BUMD</h3><div class="sub">4 indicators · verdict ≥ 70 = LAYAK · PP 54/2017</div>
+      <div class="ar"><span class="al">Data Anomaly</span><div class="abg"><div class="ab" data-w="100" style="background:var(--blue)"></div></div><span class="ap" style="color:var(--blue)">30%</span></div>
+      <div class="ar"><span class="al">Business Feasibility</span><div class="abg"><div class="ab" data-w="100" style="background:var(--cyan)"></div></div><span class="ap" style="color:var(--cyan)">30%</span></div>
+      <div class="ar"><span class="al">Writing Structure</span><div class="abg"><div class="ab" data-w="67" style="background:var(--purple)"></div></div><span class="ap" style="color:var(--purple)">20%</span></div>
+      <div class="ar"><span class="al">Substance (Lampiran I)</span><div class="abg"><div class="ab" data-w="67" style="background:var(--green)"></div></div><span class="ap" style="color:var(--green)">20%</span></div>
+      <div class="fm">total = I1·.30 + I2·.30 + I3·.20 + I4·.20<br>verdict: ≥ 70 → LAYAK · &lt; 70 → TIDAK LAYAK</div>
+    </div>
+
+    <div class="sc rv d1">
+      <h3 style="color:var(--green)">Draft Perda APBD — CACS</h3><div class="sub">4 dimensions · Composite APBD Compliance Score</div>
+      <div class="ar"><span class="al">Mandatory Thresholds</span><div class="abg"><div class="ab" data-w="100" style="background:var(--green)"></div></div><span class="ap" style="color:var(--green)">40%</span></div>
+      <div class="ar"><span class="al">Planning Consistency</span><div class="abg"><div class="ab" data-w="63" style="background:var(--cyan)"></div></div><span class="ap" style="color:var(--cyan)">25%</span></div>
+      <div class="ar"><span class="al">Substance + Admin</span><div class="abg"><div class="ab" data-w="50" style="background:var(--blue)"></div></div><span class="ap" style="color:var(--blue)">20%</span></div>
+      <div class="ar"><span class="al">Structure Completeness</span><div class="abg"><div class="ab" data-w="38" style="background:var(--purple)"></div></div><span class="ap" style="color:var(--purple)">15%</span></div>
+      <div class="fm">cacs = D1·.40 + D2·.25 + D3·.20 + D4·.15<br>85+ Ready · 70+ Minor · 55+ Major · &lt;55 Not Eligible</div>
+    </div>
+  </div>
+
+  <div class="io-box rv d2" style="margin-top:20px">
+    <div class="io-hdr"><span style="color:var(--orange)">◆</span> Perda Mandatory Thresholds (Dimension 1, weight 40%)</div>
+    <div class="io-body">
+      <div class="kv"><span class="k">T-01 Education</span><span class="val">≥ 20% of total APBD — UUD 1945 Art. 31</span></div>
+      <div class="kv"><span class="k">T-02 Health</span><span class="val">≥ 10% of total APBD</span></div>
+      <div class="kv"><span class="k">T-03 Personnel</span><span class="val">≤ 30% of total spending</span></div>
+      <div class="kv"><span class="k">T-04 Capital</span><span class="val">≥ 40% (Province) / ≥ 25% (Regency/City)</span></div>
+      <div class="kv"><span class="k">T-06 Deficit</span><span class="val">≤ 2.5% of revenue</span></div>
+      <div class="kv"><span class="k">T-08 / T-09</span><span class="val">Unexpected Spending present · SPM across 6 mandatory affairs</span></div>
+      <div class="divider"></div>
+      <p style="font-size:12px;color:var(--t3)">Each found threshold is computed with the calculator tool and classified TERPENUHI / TIDAK TERPENUHI / DATA TIDAK DITEMUKAN. Structure also tracks P-S01…P-S09 (title, preamble, 6 mandatory chapters, appendices I–VII).</p>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== SAMPLE OUTPUT ========== -->
+<div class="sec" id="s-output"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Sample Output</div>
+    <div class="sh-title">A Real <em>Audit Infographic</em></div>
+    <div class="sh-desc">The pipeline's deliverable is a mobile-friendly, print-safe HTML infographic on official letterhead, plus an A4 PDF. Below is an actual generated report — an APBD audit for Provinsi Riau, FY 2026.</div>
+  </div>
+
+  <div class="io-box rv d1">
+    <div class="io-hdr"><span style="color:var(--green)">◆</span> Laporan Audit Draft Perda APBD — Provinsi Riau TA 2026</div>
+    <div class="io-body">
+      <div class="kv"><span class="k">Category</span><span class="val"><span class="code-chip">perda</span> · CACS framework</span></div>
+      <div class="kv"><span class="k">Letterhead</span><span class="val">Kementerian Dalam Negeri — Direktorat Jenderal Bina Keuangan Daerah</span></div>
+      <div class="kv"><span class="k">Format</span><span class="val">Responsive HTML (800px max, white background) + A4 PDF download</span></div>
+      <div class="kv"><span class="k">Sections</span><span class="val">Executive summary → 4-dimension bar chart → threshold cards → consistency → substance &amp; admin → structure checklist → critical findings → recommendations → CACS scorecard (bottom)</span></div>
+      <div class="divider"></div>
+      <a class="btn-link" href="https://asura-s3.stellardata.ai/canvas-agents/prod/bumd_fs_auditor/infographics/6a809d56483bd85642b317483fcda7d3/74dd8467bcdee872d7767bfdbe8acc47.html" target="_blank" rel="noopener">↗ Open the live sample infographic</a>
+    </div>
+  </div>
+
+  <div class="plat-grid rv d2">
+    <div class="plat-card">
+      <div class="plat-hdr"><div class="plat-icon" style="background:rgba(80,144,255,.1);color:var(--blue)">API</div><div><div class="plat-name">Synchronous &amp; Queued Access</div><div class="plat-sub">FastAPI · VERIDOCS service</div></div></div>
+      <div class="plat-body">
+        <div class="item i-blue"><span class="code-chip">POST /audit</span> — runs the full pipeline and returns the complete result</div>
+        <div class="item i-cyan"><span class="code-chip">POST /audit_queue</span> → <span class="code-chip">/check_status</span> → <span class="code-chip">/check_data</span> for long docs via Redis</div>
+        <div class="item i-green">Inputs: <span class="code-chip">doc_url</span>, <span class="code-chip">category</span>, <span class="code-chip">additional_doc_urls</span>, <span class="code-chip">kemendagri_header</span></div>
+      </div>
+    </div>
+    <div class="plat-card">
+      <div class="plat-hdr"><div class="plat-icon" style="background:rgba(50,212,164,.1);color:var(--green)">OUT</div><div><div class="plat-name">Result Payload</div><div class="plat-sub">final_result.json</div></div></div>
+      <div class="plat-body">
+        <div class="item i-green"><span class="code-chip">summary</span> — scores, verdict, findings, recommendations, checklist</div>
+        <div class="item i-cyan"><span class="code-chip">markdown_report</span> — full human-readable audit</div>
+        <div class="item i-pink"><span class="code-chip">infographic</span> — HTML <span class="code-chip">s3url</span> + <span class="code-chip">pdfUrl</span></div>
+        <div class="item i-purple"><span class="code-chip">total_chunks</span>, <span class="code-chip">elapsed_time</span> and per-step traces</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== INTEGRATIONS ========== -->
+<div class="sec" id="s-integrations"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Integrations</div>
+    <div class="sh-title">External Services it <em>Orchestrates</em></div>
+    <div class="sh-desc">Beyond the LLM providers, the engine stitches together extraction, evidence, rendering, queueing and storage services into one audit flow.</div>
+  </div>
+
+  <div class="ch-grid rv d1">
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span> Docling Extraction API</h4>
+      <p>Optional server-side extraction with OCR, table-structure recovery and a primary→fallback endpoint pair. The manual <span class="code-chip">pymupdf4llm</span> path is the default; Docling handles scans and tricky layouts.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(50,212,164,.12);color:var(--green)">2</span> Brave Search + Knowledge Repo</h4>
+      <p>Claim verification scrapes Brave search results through a proxy and fetches full page text via a knowledge-repository endpoint — turning "the document claims X" into a checkable VALID/ANOMALI verdict with a cited source.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(228,116,180,.12);color:var(--pink)">3</span> Infographic Render API</h4>
+      <p>A POST with the design spec returns an HTML <span class="code-chip">s3url</span>; a second <span class="code-chip">download-a4</span> call converts it to a print-ready A4 PDF. Both wrapped in retry/backoff.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,96,96,.12);color:var(--red)">4</span> Redis Job Queue</h4>
+      <p>Audits are enqueued under <span class="code-chip">data_auditor_agent:process:*</span>, picked up by an async worker loop with a 10-slot semaphore, moved through <span class="code-chip">pending</span>→<span class="code-chip">processed</span>, and reported back to an upstream gateway log.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(168,130,248,.12);color:var(--purple)">5</span> S3 Object Storage</h4>
+      <p>Source documents are pulled from S3/HTTP URLs and generated infographics/PDFs are served back from object storage — the dashboard and consumers only ever see URLs.</p>
+    </div>
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,148,68,.12);color:var(--orange)">6</span> Trace Artifacts</h4>
+      <p>Every run writes <span class="code-chip">step1…step5</span> + <span class="code-chip">final_result.json</span> to a timestamped folder, enabling reproducibility, debugging, and the <span class="code-chip">resume_from_step3</span> shortcut.</p>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== TECH ========== -->
+<div class="sec" id="s-tech"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Stack</div>
+    <div class="sh-title">Technology <em>Breakdown</em></div>
+  </div>
+
+  <div class="tg2" style="margin-top:8px">
+    <div class="tc rv"><div class="tc-cat" style="color:var(--purple)"><div class="td" style="background:var(--purple);width:7px;height:7px"></div>AI Models</div><div class="tl"><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">GPT-5.4-mini</span><span class="tr">Default auditor</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">OpenAI / OpenRouter</span><span class="tr">Provider switch</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Local vLLM</span><span class="tr">Self-hosted option</span></div><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Claude Sonnet 4.5</span><span class="tr">Infographic render</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--blue)"><div class="td" style="background:var(--blue);width:7px;height:7px"></div>Backend</div><div class="tl"><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Python · AsyncIO</span><span class="tr">Async runtime</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">FastAPI · Uvicorn</span><span class="tr">API + Swagger</span></div><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">eb_labs</span><span class="tr">Agent framework</span></div><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Pydantic v1</span><span class="tr">Config + schemas</span></div><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">Loguru</span><span class="tr">Structured logs</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--green)"><div class="td" style="background:var(--green);width:7px;height:7px"></div>Document &amp; Data</div><div class="tl"><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">PyMuPDF4LLM</span><span class="tr">PDF → Markdown</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">python-docx</span><span class="tr">DOCX → Markdown</span></div><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Docling API</span><span class="tr">OCR extraction</span></div><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">LangChain Splitters</span><span class="tr">Recursive chunking</span></div><div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Redis</span><span class="tr">Job queue</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--cyan)"><div class="td" style="background:var(--cyan);width:7px;height:7px"></div>Evidence &amp; Render</div><div class="tl"><div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Brave Search</span><span class="tr">Claim verification</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Knowledge Repository</span><span class="tr">Page scraping</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">aiohttp · httpx</span><span class="tr">Async HTTP</span></div><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">BeautifulSoup</span><span class="tr">HTML parsing</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--orange)"><div class="td" style="background:var(--orange);width:7px;height:7px"></div>Reliability</div><div class="tl"><div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Parallel Batching</span><span class="tr">20-chunk batches</span></div><div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Retry + Backoff</span><span class="tr">Render &amp; queue</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Graceful Degradation</span><span class="tr">Per-chunk errors</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Resume from Step 3</span><span class="tr">Re-use chunk audits</span></div></div></div>
+    <div class="tc rv"><div class="tc-cat" style="color:var(--pink)"><div class="td" style="background:var(--pink);width:7px;height:7px"></div>Output</div><div class="tl"><div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">HTML Infographic</span><span class="tr">Letterhead, responsive</span></div><div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">A4 PDF</span><span class="tr">Print-ready</span></div><div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Markdown Report</span><span class="tr">Human-readable</span></div><div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">JSON Traces</span><span class="tr">Reproducible runs</span></div></div></div>
+  </div>
+</div></div>
+
+<footer><div class="container"><p style="color:var(--t2);font-weight:600;margin-bottom:3px">VERIDOCS — AI Document Audit Engine</p><p>Multi-agent pipeline &bull; Feasibility Study (BUMD) × Draft Perda APBD &bull; Deterministic, auditable scoring</p></div></footer>
+
+<script>
+// Tab navigation
+const tabs=document.querySelectorAll('.tab'),secs=document.querySelectorAll('.sec');
+function go(id){tabs.forEach(t=>t.classList.toggle('on',t.dataset.s===id));secs.forEach(s=>{const show=s.id==='s-'+id;s.classList.toggle('on',show);if(show){window.scrollTo({top:0,behavior:'instant'});setTimeout(()=>{s.querySelectorAll('.rv').forEach(r=>r.classList.add('v'));s.querySelectorAll('.ab').forEach(b=>{const w=b.dataset.w;if(w)setTimeout(()=>b.style.width=w+'%',150)})},40)}});}
+tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.s)));
+
+// Agent filter
+const ctbs=document.querySelectorAll('.ctb'),acs=document.querySelectorAll('.ac');
+ctbs.forEach(t=>t.addEventListener('click',()=>{ctbs.forEach(c=>c.classList.remove('on'));t.classList.add('on');const cat=t.dataset.c;acs.forEach(c=>{c.style.display=(cat==='all'||c.dataset.c===cat)?'':'none'})}));
+
+// Init overview reveals
+document.querySelectorAll('#s-overview .rv').forEach(r=>r.classList.add('v'));
+
+// Observer
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')})},{threshold:.06});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+# Render Blueprint — Backend (Python FastAPI + agno)
+# Buat Web Service dari repo ini dengan root = source/backend.
+services:
+  - type: web
+    name: feri-site-api
+    runtime: python
+    rootDir: source/backend
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/health
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false                 # isi manual di dashboard (secret)
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: DEFAULT_MODEL
+        value: anthropic/claude-3.5-sonnet
+      - key: CORS_ORIGINS
+        sync: false                 # isi dengan domain Netlify, mis: https://feri.netlify.app
+      - key: DB_BACKEND
+        value: turso
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: RATE_LIMIT_PER_MIN
+        value: "20"
+      - key: APP_ENV
+        value: production

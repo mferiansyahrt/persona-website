@@ -1,0 +1,122 @@
+[
+  {
+    "id": "command_ai",
+    "name": "Command AI",
+    "domain": "civic",
+    "agents": 12,
+    "tagline": "Reality Intelligence Platform",
+    "summary": "Memfusikan suara publik & organisasi jadi reality score deterministik, WhatsApp-native.",
+    "stack": ["FastAPI", "React 19", "PostGIS", "Qdrant", "OpenRouter"],
+    "knowledgeFile": "projects/command_ai.md"
+  },
+  {
+    "id": "netra",
+    "name": "NETRA",
+    "domain": "defense",
+    "agents": 28,
+    "tagline": "Multi-Agent Defense Intelligence (IKKEP)",
+    "summary": "Analisis skenario geopolitik & ketahanan defense-ekonomi dengan 28 agent paralel.",
+    "stack": ["GPT-4", "OpenRouter", "Vector DB"],
+    "knowledgeFile": "projects/netra.md"
+  },
+  {
+    "id": "cognitive_warfare",
+    "name": "Cognitive Warfare Engine",
+    "domain": "media",
+    "agents": 13,
+    "tagline": "Deteksi isu sebelum eskalasi",
+    "summary": "Monitoring 8 platform media, clustering meta-issue, laporan intelijen ~78 detik.",
+    "stack": ["FastAPI", "Elasticsearch", "Qdrant", "Kafka"],
+    "knowledgeFile": "projects/cognitive_warfare.md"
+  },
+  {
+    "id": "contextual_intelligence",
+    "name": "Contextual Intelligence",
+    "domain": "media",
+    "agents": 2,
+    "tagline": "Topic Management Layer (ACIS)",
+    "summary": "Enrich anchor post → ekstraksi event → klasifikasi issue/framing/narrative.",
+    "stack": ["AsyncIO", "Elasticsearch", "Qdrant", "Kafka"],
+    "knowledgeFile": "projects/contextual_intelligence.md"
+  },
+  {
+    "id": "deep_account_profiling",
+    "name": "Deep Account Profiling",
+    "domain": "osint",
+    "agents": 24,
+    "tagline": "OSINT profiling lintas 6 platform",
+    "summary": "Profil risiko digital + vision AI + riset rekam jejak otonom dalam ~5 menit.",
+    "stack": ["GPT-4.1-mini", "Gemini", "Elasticsearch", "Kafka"],
+    "knowledgeFile": "projects/deep_account_profiling.md"
+  },
+  {
+    "id": "document_etl",
+    "name": "Document-ETL",
+    "domain": "data",
+    "agents": 8,
+    "tagline": "Table Augmented Generation (MA-TAG)",
+    "summary": "NL → temukan dataset → Text-to-SQL → sintesis tabel & insight, layanan MCP.",
+    "stack": ["GPT-4o", "PostgreSQL", "Qdrant", "MCP", "ECharts"],
+    "knowledgeFile": "projects/document_etl.md"
+  },
+  {
+    "id": "argus_mro",
+    "name": "ARGUS MRO",
+    "domain": "defense",
+    "agents": 1,
+    "tagline": "Naval MRO — KRI Brawijaya-320",
+    "summary": "Dashboard kesiapan tempur 488 komponen + 3D digital twin + AI 21 tools.",
+    "stack": ["React 19", "Three.js", "FastAPI", "OpenRouter"],
+    "knowledgeFile": "projects/argus_mro.md"
+  },
+  {
+    "id": "fire_intelligence",
+    "name": "FIP v2",
+    "domain": "geospatial",
+    "agents": 2,
+    "tagline": "Fire Intelligence Platform",
+    "summary": "Pemetaan & prediksi sebaran karhutla H-7→T+7, 1.076 zona desa Riau.",
+    "stack": ["FastAPI", "PostGIS", "Mapbox", "Cellular Automata"],
+    "knowledgeFile": "projects/fire_intelligence.md"
+  },
+  {
+    "id": "acis_lifecycle",
+    "name": "ACIS Lifecycle Engine",
+    "domain": "infra",
+    "agents": 4,
+    "tagline": "Object Monitoring State Machine",
+    "summary": "Health scoring & transisi lifecycle objek (TRIAL→ACTIVE→INACTIVE→RETIRED), Kafka.",
+    "stack": ["Python 3.11", "Kafka", "Elasticsearch", "Redis"],
+    "knowledgeFile": "projects/acis_lifecycle.md"
+  },
+  {
+    "id": "veridocs",
+    "name": "VERIDOCS",
+    "domain": "docs",
+    "agents": 3,
+    "tagline": "AI Document Audit Engine",
+    "summary": "Audit FS BUMD & Perda APBD vs regulasi, skor deterministik, output PDF berkop.",
+    "stack": ["FastAPI", "Docling", "Claude Sonnet", "Brave"],
+    "knowledgeFile": "projects/veridocs.md"
+  },
+  {
+    "id": "campaign_alert",
+    "name": "Campaign Alert Agent",
+    "domain": "crisis",
+    "agents": 14,
+    "tagline": "AI Crisis Response Pipeline",
+    "summary": "3-tier Normal/Crisis/War, velocity scoring, auto-post untuk 10+ instansi.",
+    "stack": ["FastAPI", "Elasticsearch", "Kafka", "Redis"],
+    "knowledgeFile": "projects/campaign_alert.md"
+  },
+  {
+    "id": "iterative_data_searcher",
+    "name": "Iterative Data Searcher",
+    "domain": "research",
+    "agents": 7,
+    "tagline": "AI PDF Research Pipeline",
+    "summary": "NL → temukan/verifikasi PDF → jawaban Bahasa Indonesia tersitasi, 2 fase.",
+    "stack": ["FastAPI", "FastMCP", "SerpAPI", "S3", "Kafka"],
+    "knowledgeFile": "projects/iterative_data_searcher.md"
+  }
+]
