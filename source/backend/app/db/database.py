@@ -37,9 +37,10 @@ def _connect():
     """Kembalikan koneksi DB sesuai backend (sqlite dev / turso prod)."""
     if settings.db_backend == "turso" and settings.turso_database_url:
         import libsql_client  # noqa
-        # Untuk Turso, gunakan client libsql (sinkron via create_client_sync)
+        # Pakai transport HTTP (bukan WebSocket): libsql:// -> https://
+        url = settings.turso_database_url.replace("libsql://", "https://")
         return libsql_client.create_client_sync(
-            url=settings.turso_database_url,
+            url=url,
             auth_token=settings.turso_auth_token,
         )
     # SQLite (dev)
