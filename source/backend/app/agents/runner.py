@@ -31,9 +31,9 @@ def _build_agent(defn: AgentDefinition, accessed: list[str]):
     )
 
     model = OpenRouter(
-        id=defn.model or settings.default_model,
-        api_key=settings.openrouter_api_key,
-        base_url=settings.openrouter_base_url,
+        id=(defn.model or settings.default_model).strip(),
+        api_key=settings.openrouter_api_key.strip(),
+        base_url=settings.openrouter_base_url.strip(),
     )
 
     tools = [read_knowledge] if "read_knowledge" in defn.tools else []

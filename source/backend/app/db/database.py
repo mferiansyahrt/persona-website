@@ -37,12 +37,11 @@ def _connect():
     """Kembalikan koneksi DB sesuai backend (sqlite dev / turso prod)."""
     if settings.db_backend == "turso" and settings.turso_database_url:
         import libsql_client  # noqa
-        # Pakai transport HTTP (bukan WebSocket): libsql:// -> https://
-        url = settings.turso_database_url.replace("libsql://", "https://")
-        return libsql_client.create_client_sync(
-            url=url,
-            auth_token=settings.turso_auth_token,
-        )
+        # .strip() — buang newline/spasi yang sering terselip saat paste secret
+        # (mencegah error "Forbidden control character detected in headers").
+        url = settings.turso_database_url.strip().replace("libsql://", "https://")
+        token = settings.turso_auth_token.strip()
+        return libsql_client.create_client_sync(url=url, auth_token=token)
     # SQLite (dev)
     db_path = Path(settings.sqlite_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
