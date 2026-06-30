@@ -10,6 +10,8 @@ import ChatBubble from "./components/ChatBubble";
 import HealthBanner from "./components/HealthBanner";
 import { useAgents, useChat, useSystem, useTheme } from "./store";
 import { fetchAgents, fetchHistory, checkHealth } from "./lib/api";
+import { useCardSpotlight } from "./lib/useCardSpotlight";
+import { useMagnetic } from "./lib/useMagnetic";
 import { profile } from "./data/profile";
 import "./styles/components.css";
 
@@ -18,6 +20,8 @@ export default function App() {
   const { setAgents } = useAgents();
   const { setHealth } = useSystem();
   const { sessionId, setMessages } = useChat();
+  useCardSpotlight();
+  useMagnetic();
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);

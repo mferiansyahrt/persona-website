@@ -2,11 +2,23 @@ import Avatar from "../Avatar";
 import Reveal from "../Reveal";
 import { profile } from "../../data/profile";
 import { useUI } from "../../store";
+import { useCountUp } from "../../lib/useCountUp";
+
+function StatItem({ value, label }: { value: string; label: string }) {
+  const { ref, display } = useCountUp(value);
+  return (
+    <div className="stat">
+      <span className="stat-value" ref={ref}>{display}</span>
+      <span className="stat-label">{label}</span>
+    </div>
+  );
+}
 
 export default function About() {
   const { openChat } = useUI();
   return (
     <section className="section about" id="about">
+      <div className="aurora" aria-hidden="true" />
       <div className="container">
         <Reveal><span className="eyebrow mono about-eyebrow">{profile.eyebrow}</span></Reveal>
         <div className="about-grid">
@@ -27,10 +39,7 @@ export default function About() {
             ))}
             <div className="stat-row">
               {profile.stats.map((s) => (
-                <div key={s.label} className="stat">
-                  <span className="stat-value">{s.value}</span>
-                  <span className="stat-label">{s.label}</span>
-                </div>
+                <StatItem key={s.label} value={s.value} label={s.label} />
               ))}
             </div>
             <div className="pill-row">
