@@ -1,5 +1,6 @@
 import { GraduationCap, FileText, Award, Sparkles } from "lucide-react";
 import SectionHeader from "../SectionHeader";
+import Reveal from "../Reveal";
 import { profile } from "../../data/profile";
 
 export default function Achievements() {
@@ -9,7 +10,7 @@ export default function Achievements() {
         <SectionHeader eyebrow="PENDIDIKAN & PENCAPAIAN" title="Achievements" />
         <div className="ach-grid">
           {/* Pendidikan */}
-          <article className="card ach-card">
+          <Reveal delay={0}><article className="card ach-card">
             <h3 className="ach-title"><GraduationCap size={18} /> Pendidikan</h3>
             {profile.education.map((ed) => (
               <div key={ed.degree} className="ach-edu">
@@ -18,10 +19,10 @@ export default function Achievements() {
                 <span className="badge">{ed.gpa}</span>
               </div>
             ))}
-          </article>
+          </article></Reveal>
 
           {/* Tesis */}
-          <article className="card ach-card">
+          <Reveal delay={70}><article className="card ach-card">
             <h3 className="ach-title"><FileText size={18} /> Riset & Tesis</h3>
             {profile.theses.map((t) => (
               <div key={t.title} className="ach-thesis">
@@ -30,23 +31,23 @@ export default function Achievements() {
                 <p className="ach-thesis-desc">{t.desc}</p>
               </div>
             ))}
-          </article>
+          </article></Reveal>
 
           {/* Sertifikasi */}
-          <article className="card ach-card">
+          <Reveal delay={140}><article className="card ach-card">
             <h3 className="ach-title"><Award size={18} /> Sertifikasi</h3>
             <ul className="ach-list">
               {profile.certifications.map((c) => <li key={c}>{c}</li>)}
             </ul>
-          </article>
+          </article></Reveal>
 
           {/* Highlight teknis */}
-          <article className="card ach-card">
+          <Reveal delay={210}><article className="card ach-card">
             <h3 className="ach-title"><Sparkles size={18} /> Signature Teknis</h3>
             <ul className="ach-list">
               {profile.highlights.map((h) => <li key={h}>{h}</li>)}
             </ul>
-          </article>
+          </article></Reveal>
         </div>
       </div>
     </section>

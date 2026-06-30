@@ -1,0 +1,3576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>NETRA &mdash; Multi-Agent Defense Intelligence Engine (IKKEP) &mdash; Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #08080e;
+      --bg2: #0e0e18;
+      --bg3: #151524;
+      --bg4: #1c1c32;
+      --border: #252545;
+      --border2: #3a3a5c;
+      --text: #eeeef4;
+      --text2: #a0a0b8;
+      --text3: #6c6c84;
+      --blue: #6366f1;
+      --purple: #a855f7;
+      --cyan: #22d3ee;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --rose: #fb7185;
+      --orange: #fb923c;
+      --red: #ef4444;
+      --grd: linear-gradient(135deg, #6366f1, #a855f7);
+      --grd2: linear-gradient(135deg, #06b6d4, #6366f1);
+      --grd3: linear-gradient(135deg, #ef4444, #f97316);
+      --font: 'Inter', system-ui, sans-serif;
+      --r: 14px;
+      --r2: 10px;
+      --r3: 20px;
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased
+    }
+
+    ::selection {
+      background: rgba(99, 102, 241, .3)
+    }
+
+    /* ===== TAB NAV ===== */
+    .tab-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(8, 8, 14, .88);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      height: 60px;
+      gap: 0;
+    }
+
+    .tab-logo {
+      font-weight: 800;
+      font-size: .95rem;
+      margin-right: 2rem;
+      flex-shrink: 0;
+      background: var(--grd3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .tab-btns {
+      display: flex;
+      gap: .25rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none
+    }
+
+    .tab-btns::-webkit-scrollbar {
+      display: none
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: .82rem;
+      font-weight: 500;
+      padding: .55rem 1.1rem;
+      border-radius: 8px;
+      white-space: nowrap;
+      transition: all .2s;
+      position: relative;
+    }
+
+    .tab-btn:hover {
+      color: var(--text2);
+      background: rgba(99, 102, 241, .06)
+    }
+
+    .tab-btn.active {
+      color: var(--text);
+      background: rgba(99, 102, 241, .1)
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 2px;
+      background: var(--blue);
+      border-radius: 2px;
+    }
+
+    /* ===== TAB PANELS ===== */
+    .tab-panel {
+      display: none;
+      min-height: 100vh;
+      padding: 90px 1.5rem 4rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .panel-inner {
+      max-width: 1100px;
+      margin: 0 auto
+    }
+
+    /* ===== REVEAL ===== */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all .5s ease
+    }
+
+    .rv.vis {
+      opacity: 1;
+      transform: none
+    }
+
+    .rv-d1 {
+      transition-delay: .08s
+    }
+
+    .rv-d2 {
+      transition-delay: .16s
+    }
+
+    .rv-d3 {
+      transition-delay: .24s
+    }
+
+    .rv-d4 {
+      transition-delay: .32s
+    }
+
+    /* ===== SHARED ===== */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      padding: .35rem .85rem;
+      border-radius: 20px;
+    }
+
+    .pill-blue {
+      background: rgba(99, 102, 241, .1);
+      color: var(--blue);
+      border: 1px solid rgba(99, 102, 241, .2)
+    }
+
+    .pill-green {
+      background: rgba(52, 211, 153, .1);
+      color: var(--green);
+      border: 1px solid rgba(52, 211, 153, .2)
+    }
+
+    .pill-purple {
+      background: rgba(168, 85, 247, .1);
+      color: var(--purple);
+      border: 1px solid rgba(168, 85, 247, .2)
+    }
+
+    .pill-amber {
+      background: rgba(251, 191, 36, .1);
+      color: var(--amber);
+      border: 1px solid rgba(251, 191, 36, .2)
+    }
+
+    .pill-cyan {
+      background: rgba(34, 211, 238, .1);
+      color: var(--cyan);
+      border: 1px solid rgba(34, 211, 238, .2)
+    }
+
+    .pill-rose {
+      background: rgba(251, 113, 133, .1);
+      color: var(--rose);
+      border: 1px solid rgba(251, 113, 133, .2)
+    }
+
+    .pill-red {
+      background: rgba(239, 68, 68, .1);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, .2)
+    }
+
+    .section-h {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+      margin-bottom: .6rem
+    }
+
+    .section-h .gr {
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .section-h .gr2 {
+      background: var(--grd3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--text2);
+      max-width: 620px;
+      line-height: 1.7;
+      margin-bottom: 2.5rem
+    }
+
+    .card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.6rem;
+      transition: all .25s
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, .25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .3)
+    }
+
+    /* ===== HERO ===== */
+    .hero-wrap {
+      text-align: center;
+      padding: 3rem 0 2rem;
+      position: relative
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: -80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(239, 68, 68, .1), rgba(99, 102, 241, .08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      margin-bottom: 1.5rem
+    }
+
+    .hero-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .35
+      }
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1.08;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero-title .gr {
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .hero-title .gr2 {
+      background: var(--grd3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .hero-desc {
+      font-size: clamp(.95rem, 1.8vw, 1.12rem);
+      color: var(--text2);
+      max-width: 660px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7
+    }
+
+    .hero-nums {
+      display: flex;
+      justify-content: center;
+      gap: clamp(1.5rem, 4vw, 3rem);
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem
+    }
+
+    .hero-num {
+      text-align: center
+    }
+
+    .hero-num b {
+      display: block;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .hero-num span {
+      font-size: .78rem;
+      color: var(--text3)
+    }
+
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: .4rem
+    }
+
+    .badge {
+      padding: .3rem .7rem;
+      border-radius: 6px;
+      font-size: .72rem;
+      font-weight: 500;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      transition: all .15s;
+    }
+
+    .badge:hover {
+      border-color: rgba(99, 102, 241, .3);
+      color: var(--text)
+    }
+
+    .badge[data-c="ai"] {
+      color: #c084fc;
+      border-color: rgba(168, 85, 247, .25)
+    }
+
+    .badge[data-c="db"] {
+      color: var(--cyan);
+      border-color: rgba(34, 211, 238, .25)
+    }
+
+    .badge[data-c="infra"] {
+      color: var(--green);
+      border-color: rgba(52, 211, 153, .25)
+    }
+
+    .badge[data-c="etl"] {
+      color: var(--amber);
+      border-color: rgba(251, 191, 36, .25)
+    }
+
+    .badge[data-c="red"] {
+      color: var(--rose);
+      border-color: rgba(251, 113, 133, .25)
+    }
+
+    /* What grid */
+    .what-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2.5rem
+    }
+
+    .what-card {
+      text-align: left
+    }
+
+    .what-card .ico {
+      font-size: 1.5rem;
+      margin-bottom: .75rem
+    }
+
+    .what-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: .4rem
+    }
+
+    .what-card p {
+      font-size: .88rem;
+      color: var(--text2);
+      line-height: 1.6
+    }
+
+    /* ===== QUADRANT ===== */
+    .quadrant-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 2px;
+      max-width: 560px;
+      margin: 2rem auto;
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+
+    .quad {
+      padding: 1.3rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+    }
+
+    .quad-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .quad-desc {
+      font-size: .78rem;
+      line-height: 1.5;
+    }
+
+    .quad-green {
+      background: rgba(52, 211, 153, .08);
+      border: 1px solid rgba(52, 211, 153, .15);
+    }
+
+    .quad-green .quad-label {
+      color: var(--green)
+    }
+
+    .quad-green .quad-desc {
+      color: rgba(52, 211, 153, .7)
+    }
+
+    .quad-blue {
+      background: rgba(99, 102, 241, .08);
+      border: 1px solid rgba(99, 102, 241, .15);
+    }
+
+    .quad-blue .quad-label {
+      color: var(--blue)
+    }
+
+    .quad-blue .quad-desc {
+      color: rgba(99, 102, 241, .7)
+    }
+
+    .quad-amber {
+      background: rgba(251, 191, 36, .08);
+      border: 1px solid rgba(251, 191, 36, .15);
+    }
+
+    .quad-amber .quad-label {
+      color: var(--amber)
+    }
+
+    .quad-amber .quad-desc {
+      color: rgba(251, 191, 36, .7)
+    }
+
+    .quad-red {
+      background: rgba(251, 113, 133, .08);
+      border: 1px solid rgba(251, 113, 133, .15);
+    }
+
+    .quad-red .quad-label {
+      color: var(--rose)
+    }
+
+    .quad-red .quad-desc {
+      color: rgba(251, 113, 133, .7)
+    }
+
+    .axis-label {
+      text-align: center;
+      font-size: .7rem;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    /* ===== STEP FLOW ===== */
+    .step-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      padding-left: 2rem
+    }
+
+    .step-flow::before {
+      content: '';
+      position: absolute;
+      left: 17px;
+      top: 30px;
+      bottom: 30px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--red), var(--rose), var(--blue), var(--purple), var(--cyan), var(--green), var(--amber));
+      border-radius: 2px;
+      opacity: .35;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.2rem 0;
+      position: relative
+    }
+
+    .step-dot {
+      position: absolute;
+      left: -2rem;
+      top: 1.5rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .82rem;
+      font-weight: 700;
+      color: #fff;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .step-body {
+      flex: 1
+    }
+
+    .step-body h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: .35rem
+    }
+
+    .step-body p {
+      font-size: .9rem;
+      color: var(--text2);
+      line-height: 1.65
+    }
+
+    .step-note {
+      margin-top: .65rem;
+      padding: .75rem 1rem;
+      border-radius: var(--r2);
+      font-size: .82rem;
+      line-height: 1.55;
+      background: rgba(251, 191, 36, .05);
+      border: 1px solid rgba(251, 191, 36, .12);
+      color: var(--text2);
+    }
+
+    .step-note strong {
+      color: var(--amber)
+    }
+
+    .step-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-top: .6rem
+    }
+
+    .step-tag {
+      font-size: .68rem;
+      font-weight: 500;
+      padding: .2rem .55rem;
+      border-radius: 5px;
+      background: rgba(99, 102, 241, .08);
+      color: var(--blue);
+      border: 1px solid rgba(99, 102, 241, .12);
+    }
+
+    .step-tag.t2 {
+      background: rgba(168, 85, 247, .08);
+      color: var(--purple);
+      border-color: rgba(168, 85, 247, .12)
+    }
+
+    .step-tag.t3 {
+      background: rgba(34, 211, 238, .08);
+      color: var(--cyan);
+      border-color: rgba(34, 211, 238, .12)
+    }
+
+    .step-tag.t4 {
+      background: rgba(52, 211, 153, .08);
+      color: var(--green);
+      border-color: rgba(52, 211, 153, .12)
+    }
+
+    .step-tag.t5 {
+      background: rgba(251, 113, 133, .08);
+      color: var(--rose);
+      border-color: rgba(251, 113, 133, .12)
+    }
+
+    /* ===== AGENTS ===== */
+    .agents-g {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem
+    }
+
+    .ag-card {
+      position: relative;
+      overflow: hidden
+    }
+
+    .ag-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--ag-grd, var(--grd));
+      opacity: 0;
+      transition: opacity .25s
+    }
+
+    .ag-card:hover::before {
+      opacity: 1
+    }
+
+    .ag-ico {
+      font-size: 1.6rem;
+      margin-bottom: .75rem
+    }
+
+    .ag-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: .35rem
+    }
+
+    .ag-role {
+      font-size: .78rem;
+      color: var(--text3);
+      margin-bottom: .7rem;
+      font-weight: 500
+    }
+
+    .ag-desc {
+      font-size: .88rem;
+      color: var(--text2);
+      line-height: 1.6;
+      margin-bottom: 1rem
+    }
+
+    .ag-io {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem
+    }
+
+    .ag-io-row {
+      display: flex;
+      gap: .5rem;
+      align-items: flex-start
+    }
+
+    .io-tag {
+      flex-shrink: 0;
+      font-size: .62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .15rem .4rem;
+      border-radius: 4px;
+      margin-top: 2px;
+    }
+
+    .io-tag.in {
+      background: rgba(34, 211, 238, .12);
+      color: var(--cyan)
+    }
+
+    .io-tag.out {
+      background: rgba(52, 211, 153, .12);
+      color: var(--green)
+    }
+
+    .io-tag.count {
+      background: rgba(251, 191, 36, .12);
+      color: var(--amber)
+    }
+
+    .io-txt {
+      font-size: .8rem;
+      color: var(--text3);
+      line-height: 1.5
+    }
+
+    /* ===== DEMO ===== */
+    .demo-pair {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1.5rem;
+      align-items: stretch
+    }
+
+    .demo-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text3);
+      font-size: 1.5rem;
+      padding: 0 .5rem;
+    }
+
+    .demo-card {
+      border-radius: var(--r);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column
+    }
+
+    .demo-card-head {
+      padding: .65rem 1.1rem;
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .demo-card-head.input-h {
+      background: rgba(34, 211, 238, .08);
+      color: var(--cyan);
+      border-bottom: 1px solid rgba(34, 211, 238, .1)
+    }
+
+    .demo-card-head.output-h {
+      background: rgba(52, 211, 153, .08);
+      color: var(--green);
+      border-bottom: 1px solid rgba(52, 211, 153, .1)
+    }
+
+    .demo-card-head.process-h {
+      background: rgba(168, 85, 247, .08);
+      color: var(--purple);
+      border-bottom: 1px solid rgba(168, 85, 247, .1)
+    }
+
+    .demo-card-body {
+      padding: 1.3rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--r) var(--r);
+      flex: 1;
+    }
+
+    .demo-q {
+      font-size: .95rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: .75rem;
+      padding-left: 1rem;
+      border-left: 3px solid var(--cyan);
+    }
+
+    .demo-context {
+      font-size: .82rem;
+      color: var(--text3);
+      line-height: 1.6
+    }
+
+    .demo-context strong {
+      color: var(--text2);
+      font-weight: 600
+    }
+
+    .result-mock {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem
+    }
+
+    .result-analysis {
+      font-size: .85rem;
+      color: var(--text2);
+      line-height: 1.7
+    }
+
+    .result-analysis strong {
+      color: var(--text)
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .76rem;
+      margin-top: .3rem
+    }
+
+    .result-table th {
+      text-align: left;
+      padding: .45rem .6rem;
+      background: var(--bg4);
+      color: var(--text2);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-table td {
+      padding: .4rem .6rem;
+      border-bottom: 1px solid rgba(37, 37, 69, .6);
+      color: var(--text2);
+    }
+
+    .result-table tr:hover td {
+      background: rgba(99, 102, 241, .04)
+    }
+
+    .result-src {
+      margin-top: .5rem;
+      padding: .55rem .8rem;
+      border-radius: var(--r2);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+
+    .result-src-title {
+      font-size: .68rem;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .35rem
+    }
+
+    .result-src-item {
+      font-size: .76rem;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .12rem 0
+    }
+
+    .result-src-item::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .result-src-item.s-red::before {
+      background: var(--rose)
+    }
+
+    .result-src-item.s-blue::before {
+      background: var(--blue)
+    }
+
+    .result-src-item.s-green::before {
+      background: var(--green)
+    }
+
+    .result-src-item.s-amber::before {
+      background: var(--amber)
+    }
+
+    /* Process steps */
+    .process-steps {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem
+    }
+
+    .ps {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .5rem .7rem;
+      border-radius: var(--r2);
+      background: var(--bg2);
+      border: 1px solid var(--border)
+    }
+
+    .ps-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .65rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .ps-text {
+      font-size: .78rem;
+      color: var(--text2)
+    }
+
+    .ps-time {
+      font-size: .68rem;
+      color: var(--text3);
+      margin-left: auto;
+      flex-shrink: 0
+    }
+
+    /* Score bar */
+    .score-bar-wrap {
+      margin: .4rem 0;
+    }
+
+    .score-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--bg4);
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .6s ease;
+    }
+
+    .score-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .7rem;
+      color: var(--text3);
+      margin-top: .2rem;
+    }
+
+    /* ===== TECH ===== */
+    .tech-g {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem
+    }
+
+    .tech-card-h {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      margin-bottom: 1rem
+    }
+
+    .tech-ico {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+    }
+
+    .tech-title {
+      font-size: .92rem;
+      font-weight: 700
+    }
+
+    .tech-role {
+      font-size: .72rem;
+      color: var(--text3)
+    }
+
+    .tech-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem
+    }
+
+    .tech-list li {
+      font-size: .82rem;
+      color: var(--text2);
+      display: flex;
+      align-items: baseline;
+      gap: .5rem
+    }
+
+    .tech-list li::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex-shrink: 0;
+      margin-top: 7px
+    }
+
+    /* Metrics */
+    .met-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem
+    }
+
+    .met-card {
+      text-align: center;
+      padding: 1.3rem 1rem
+    }
+
+    .met-card b {
+      display: block;
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--grd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .met-card span {
+      font-size: .78rem;
+      color: var(--text2);
+      display: block;
+      margin-top: .2rem
+    }
+
+    .met-card em {
+      font-size: .68rem;
+      color: var(--text3);
+      font-style: normal;
+      display: block;
+      margin-top: .1rem
+    }
+
+    /* ===== PIPELINE CARDS ===== */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem
+    }
+
+    .pipe-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pipe-card-color {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      opacity: .7;
+    }
+
+    .pipe-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: .3rem;
+    }
+
+    .pipe-card-sub {
+      font-size: .78rem;
+      color: var(--text3);
+      margin-bottom: .75rem;
+    }
+
+    .pipe-card p {
+      font-size: .85rem;
+      color: var(--text2);
+      line-height: 1.6;
+      margin-bottom: .75rem;
+    }
+
+    .pipe-kv {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+    }
+
+    .pipe-kv-item {
+      font-size: .7rem;
+      padding: .2rem .5rem;
+      border-radius: 4px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text3);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:800px) {
+      .tab-logo {
+        margin-right: 1rem;
+        font-size: .85rem
+      }
+
+      .tab-btn {
+        font-size: .75rem;
+        padding: .45rem .75rem
+      }
+
+      .demo-pair {
+        grid-template-columns: 1fr;
+        gap: .75rem
+      }
+
+      .demo-arrow {
+        transform: rotate(90deg);
+        padding: .25rem 0
+      }
+
+      .agents-g,
+      .what-grid,
+      .tech-g,
+      .pipeline-grid {
+        grid-template-columns: 1fr
+      }
+
+      .met-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .quadrant-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        gap: 1rem
+      }
+
+      .hero-title {
+        margin-bottom: 1rem
+      }
+    }
+
+    @media(max-width:480px) {
+      .met-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .hero-nums {
+        gap: 1.2rem
+      }
+
+      .tab-nav-inner {
+        padding: 0 .75rem
+      }
+
+      .tab-panel {
+        padding: 80px 1rem 3rem
+      }
+    }
+
+    /* ===== AGENT BREAKDOWN ===== */
+    .agent-breakdown {
+      margin-top: 2.5rem;
+    }
+
+    .ab-section {
+      margin-bottom: 3rem;
+    }
+
+    .ab-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1.2rem 1.5rem;
+      border-radius: var(--r);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ab-header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      opacity: .9;
+    }
+
+    .ab-header.ab-cw::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
+    .ab-header.ab-wiki::before { background: linear-gradient(90deg, #22d3ee, #10b981); }
+    .ab-header.ab-rel::before { background: linear-gradient(90deg, #6366f1, #a855f7); }
+
+    .ab-header.ab-cw { background: rgba(245, 158, 11, .06); border: 1px solid rgba(245, 158, 11, .15); }
+    .ab-header.ab-wiki { background: rgba(34, 211, 238, .06); border: 1px solid rgba(34, 211, 238, .15); }
+    .ab-header.ab-rel { background: rgba(99, 102, 241, .06); border: 1px solid rgba(99, 102, 241, .15); }
+
+    .ab-header-ico {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .ab-header-info h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .ab-header-info .ab-subtitle {
+      font-size: .82rem;
+      color: var(--text2);
+      margin-top: .15rem;
+    }
+
+    .ab-header-badge {
+      margin-left: auto;
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: .3rem .7rem;
+      border-radius: 6px;
+    }
+
+    .ab-cw .ab-header-badge { background: rgba(245, 158, 11, .12); color: var(--amber); }
+    .ab-wiki .ab-header-badge { background: rgba(34, 211, 238, .12); color: var(--cyan); }
+    .ab-rel .ab-header-badge { background: rgba(99, 102, 241, .12); color: var(--blue); }
+
+    /* Phase timeline */
+    .ab-phases {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding-left: 1.5rem;
+    }
+
+    .ab-phases::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 24px;
+      bottom: 24px;
+      width: 2px;
+      border-radius: 2px;
+      opacity: .3;
+    }
+
+    .ab-cw .ab-phases::before { background: linear-gradient(to bottom, #f59e0b, #f97316, #ef4444); }
+    .ab-wiki .ab-phases::before { background: linear-gradient(to bottom, #22d3ee, #10b981, #34d399); }
+    .ab-rel .ab-phases::before { background: linear-gradient(to bottom, #6366f1, #a855f7, #f43f5e); }
+
+    .ab-phase {
+      display: flex;
+      gap: 1.2rem;
+      padding: .85rem 0;
+      position: relative;
+    }
+
+    .ab-phase-dot {
+      position: absolute;
+      left: -1.5rem;
+      top: 1.05rem;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      font-weight: 800;
+      color: #fff;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .ab-phase-content {
+      flex: 1;
+      margin-left: 1.2rem;
+    }
+
+    .ab-phase-title {
+      font-size: .95rem;
+      font-weight: 700;
+      margin-bottom: .25rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .ab-phase-label {
+      font-size: .6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: .15rem .45rem;
+      border-radius: 4px;
+    }
+
+    .ab-phase-desc {
+      font-size: .85rem;
+      color: var(--text2);
+      line-height: 1.65;
+      margin-bottom: .6rem;
+    }
+
+    /* Sub-agent cards inside phases */
+    .ab-agents-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: .75rem;
+      margin-top: .5rem;
+    }
+
+    .ab-agent-mini {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: .85rem 1rem;
+      transition: all .25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ab-agent-mini::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      border-radius: 2px 0 0 2px;
+      opacity: 0;
+      transition: opacity .25s;
+    }
+
+    .ab-agent-mini:hover::before { opacity: 1; }
+    .ab-agent-mini:hover { border-color: rgba(99, 102, 241, .2); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,.2); }
+
+    .ab-mini-name {
+      font-size: .85rem;
+      font-weight: 700;
+      margin-bottom: .2rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .ab-mini-name .mini-ico {
+      font-size: .9rem;
+    }
+
+    .ab-mini-role {
+      font-size: .72rem;
+      color: var(--text3);
+      margin-bottom: .4rem;
+      font-weight: 500;
+    }
+
+    .ab-mini-desc {
+      font-size: .78rem;
+      color: var(--text2);
+      line-height: 1.55;
+    }
+
+    .ab-mini-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+      margin-top: .5rem;
+    }
+
+    .ab-mini-tag {
+      font-size: .62rem;
+      font-weight: 600;
+      padding: .15rem .4rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .mini-tag-amber { background: rgba(251, 191, 36, .1); color: var(--amber); }
+    .mini-tag-cyan { background: rgba(34, 211, 238, .1); color: var(--cyan); }
+    .mini-tag-green { background: rgba(52, 211, 153, .1); color: var(--green); }
+    .mini-tag-purple { background: rgba(168, 85, 247, .1); color: var(--purple); }
+    .mini-tag-blue { background: rgba(99, 102, 241, .1); color: var(--blue); }
+    .mini-tag-rose { background: rgba(251, 113, 133, .1); color: var(--rose); }
+    .mini-tag-red { background: rgba(239, 68, 68, .1); color: var(--red); }
+
+    /* Scoring legend */
+    .ab-scoring {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-top: .75rem;
+      padding: .7rem 1rem;
+      border-radius: var(--r2);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+
+    .ab-scoring-item {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .72rem;
+      color: var(--text2);
+    }
+
+    .ab-scoring-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    /* Dimension weight bars */
+    .ab-weights {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: .6rem;
+      margin-top: .75rem;
+    }
+
+    .ab-weight-item {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .5rem .75rem;
+      border-radius: var(--r2);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+    }
+
+    .ab-weight-pct {
+      font-size: 1.1rem;
+      font-weight: 800;
+      min-width: 42px;
+    }
+
+    .ab-weight-info {
+      flex: 1;
+    }
+
+    .ab-weight-name {
+      font-size: .82rem;
+      font-weight: 600;
+    }
+
+    .ab-weight-desc {
+      font-size: .7rem;
+      color: var(--text3);
+    }
+
+    .ab-weight-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--bg4);
+      overflow: hidden;
+      margin-top: .3rem;
+    }
+
+    .ab-weight-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+
+    /* Zone scale */
+    .ab-zone-scale {
+      display: flex;
+      gap: 1px;
+      height: 28px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: .6rem;
+    }
+
+    .ab-zone {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .58rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: #fff;
+      transition: transform .2s;
+    }
+
+    .ab-zone:hover {
+      transform: scaleY(1.15);
+    }
+
+    /* Flow connector arrows */
+    .ab-flow-arrow {
+      text-align: center;
+      padding: .2rem 0;
+      color: var(--text3);
+      font-size: .9rem;
+      opacity: .5;
+    }
+
+    @media(max-width:800px) {
+      .ab-agents-row {
+        grid-template-columns: 1fr;
+      }
+      .ab-header {
+        flex-direction: column;
+        text-align: center;
+        gap: .5rem;
+      }
+      .ab-header-badge {
+        margin-left: 0;
+      }
+      .ab-weights {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== TAB NAVIGATION ===== -->
+  <nav class="tab-nav">
+    <div class="tab-nav-inner">
+      <div class="tab-logo">NETRA</div>
+      <div class="tab-btns">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="how">How It Works</button>
+        <button class="tab-btn" data-tab="pipelines">Pipelines</button>
+        <button class="tab-btn" data-tab="agents">Agents</button>
+        <button class="tab-btn" data-tab="demo">Live Demo</button>
+        <button class="tab-btn" data-tab="tech">Tech &amp; Metrics</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================================================================ -->
+  <!-- TAB 1: OVERVIEW                                                  -->
+  <!-- ================================================================ -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="panel-inner">
+      <div class="hero-wrap">
+        <div class="hero-glow"></div>
+
+        <div class="hero-badge rv">
+          <span class="pill pill-green"><span class="dot"></span> Production System &mdash; Kementerian Pertahanan RI</span>
+        </div>
+
+        <h1 class="hero-title rv rv-d1">
+          <span class="gr2">NETRA</span><br>
+          <span class="gr">Multi-Agent Defense<br>Intelligence Engine</span>
+        </h1>
+
+        <p class="hero-desc rv rv-d2">
+          Describe a geopolitical scenario in plain language. The engine deploys <strong>28 specialized AI agents in
+            parallel</strong> to analyze its impact on Indonesia&rsquo;s defense-economic resilience across
+          two dimensions &mdash; external threats (ILAG) and internal capacity (IKGP) &mdash; then delivers
+          a strategic position, mitigation mandate, and visual infographic.
+        </p>
+
+        <div class="hero-nums rv rv-d3">
+          <div class="hero-num"><b data-count="28">0</b><span>Parallel AI Agents</span></div>
+          <div class="hero-num"><b data-count="10">0</b><span>Pipeline Variants</span></div>
+          <div class="hero-num"><b data-count="8">0</b><span>Country/Bloc Analysis</span></div>
+          <div class="hero-num"><b data-count="4">0</b><span>Quadrant Positions</span></div>
+        </div>
+
+        <div class="badges-row rv rv-d4">
+          <span class="badge" data-c="ai">OpenRouter</span>
+          <span class="badge" data-c="ai">Claude Sonnet</span>
+          <span class="badge" data-c="ai">GLM-4.7</span>
+          <span class="badge" data-c="ai">eb_labs Agents</span>
+          <span class="badge" data-c="db">PostgreSQL</span>
+          <span class="badge" data-c="db">Redis</span>
+          <span class="badge" data-c="db">Elasticsearch</span>
+          <span class="badge" data-c="infra">FastAPI</span>
+          <span class="badge" data-c="infra">asyncio</span>
+          <span class="badge" data-c="infra">MCP Protocol</span>
+          <span class="badge" data-c="infra">Streamlit</span>
+          <span class="badge" data-c="etl">Brave Search</span>
+          <span class="badge" data-c="etl">Knowledge Repo</span>
+          <span class="badge" data-c="red">Infographic API</span>
+        </div>
+      </div>
+
+      <!-- Quadrant Model -->
+      <div style="margin-top:4rem">
+        <span class="pill pill-red rv">Core Framework</span>
+        <h2 class="section-h rv" style="margin-top:.75rem">The IKKEP<br><span class="gr2">Four-Quadrant Model</span>
+        </h2>
+        <p class="section-sub rv">Every simulation maps Indonesia&rsquo;s position onto a two-axis strategic space. The
+          X-axis measures external threat intensity (ILAG &mdash; 10 indicators), and the Y-axis measures internal
+          defense resilience (IKGP &mdash; 18 indicators). Threshold: 50.0.</p>
+
+        <div class="axis-label rv" style="margin-bottom:.5rem">&#8593; IKGP High (Strong Resilience)</div>
+        <div class="quadrant-wrap rv">
+          <div class="quad quad-green">
+            <div class="quad-label">Optimal Stability</div>
+            <div class="quad-desc">Low threat, high resilience. Ideal state &mdash; Indonesia is well-defended with
+              minimal external pressure.</div>
+          </div>
+          <div class="quad quad-blue">
+            <div class="quad-label">High Pressure Resilience</div>
+            <div class="quad-desc">High threat, high resilience. Under pressure but capable of absorbing shocks.</div>
+          </div>
+          <div class="quad quad-amber">
+            <div class="quad-label">Latent Risk</div>
+            <div class="quad-desc">Low threat, low resilience. Deceptive calm &mdash; vulnerable if conditions
+              deteriorate.</div>
+          </div>
+          <div class="quad quad-red">
+            <div class="quad-label">Vulnerable</div>
+            <div class="quad-desc">High threat, low resilience. Crisis state &mdash; immediate intervention required.
+            </div>
+          </div>
+        </div>
+        <div class="axis-label rv">&#8592; ILAG Low (Low Threat) &nbsp;&nbsp;&nbsp;&mdash;&nbsp;&nbsp;&nbsp; ILAG High
+          (High Threat) &#8594;</div>
+      </div>
+
+      <!-- What it does -->
+      <div style="margin-top:4rem">
+        <span class="pill pill-blue rv">Capabilities</span>
+        <h2 class="section-h rv" style="margin-top:.75rem">What It Does</h2>
+        <p class="section-sub rv">A single scenario triggers a chain of intelligent agents working together to assess
+          threats, measure resilience, and recommend strategic actions.</p>
+
+        <div class="what-grid">
+          <div class="card what-card rv">
+            <div class="ico">&#127758;</div>
+            <h3>Scenario Impact Simulation</h3>
+            <p>Input a geopolitical event (e.g., &ldquo;China imposes rare earth embargo on ASEAN&rdquo;). The engine
+              assesses how all 28 defense-economic indicators shift, determining Indonesia&rsquo;s new strategic
+              position.</p>
+          </div>
+          <div class="card what-card rv rv-d1">
+            <div class="ico">&#128373;</div>
+            <h3>Country Strategic Profiling (V3)</h3>
+            <p>Deep-tag any country with baseline orientation analysis (outside-in/inside-out), then classify across
+              10 strategic layers from 3 geopolitical perspectives (SQPP, RPP, GSP). Quantitative scoring (0&ndash;10)
+              with convergence/divergence synthesis across perspectives.</p>
+          </div>
+          <div class="card what-card rv rv-d2">
+            <div class="ico">&#129309;</div>
+            <h3>Bilateral Relations Matrix</h3>
+            <p>Score any country pair across 4 dimensions: ekonomi, politik, keamanan, sosial-budaya. Scale from -5 (war)
+              to +5 (special relationship), with zone classification (Konflik to Integrasi).</p>
+          </div>
+          <div class="card what-card rv rv-d3">
+            <div class="ico">&#128736;</div>
+            <h3>Policy Simulation</h3>
+            <p>Choose Absorb, Evade, or Negotiate. Each mode projects how indicator scores change with strict scoring
+              rules. Absorb boosts IKGP immediately; Negotiate reduces ILAG diplomatically; Evade restructures
+              gradually.</p>
+          </div>
+          <div class="card what-card rv">
+            <div class="ico">&#128214;</div>
+            <h3>Country Wiki &amp; Doctrine Impact</h3>
+            <p>Generate encyclopedic profiles (geography, economy, politics, security, history) for any country, then
+              analyze how one nation&rsquo;s doctrine impacts another through historical and contemporary lenses.</p>
+          </div>
+          <div class="card what-card rv rv-d1">
+            <div class="ico">&#128302;</div>
+            <h3>What-If Scenario Analysis</h3>
+            <p>Project alternative futures: de-escalation, status quo, or escalation pathways. Multi-phase scenario
+              progression with stakeholder analysis, risk assessment, and probability scoring.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 2: HOW IT WORKS                                              -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-how">
+    <div class="panel-inner">
+      <span class="pill pill-purple rv">Pipeline Workflow</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">The 10-Step<br><span class="gr">Simulation Pipeline</span>
+      </h2>
+      <p class="section-sub rv">From a plain-language scenario to a comprehensive strategic assessment &mdash; here is
+        what happens behind the scenes.</p>
+
+      <div class="step-flow">
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--red)">1</div>
+          <div class="step-body">
+            <h3>Validate Database Indicators</h3>
+            <p>The engine queries PostgreSQL to check which of the 28 indicators (10 ILAG + 18 IKGP) have available
+              historical data. Only indicators with real data in the <code>kemhanxnsi</code> schema are activated.</p>
+            <div class="step-tags">
+              <span class="step-tag t5">ilag_long_fix</span>
+              <span class="step-tag t5">ikgp_long_full</span>
+              <span class="step-tag">asyncpg</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--rose)">2</div>
+          <div class="step-body">
+            <h3>Fetch Baseline Scores</h3>
+            <p>For each validated indicator, the system fetches the current normalized score (0&ndash;100 scale) from the
+              database using CTE-based SQL. These baselines represent Indonesia&rsquo;s &ldquo;before scenario&rdquo;
+              state.</p>
+            <div class="step-note">
+              <strong>&#128270; Optional Step 2.5:</strong> If specific countries are requested, CountryWatchAgent runs
+              in parallel to deep-profile each country across 8 strategic layers. This context is injected into all
+              downstream indicator agents for richer analysis.
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--blue)">3</div>
+          <div class="step-body">
+            <h3>Build Agent Tasks</h3>
+            <p>The INDICATOR_REGISTRY (28 entries) is loaded. Each indicator gets an <code>IndicatorAgent</code> instance
+              with its specialized prompt module (SYSTEM_PROMPT + HUMAN_PROMPT_TEMPLATE), the baseline score, the
+              scenario, and optional country watch context.</p>
+            <div class="step-tags">
+              <span class="step-tag">10 ILAG Agents</span>
+              <span class="step-tag t2">18 IKGP Agents</span>
+              <span class="step-tag t3">Parametrized Polymorphism</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--purple)">4</div>
+          <div class="step-body">
+            <h3>Execute 28 Agents in Parallel</h3>
+            <p><code>asyncio.gather(*tasks)</code> launches all 28 indicator agents simultaneously. Each agent calls the
+              LLM with its specialized prompt, uses KnowledgeRepositoryTools for real-time data search, and returns a
+              structured JSON result with new score, confidence, reasoning, and per-country analysis.</p>
+            <div class="step-note">
+              <strong>&#9881; Fallback Safety:</strong> If any agent fails, a safe fallback result is returned
+              (baseline score passthrough, is_affected=false, confidence=LOW). Individual failures never break the
+              pipeline.
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--cyan)">5</div>
+          <div class="step-body">
+            <h3>Aggregate &amp; Determine Quadrant</h3>
+            <p>All ILAG scores are averaged to get <code>avg_ilag</code>; all IKGP scores to get <code>avg_ikgp</code>.
+              The <code>determine_quadrant()</code> function maps these two values against the threshold (50.0) to one of
+              four strategic positions.</p>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:#818cf8">6</div>
+          <div class="step-body">
+            <h3>Position Analysis</h3>
+            <p>The PositionAnalysisAgent receives the aggregated scores, quadrant label, and all individual indicator
+              results. It generates a strategic description of Indonesia&rsquo;s position and a causal narrative
+              explaining the chain of events.</p>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--green)">7</div>
+          <div class="step-body">
+            <h3>Strategic Mitigation Mandate</h3>
+            <p>The StrategicMitigationAgent analyzes the scenario, position, and all affected indicators to produce a
+              single, imperative mitigation mandate &mdash; tegas, spesifik, dan terprioritaskan.</p>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--amber)">8</div>
+          <div class="step-body">
+            <h3>Compose Output &amp; Country Summary</h3>
+            <p>All results are merged into a comprehensive JSON. Optionally, the CountrySummaryAgent synthesizes country
+              analysis from all 28 agents into compact markdown. Results are saved to
+              <code>simulation_results/{date}.json</code>.</p>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot" style="background:var(--orange)">9</div>
+          <div class="step-body">
+            <h3>Infographic Generation</h3>
+            <p>The InfographicAgent converts the simulation JSON to structured markdown, then HTTP POSTs it to an
+              external infographic service. Returns S3 URLs for HTML dashboard, PDF report, and PPTX presentation.</p>
+            <div class="step-tags">
+              <span class="step-tag">HTML Dashboard</span>
+              <span class="step-tag t2">PDF Report</span>
+              <span class="step-tag t4">PPTX Presentation</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step rv">
+          <div class="step-dot"
+            style="background:linear-gradient(135deg, var(--rose), var(--purple))">10</div>
+          <div class="step-body">
+            <h3>Deliver Results</h3>
+            <p>The complete simulation result is returned via FastAPI response, stored in Redis for async consumers,
+              and served through MCP for Stellar chat integration. Multiple delivery channels ensure the analysis
+              reaches decision-makers instantly.</p>
+            <div class="step-tags">
+              <span class="step-tag">REST API</span>
+              <span class="step-tag t3">Redis Queue</span>
+              <span class="step-tag t4">MCP / Stellar Chat</span>
+              <span class="step-tag t2">Streamlit Dashboard</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 3: PIPELINES                                                 -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-pipelines">
+    <div class="panel-inner">
+      <span class="pill pill-cyan rv">System Modules</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">Pipeline<br><span class="gr">Variants</span></h2>
+      <p class="section-sub rv">Beyond the core simulation, the engine supports 9 additional specialized pipelines
+        &mdash; each with its own processor, agents, and API endpoints.</p>
+
+      <div class="pipeline-grid">
+
+        <div class="card pipe-card rv">
+          <div class="pipe-card-color" style="background:var(--grd3)"></div>
+          <h4>&#127758; Core IKKEP Simulation</h4>
+          <div class="pipe-card-sub">MainProcessor &middot; 10-step pipeline</div>
+          <p>The primary engine. Takes a scenario, runs 28 agents in parallel, produces quadrant position, mitigation
+            mandate, country summary, and infographic.</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">28 agents parallel</span>
+            <span class="pipe-kv-item">4 quadrants</span>
+            <span class="pipe-kv-item">8 countries</span>
+            <span class="pipe-kv-item">HTML/PDF/PPTX</span>
+          </div>
+        </div>
+
+        <div class="card pipe-card rv rv-d1">
+          <div class="pipe-card-color" style="background:var(--grd)"></div>
+          <h4>&#128373; Country Watch V3</h4>
+          <div class="pipe-card-sub">CountryWatchV3Processor &middot; 5-phase pipeline</div>
+          <p>Deep strategic profiling with baseline orientation (outside-in/inside-out), 3 geopolitical perspectives
+            (SQPP/RPP/GSP), 10 strategic layers with quantitative 0&ndash;10 scoring, and cross-perspective synthesis
+            highlighting convergence &amp; divergence.</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">baseline assessment</span>
+            <span class="pipe-kv-item">10 strategic layers</span>
+            <span class="pipe-kv-item">3 perspectives</span>
+            <span class="pipe-kv-item">ES clustering</span>
+          </div>
+        </div>
+
+        <div class="card pipe-card rv rv-d2">
+          <div class="pipe-card-color" style="background:linear-gradient(135deg, #06b6d4, #10b981)"></div>
+          <h4>&#129309; Country Relations Matrix</h4>
+          <div class="pipe-card-sub">CountryRelationsProcessor &middot; 4 dimensions</div>
+          <p>Bilateral relations scored on Ekonomi, Politik, Keamanan, and Sosial-Budaya dimensions. Scale &minus;5 to
+            +5 with zone classification from Konflik to Integrasi.</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">4 dimension agents</span>
+            <span class="pipe-kv-item">-5 to +5 scale</span>
+            <span class="pipe-kv-item">5 zones</span>
+            <span class="pipe-kv-item">composite score</span>
+          </div>
+        </div>
+
+        <div class="card pipe-card rv rv-d3">
+          <div class="pipe-card-color" style="background:linear-gradient(135deg, #f59e0b, #f97316)"></div>
+          <h4>&#128736; Policy Simulation</h4>
+          <div class="pipe-card-sub">PolicySimulationProcessor &middot; 3 defense modes</div>
+          <p>Two-stage pipeline: DefensiveMethodsAgent generates 3 policy options (Absorb/Evade/Negotiate), then
+            PolicySimulationAgent projects score impact with risk-benefit analysis.</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">Absorb: IKGP +3 to +10</span>
+            <span class="pipe-kv-item">Evade: IKGP +1 to +5</span>
+            <span class="pipe-kv-item">Negotiate: ILAG -2 to -8</span>
+          </div>
+        </div>
+
+        <div class="card pipe-card rv">
+          <div class="pipe-card-color" style="background:linear-gradient(135deg, #10b981, #6366f1)"></div>
+          <h4>&#128214; Country Wiki</h4>
+          <div class="pipe-card-sub">CountryWikiProcessor &middot; 5 indicators + Doktrin</div>
+          <p>Encyclopedic country profiles: Geografi, Ekonomi, Politik, Keamanan, Sejarah. Dedicated DoktrinAgent
+            enriches the Sejarah section with military doctrine analysis.</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">5 indicators</span>
+            <span class="pipe-kv-item">12+ sub-menus</span>
+            <span class="pipe-kv-item">dual tool calling</span>
+          </div>
+        </div>
+
+        <div class="card pipe-card rv rv-d1">
+          <div class="pipe-card-color" style="background:linear-gradient(135deg, #a855f7, #f43f5e)"></div>
+          <h4>&#128161; Doctrine Impact</h4>
+          <div class="pipe-card-sub">DoctrineImpactProcessor &middot; bilateral doctrine</div>
+          <p>Analyzes how Country A&rsquo;s foreign policy doctrine impacts Country B. Covers ekonomi, keamanan, politik,
+            sosial dimensions with short/medium/long-term projections.</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">wiki context injection</span>
+            <span class="pipe-kv-item">file-based cache</span>
+            <span class="pipe-kv-item">6 impact dimensions</span>
+          </div>
+        </div>
+
+        <div class="card pipe-card rv rv-d2">
+          <div class="pipe-card-color" style="background:linear-gradient(135deg, #f43f5e, #fbbf24)"></div>
+          <h4>&#128302; What-If Scenario</h4>
+          <div class="pipe-card-sub">WhatIfProcessor &middot; cascading cache</div>
+          <p>Projects alternative futures for any geopolitical event. Multi-phase scenario progression, stakeholder
+            analysis, and probability scoring (Sangat Tinggi to Rendah).</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">3 escalation pathways</span>
+            <span class="pipe-kv-item">persona-based</span>
+            <span class="pipe-kv-item">risk assessment</span>
+          </div>
+        </div>
+
+        <div class="card pipe-card rv rv-d3">
+          <div class="pipe-card-color" style="background:linear-gradient(135deg, #22d3ee, #a855f7)"></div>
+          <h4>&#127760; Regional &amp; Institutional Intelligence</h4>
+          <div class="pipe-card-sub">Intelligence Pipelines &middot; 6 regions, 18 orgs</div>
+          <p>Macro-level analysis of regional blocs (Asia-Pasifik, Eropa, Afrika, etc.) and international
+            organizations (ASEAN, BRICS, NATO, EU, G20, etc.).</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">6 regions</span>
+            <span class="pipe-kv-item">18 organizations</span>
+            <span class="pipe-kv-item">49 states per region</span>
+          </div>
+        </div>
+
+        <div class="card pipe-card rv">
+          <div class="pipe-card-color" style="background:linear-gradient(135deg, #34d399, #fbbf24)"></div>
+          <h4>&#127760; Translation Pipeline</h4>
+          <div class="pipe-card-sub">TranslationProcessor &middot; multi-language</div>
+          <p>Translates Country Wiki and Country Watch V3 JSON outputs between languages (ID, EN, FR) while preserving
+            JSON structure integrity. Chunked for token limits.</p>
+          <div class="pipe-kv">
+            <span class="pipe-kv-item">3 languages</span>
+            <span class="pipe-kv-item">chunked translation</span>
+            <span class="pipe-kv-item">bounded concurrency</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 4: AGENTS                                                    -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-agents">
+    <div class="panel-inner">
+      <span class="pill pill-cyan rv">Core Components</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">The AI Agents</h2>
+      <p class="section-sub rv">14+ specialized agent types, orchestrated through parallel execution. One shared
+        <code>BaseAgent</code> class provides dual-model LLM access (OpenAI + OpenRouter); specialized agents inherit
+        and compose their unique behaviors.</p>
+
+      <div class="agents-g">
+
+        <div class="card ag-card rv" style="--ag-grd:linear-gradient(135deg,#ef4444,#f97316)">
+          <div class="ag-ico">&#128200;</div>
+          <div class="ag-name">Indicator Agent (x28)</div>
+          <div class="ag-role">Parametrized Polymorphism &mdash; 1 class, 28 instances</div>
+          <div class="ag-desc">Each instance receives a unique prompt module defining its indicator domain (e.g., USD/IDR
+            exchange rate, cyber maturity, fiscal capacity). Analyzes scenario impact on that specific indicator with
+            per-country breakdown.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">in</span><span class="io-txt">Scenario + baseline score +
+                country watch context</span></div>
+            <div class="ag-io-row"><span class="io-tag out">out</span><span class="io-txt">new_score, confidence,
+                reasoning, country_analysis (8 nations)</span></div>
+            <div class="ag-io-row"><span class="io-tag count">x28</span><span class="io-txt">10 ILAG (threat) + 18 IKGP
+                (resilience) indicators</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d1" style="--ag-grd:linear-gradient(135deg,#6366f1,#a855f7)">
+          <div class="ag-ico">&#128205;</div>
+          <div class="ag-name">Position Analysis Agent</div>
+          <div class="ag-role">Quadrant narrative &amp; causal chain</div>
+          <div class="ag-desc">Receives aggregated ILAG/IKGP scores and the quadrant classification. Generates a
+            strategic description of Indonesia&rsquo;s position and a causal narrative linking scenario events to
+            indicator movements.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">in</span><span class="io-txt">avg_ilag, avg_ikgp, quadrant,
+                all indicator results</span></div>
+            <div class="ag-io-row"><span class="io-tag out">out</span><span class="io-txt">description +
+                causal_narrative</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d2" style="--ag-grd:linear-gradient(135deg,#10b981,#06b6d4)">
+          <div class="ag-ico">&#128737;</div>
+          <div class="ag-name">Strategic Mitigation Agent</div>
+          <div class="ag-role">Policy mandate generator</div>
+          <div class="ag-desc">Analyzes scenario, quadrant position, and all affected indicators to produce a single
+            imperative strategic mandate. Output is assertive, specific, and prioritized for decision-makers.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">in</span><span class="io-txt">Scenario + position +
+                affected indicators</span></div>
+            <div class="ag-io-row"><span class="io-tag out">out</span><span class="io-txt">Strategic mitigation mandate
+                (single directive)</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d3" style="--ag-grd:linear-gradient(135deg,#f59e0b,#f97316)">
+          <div class="ag-ico">&#128373;</div>
+          <div class="ag-name">Country Watch V3 Agent</div>
+          <div class="ag-role">5-phase deep profiling &mdash; 5 internal agents</div>
+          <div class="ag-desc">Orchestrates 5 specialized sub-agents across 4 phases: baseline orientation, event
+            discovery, triple-perspective analysis (SQPP/RPP/GSP), and cross-perspective synthesis.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">in</span><span class="io-txt">Country name + date range +
+                language (id/en/fr)</span></div>
+            <div class="ag-io-row"><span class="io-tag out">out</span><span class="io-txt">Baseline + 3&times;10 layer
+                scores + synthesis (~17K chars)</span></div>
+            <div class="ag-io-row"><span class="io-tag count">x5</span><span class="io-txt">BaselineAgent &bull;
+                SearchService &bull; SQPP &bull; RPP &bull; GSP &bull; SynthesisAgent</span></div>
+          </div>
+          <div style="margin-top:.65rem;font-size:.7rem;color:var(--amber);font-weight:600;letter-spacing:.04em">&#9660;
+            DETAILED BREAKDOWN BELOW</div>
+        </div>
+
+        <div class="card ag-card rv" style="--ag-grd:linear-gradient(135deg,#06b6d4,#6366f1)">
+          <div class="ag-ico">&#129309;</div>
+          <div class="ag-name">Relation Matrix V2 Agent</div>
+          <div class="ag-role">4 dimension agents &mdash; weighted composite scoring</div>
+          <div class="ag-desc">Parallel bilateral analysis across Ekonomi, Politik, Keamanan, Sosial-Budaya. Each
+            dimension agent scores &minus;10 to +10 with zone classification. LLM-synthesized composite.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">in</span><span class="io-txt">Country A + Country B +
+                date</span></div>
+            <div class="ag-io-row"><span class="io-tag out">out</span><span class="io-txt">4 dimension scores + zones +
+                weighted composite + synthesis</span></div>
+            <div class="ag-io-row"><span class="io-tag count">x4</span><span class="io-txt">Ekonomi (35%) &bull;
+                Politik (35%) &bull; Keamanan (25%) &bull; Sosial-Budaya (5%)</span></div>
+          </div>
+          <div style="margin-top:.65rem;font-size:.7rem;color:var(--blue);font-weight:600;letter-spacing:.04em">&#9660;
+            DETAILED BREAKDOWN BELOW</div>
+        </div>
+
+        <div class="card ag-card rv rv-d1" style="--ag-grd:linear-gradient(135deg,#a855f7,#f43f5e)">
+          <div class="ag-ico">&#128736;</div>
+          <div class="ag-name">Defensive Methods Agent</div>
+          <div class="ag-role">3 policy options generator</div>
+          <div class="ag-desc">Generates three defense strategies &mdash; Absorb (use reserves), Evade (restructure),
+            Negotiate (diplomatic pressure). Each option includes title, description, and actionable pointer steps.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">in</span><span class="io-txt">Indicator score + type + name
+                + insight</span></div>
+            <div class="ag-io-row"><span class="io-tag out">out</span><span class="io-txt">3 modes with
+                brief_description + pointer_action[]</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d2" style="--ag-grd:linear-gradient(135deg,#f43f5e,#fbbf24)">
+          <div class="ag-ico">&#128302;</div>
+          <div class="ag-name">What-If Agent</div>
+          <div class="ag-role">Alternative futures projection</div>
+          <div class="ag-desc">Projects scenario progression through multiple phases (0&ndash;1 month, 1&ndash;6 months,
+            etc.), analyzes stakeholders (adversaries, allies, third parties), and assesses probability with
+            justification.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">in</span><span class="io-txt">Country + event + scenario +
+                doctrine context</span></div>
+            <div class="ag-io-row"><span class="io-tag out">out</span><span class="io-txt">Scenario progression +
+                impact dimensions + risk + probability</span></div>
+          </div>
+        </div>
+
+        <div class="card ag-card rv rv-d3" style="--ag-grd:linear-gradient(135deg,#22d3ee,#10b981)">
+          <div class="ag-ico">&#128214;</div>
+          <div class="ag-name">Country Wiki Agent</div>
+          <div class="ag-role">6 internal agents &mdash; 5 indicators + DoktrinAgent</div>
+          <div class="ag-desc">3-phase pipeline with EventSearchService for real-time context. 5 CountryWikiAgent
+            instances each handle a domain indicator (Geografi, Ekonomi, Politik, Keamanan, Sejarah) with tool-calling.
+            DoktrinAgent extends Sejarah with bilateral doctrine analysis.</div>
+          <div class="ag-io">
+            <div class="ag-io-row"><span class="io-tag in">in</span><span class="io-txt">Country name + target country
+                + date range</span></div>
+            <div class="ag-io-row"><span class="io-tag out">out</span><span class="io-txt">5 indicators &times; 3-4
+                sub-menus each + doctrine timeline</span></div>
+            <div class="ag-io-row"><span class="io-tag count">x6</span><span class="io-txt">Geografi &bull; Ekonomi
+                &bull; Politik &bull; Keamanan &bull; Sejarah &bull; DoktrinAgent</span></div>
+          </div>
+          <div style="margin-top:.65rem;font-size:.7rem;color:var(--cyan);font-weight:600;letter-spacing:.04em">&#9660;
+            DETAILED BREAKDOWN BELOW</div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- AGENT BREAKDOWN: COUNTRY WATCH V3                             -->
+      <!-- ============================================================ -->
+      <div class="agent-breakdown rv">
+
+        <div class="ab-section">
+          <div class="ab-header ab-cw">
+            <div class="ab-header-ico">&#128373;</div>
+            <div class="ab-header-info">
+              <h3>Country Watch V3 &mdash; Internal Agents</h3>
+              <div class="ab-subtitle">5 specialized agents in 4 sequential phases, orchestrated by
+                <code>CountryWatchV3Processor</code></div>
+            </div>
+            <div class="ab-header-badge">5 Agents &middot; 4 Phases</div>
+          </div>
+
+          <div class="ab-phases ab-cw">
+
+            <!-- Phase 0 -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#f59e0b,#f97316)">0</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  Baseline Orientation
+                  <span class="ab-phase-label mini-tag-amber">Phase 0</span>
+                </div>
+                <div class="ab-phase-desc">Determines whether to analyze the country from an outside-in (external impact
+                  on target) or inside-out (domestic dynamics radiating outward) perspective.</div>
+                <div class="ab-agents-row">
+                  <div class="ab-agent-mini" style="--ag-grd:linear-gradient(135deg,#f59e0b,#f97316)">
+                    <div class="ab-agent-mini::before" style="background:var(--amber)"></div>
+                    <div class="ab-mini-name"><span class="mini-ico">&#127919;</span> BaselineAgent</div>
+                    <div class="ab-mini-role">Orientation + 3-Dimension Scoring</div>
+                    <div class="ab-mini-desc">Classifies country orientation (outside-in vs inside-out) and scores 3
+                      strategic dimensions on a 1&ndash;10 scale: <strong>Stabilitas Domestik</strong>,
+                      <strong>Pengaruh Eksternal</strong>, <strong>Posisi Strategis</strong>. Uses BraveSearch +
+                      KnowledgeRepository tools.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-amber">LLM Agent</span>
+                      <span class="ab-mini-tag mini-tag-green">Tool-Calling</span>
+                      <span class="ab-mini-tag mini-tag-purple">Score 1-10</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ab-flow-arrow">&#9660;</div>
+
+            <!-- Phase 1 -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#f97316,#ef4444)">1</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  Event Discovery &amp; Clustering
+                  <span class="ab-phase-label mini-tag-red">Phase 1</span>
+                </div>
+                <div class="ab-phase-desc">Non-LLM service that fetches and clusters geopolitical events from
+                  Elasticsearch. Generates 11 parallel search queries covering political stability, economic performance,
+                  military activity, social unrest, and more.</div>
+                <div class="ab-agents-row">
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128269;</span> CountryWatchSearchService</div>
+                    <div class="ab-mini-role">Non-LLM &mdash; Elasticsearch + Clustering</div>
+                    <div class="ab-mini-desc">Constructs 11 domain-specific search queries per country. Fetches from ES
+                      index, deduplicates via similarity scoring, clusters results into thematic groups. Output feeds
+                      all 3 perspective agents.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-cyan">Elasticsearch</span>
+                      <span class="ab-mini-tag mini-tag-blue">11 Queries</span>
+                      <span class="ab-mini-tag mini-tag-rose">No LLM</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ab-flow-arrow">&#9660;</div>
+
+            <!-- Phase 2 -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#ef4444,#a855f7)">2</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  Triple-Perspective Analysis
+                  <span class="ab-phase-label mini-tag-rose">Phase 2 &mdash; Parallel</span>
+                </div>
+                <div class="ab-phase-desc">Three specialized LLM agents run in parallel, each analyzing 10 strategic
+                  layers from a distinct geopolitical lens. Each layer receives a 0&ndash;10 quantitative score with
+                  justification.</div>
+                <div class="ab-agents-row">
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#9878;&#65039;</span> SQPP Agent</div>
+                    <div class="ab-mini-role">Stabilitas, Kedaulatan, Pertahanan, Proyeksi Kekuatan</div>
+                    <div class="ab-mini-desc">Focuses on sovereignty and defense. 10 layers: political stability,
+                      sovereignty integrity, military readiness, power projection, alliance networks, internal security,
+                      border control, defense economy, civil-military relations, strategic deterrence.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-rose">10 Layers</span>
+                      <span class="ab-mini-tag mini-tag-amber">Score 0-10</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128176;</span> RPP Agent</div>
+                    <div class="ab-mini-role">Resiliensi, Potensi, Pengaruh</div>
+                    <div class="ab-mini-desc">Economic resilience lens. 10 layers: economic resilience, resource
+                      potential, trade influence, fiscal health, supply chain robustness, innovation capacity,
+                      energy security, digital infrastructure, investment attractiveness, food security.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-green">10 Layers</span>
+                      <span class="ab-mini-tag mini-tag-amber">Score 0-10</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#127760;</span> GSP Agent</div>
+                    <div class="ab-mini-role">Geopolitik, Strategi, Posisi</div>
+                    <div class="ab-mini-desc">Geopolitical positioning lens. 10 layers: geopolitical leverage, strategic
+                      alliances, regional influence, global positioning, diplomatic capacity, institutional strength,
+                      soft power, maritime domain, space/cyber domain, ideological influence.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-blue">10 Layers</span>
+                      <span class="ab-mini-tag mini-tag-amber">Score 0-10</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ab-flow-arrow">&#9660;</div>
+
+            <!-- Phase 3 -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#a855f7,#6366f1)">3</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  Cross-Perspective Synthesis
+                  <span class="ab-phase-label mini-tag-purple">Phase 3</span>
+                </div>
+                <div class="ab-phase-desc">Merges all 3 perspective outputs, identifies points of convergence and
+                  divergence, and produces a unified strategic assessment of ~17,000 characters.</div>
+                <div class="ab-agents-row">
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#129520;</span> SynthesisAgent</div>
+                    <div class="ab-mini-role">Convergence/Divergence Identification</div>
+                    <div class="ab-mini-desc">Receives all 30 scored layers (3&times;10) and baseline context. Identifies
+                      where perspectives agree (convergence) and disagree (divergence), resolves contradictions, and
+                      produces a cohesive strategic narrative with actionable insights.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-purple">LLM Agent</span>
+                      <span class="ab-mini-tag mini-tag-amber">~17K chars</span>
+                      <span class="ab-mini-tag mini-tag-green">Final Output</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- AGENT BREAKDOWN: COUNTRY WIKI                                 -->
+        <!-- ============================================================ -->
+        <div class="ab-section">
+          <div class="ab-header ab-wiki">
+            <div class="ab-header-ico">&#128214;</div>
+            <div class="ab-header-info">
+              <h3>Country Wiki &mdash; Internal Agents</h3>
+              <div class="ab-subtitle">6 agents + EventSearchService in 3 phases, orchestrated by
+                <code>CountryWikiProcessor</code></div>
+            </div>
+            <div class="ab-header-badge">6 Agents &middot; 3 Phases</div>
+          </div>
+
+          <div class="ab-phases ab-wiki">
+
+            <!-- Phase 0: Event Search -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#22d3ee,#06b6d4)">0</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  Event Context Retrieval
+                  <span class="ab-phase-label mini-tag-cyan">Phase 0</span>
+                </div>
+                <div class="ab-phase-desc">Retrieves real-time geopolitical events from Elasticsearch to inject as
+                  context into each indicator agent. Provides grounded, current-event-aware analysis.</div>
+                <div class="ab-agents-row">
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128269;</span> EventSearchService</div>
+                    <div class="ab-mini-role">Non-LLM &mdash; Elasticsearch Context Engine</div>
+                    <div class="ab-mini-desc">Queries ES index for recent events related to the target country. Results
+                      are injected into all 5 indicator agent prompts as real-world context grounding.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-cyan">Elasticsearch</span>
+                      <span class="ab-mini-tag mini-tag-rose">No LLM</span>
+                      <span class="ab-mini-tag mini-tag-green">Context Injection</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ab-flow-arrow">&#9660;</div>
+
+            <!-- Phase 1: 5 Indicator Agents -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#10b981,#34d399)">1</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  5 Indicator Agents
+                  <span class="ab-phase-label mini-tag-green">Phase 1 &mdash; Parallel</span>
+                </div>
+                <div class="ab-phase-desc">Five CountryWikiAgent instances run in parallel, each producing encyclopedic
+                  content for their domain. All agents use BraveSearch + KnowledgeRepository tools for fact-grounded
+                  generation with 3&ndash;4 structured sub-menus each.</div>
+                <div class="ab-agents-row">
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#127758;</span> Geografi Agent</div>
+                    <div class="ab-mini-role">Geography &amp; Territory</div>
+                    <div class="ab-mini-desc">Letak &amp; Batas Wilayah, Topografi &amp; Iklim, SDA &amp; Lingkungan,
+                      Demografi &amp; Etnisitas</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-green">4 Sub-menus</span>
+                      <span class="ab-mini-tag mini-tag-amber">Tool-Calling</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128176;</span> Ekonomi Agent</div>
+                    <div class="ab-mini-role">Economic Structure</div>
+                    <div class="ab-mini-desc">Struktur &amp; Ukuran Ekonomi, Perdagangan &amp; Investasi Asing,
+                      Kebijakan Moneter &amp; Fiskal, Tantangan &amp; Prospek Ekonomi</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-green">4 Sub-menus</span>
+                      <span class="ab-mini-tag mini-tag-amber">Tool-Calling</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#127963;&#65039;</span> Politik Agent</div>
+                    <div class="ab-mini-role">Political Systems</div>
+                    <div class="ab-mini-desc">Sistem Pemerintahan, Kebijakan Luar Negeri, Partai &amp; Dinamika Politik,
+                      Kebebasan Sipil &amp; HAM</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-green">4 Sub-menus</span>
+                      <span class="ab-mini-tag mini-tag-amber">Tool-Calling</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128737;</span> Keamanan Agent</div>
+                    <div class="ab-mini-role">Security &amp; Defense</div>
+                    <div class="ab-mini-desc">Kekuatan Militer, Ancaman &amp; Tantangan Keamanan, Kerjasama Pertahanan,
+                      Industri Pertahanan</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-green">4 Sub-menus</span>
+                      <span class="ab-mini-tag mini-tag-amber">Tool-Calling</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128220;</span> Sejarah Agent</div>
+                    <div class="ab-mini-role">History &amp; Bilateral Relations</div>
+                    <div class="ab-mini-desc">Sejarah Singkat, Hubungan Bilateral dengan Indonesia, Isu Kontemporer,
+                      Doktrin Kebijakan Luar Negeri</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-green">4 Sub-menus</span>
+                      <span class="ab-mini-tag mini-tag-amber">Tool-Calling</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ab-flow-arrow">&#9660;</div>
+
+            <!-- Phase 2: Doktrin Agent -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#34d399,#10b981)">2</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  Doctrine Enrichment
+                  <span class="ab-phase-label mini-tag-green">Phase 2</span>
+                </div>
+                <div class="ab-phase-desc">Dedicated DoktrinAgent extends the Sejarah section with in-depth bilateral
+                  doctrine analysis, including historical doctrine evolution and future impact projections.</div>
+                <div class="ab-agents-row">
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128220;</span> DoktrinAgent</div>
+                    <div class="ab-mini-role">Bilateral Doctrine Timeline &amp; Impact</div>
+                    <div class="ab-mini-desc">Analyzes how a country&rsquo;s foreign policy doctrine has evolved over
+                      time and its impact on bilateral relations with Indonesia. Generates doctrine_impact timeline
+                      with periodized analysis (Cold War &rarr; Post-9/11 &rarr; Contemporary).</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-purple">LLM Agent</span>
+                      <span class="ab-mini-tag mini-tag-amber">Tool-Calling</span>
+                      <span class="ab-mini-tag mini-tag-cyan">Timeline Output</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- AGENT BREAKDOWN: RELATION MATRIX V2                           -->
+        <!-- ============================================================ -->
+        <div class="ab-section">
+          <div class="ab-header ab-rel">
+            <div class="ab-header-ico">&#129309;</div>
+            <div class="ab-header-info">
+              <h3>Relation Matrix V2 &mdash; Internal Agents</h3>
+              <div class="ab-subtitle">4 dimension agents + LLM composite synthesis, orchestrated by
+                <code>CountryRelationsV2Processor</code></div>
+            </div>
+            <div class="ab-header-badge">4 Agents &middot; 7 Zones</div>
+          </div>
+
+          <!-- Scoring Scale -->
+          <div style="margin-bottom:1.2rem">
+            <div style="font-size:.82rem;font-weight:600;margin-bottom:.5rem;color:var(--text2)">Scoring Scale: &minus;10 to +10</div>
+            <div class="ab-zone-scale">
+              <div class="ab-zone" style="background:#dc2626" title="-10 to -7">Konflik</div>
+              <div class="ab-zone" style="background:#ef4444" title="-7 to -4">Rivalitas</div>
+              <div class="ab-zone" style="background:#f97316" title="-4 to -1">Kompetisi</div>
+              <div class="ab-zone" style="background:#6b7280" title="-1 to +1">Netral</div>
+              <div class="ab-zone" style="background:#22d3ee" title="+1 to +4">Kooperasi</div>
+              <div class="ab-zone" style="background:#6366f1" title="+4 to +7">Kemitraan</div>
+              <div class="ab-zone" style="background:#10b981" title="+7 to +10">Integrasi</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--text3);margin-top:.3rem;padding:0 .2rem">
+              <span>&minus;10 (Hostile)</span>
+              <span>0 (Neutral)</span>
+              <span>+10 (Integrated)</span>
+            </div>
+          </div>
+
+          <div class="ab-phases ab-rel">
+
+            <!-- Single Phase: 4 Parallel Agents -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#6366f1,#a855f7)">&#9679;</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  4 Dimension Agents
+                  <span class="ab-phase-label mini-tag-blue">Parallel Execution</span>
+                </div>
+                <div class="ab-phase-desc">Four BaseRelationAgentV2 instances run in parallel, each analyzing one
+                  dimension of bilateral relations. Each produces a &minus;10 to +10 score, zone classification, and
+                  detailed analysis with evidence.</div>
+                <div class="ab-agents-row">
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128176;</span> Ekonomi Agent</div>
+                    <div class="ab-mini-role">Trade, Investment &amp; Economic Cooperation</div>
+                    <div class="ab-mini-desc">Analyzes trade volumes, FDI flows, trade agreements, economic sanctions,
+                      currency swap arrangements, and joint economic development projects between the country pair.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-blue">Weight: 35%</span>
+                      <span class="ab-mini-tag mini-tag-amber">Score &minus;10 to +10</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#127963;&#65039;</span> Politik Agent</div>
+                    <div class="ab-mini-role">Diplomatic Relations &amp; Political Alignment</div>
+                    <div class="ab-mini-desc">Evaluates diplomatic ties, political alignment in multilateral forums (UN,
+                      G20), treaty history, territorial disputes, and leadership-level bilateral engagements.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-blue">Weight: 35%</span>
+                      <span class="ab-mini-tag mini-tag-amber">Score &minus;10 to +10</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#128737;</span> Keamanan Agent</div>
+                    <div class="ab-mini-role">Military &amp; Security Relations</div>
+                    <div class="ab-mini-desc">Assesses joint military exercises, arms transfers, intelligence sharing,
+                      defense pacts, security incidents, and military base access between the two nations.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-purple">Weight: 25%</span>
+                      <span class="ab-mini-tag mini-tag-amber">Score &minus;10 to +10</span>
+                    </div>
+                  </div>
+                  <div class="ab-agent-mini">
+                    <div class="ab-mini-name"><span class="mini-ico">&#127912;</span> Sosial-Budaya Agent</div>
+                    <div class="ab-mini-role">Social, Cultural &amp; People-to-People</div>
+                    <div class="ab-mini-desc">Evaluates diaspora communities, educational exchanges, cultural programs,
+                      tourism flows, media sentiment, and historical social ties between the nations.</div>
+                    <div class="ab-mini-tags">
+                      <span class="ab-mini-tag mini-tag-rose">Weight: 5%</span>
+                      <span class="ab-mini-tag mini-tag-amber">Score &minus;10 to +10</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ab-flow-arrow">&#9660;</div>
+
+            <!-- Composite -->
+            <div class="ab-phase">
+              <div class="ab-phase-dot" style="background:linear-gradient(135deg,#a855f7,#f43f5e)">&#931;</div>
+              <div class="ab-phase-content">
+                <div class="ab-phase-title">
+                  Weighted Composite &amp; Synthesis
+                  <span class="ab-phase-label mini-tag-purple">Final</span>
+                </div>
+                <div class="ab-phase-desc">Calculates weighted composite score and generates an LLM-synthesized
+                  narrative explaining the overall bilateral relationship posture.</div>
+
+                <!-- Weight bars -->
+                <div class="ab-weights">
+                  <div class="ab-weight-item">
+                    <div class="ab-weight-pct" style="color:var(--blue)">35%</div>
+                    <div class="ab-weight-info">
+                      <div class="ab-weight-name">Ekonomi</div>
+                      <div class="ab-weight-bar"><div class="ab-weight-fill" style="width:35%;background:var(--blue)"></div></div>
+                    </div>
+                  </div>
+                  <div class="ab-weight-item">
+                    <div class="ab-weight-pct" style="color:var(--blue)">35%</div>
+                    <div class="ab-weight-info">
+                      <div class="ab-weight-name">Politik</div>
+                      <div class="ab-weight-bar"><div class="ab-weight-fill" style="width:35%;background:var(--blue)"></div></div>
+                    </div>
+                  </div>
+                  <div class="ab-weight-item">
+                    <div class="ab-weight-pct" style="color:var(--purple)">25%</div>
+                    <div class="ab-weight-info">
+                      <div class="ab-weight-name">Keamanan</div>
+                      <div class="ab-weight-bar"><div class="ab-weight-fill" style="width:25%;background:var(--purple)"></div></div>
+                    </div>
+                  </div>
+                  <div class="ab-weight-item">
+                    <div class="ab-weight-pct" style="color:var(--rose)">5%</div>
+                    <div class="ab-weight-info">
+                      <div class="ab-weight-name">Sosial-Budaya</div>
+                      <div class="ab-weight-bar"><div class="ab-weight-fill" style="width:5%;background:var(--rose)"></div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ab-scoring" style="margin-top:.75rem">
+                  <div class="ab-scoring-item">
+                    <div class="ab-scoring-dot" style="background:var(--green)"></div>
+                    Formula: (E&times;0.35) + (P&times;0.35) + (K&times;0.25) + (S&times;0.05)
+                  </div>
+                  <div class="ab-scoring-item">
+                    <div class="ab-scoring-dot" style="background:var(--purple)"></div>
+                    LLM synthesizes composite narrative from all 4 dimension analyses
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 5: LIVE DEMO                                                 -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-demo">
+    <div class="panel-inner">
+      <span class="pill pill-green rv">Real Input &amp; Output</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">See It In Action</h2>
+      <p class="section-sub rv">Real examples from production runs showing actual input scenarios and output results.</p>
+
+      <!-- EXAMPLE 1: Core Simulation -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-red" style="font-size:.65rem">Pipeline 1</span> IKKEP Scenario Simulation
+        </h3>
+        <div class="demo-pair">
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; Scenario Input</div>
+            <div class="demo-card-body">
+              <div class="demo-q">"Eskalasi konflik di Selat Hormuz yang mengakibatkan gangguan 20% impor minyak mentah
+                global"</div>
+              <div class="demo-context">
+                <strong>Date:</strong> 2026-02-10<br>
+                <strong>Countries:</strong> USA, China, Japan, India, ASEAN, BRICS, EU, South Korea<br>
+                <strong>Pipeline:</strong> 10-step MainProcessor
+              </div>
+            </div>
+          </div>
+          <div class="demo-arrow">&#10132;</div>
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; Simulation Result</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <div class="result-analysis">
+                  <strong>Quadrant:</strong> HIGH PRESSURE RESILIENCE<br>
+                  <strong>Position:</strong> Indonesia faces elevated external threats but maintains sufficient internal
+                  resilience to absorb the shock.
+                </div>
+                <div class="score-bar-wrap">
+                  <div style="display:flex;justify-content:space-between;font-size:.72rem;font-weight:600;margin-bottom:.3rem">
+                    <span style="color:var(--rose)">ILAG (Threat)</span><span style="color:var(--rose)">62.4 / 100</span>
+                  </div>
+                  <div class="score-bar">
+                    <div class="score-bar-fill" style="width:62.4%;background:linear-gradient(90deg,var(--amber),var(--rose))"></div>
+                  </div>
+                </div>
+                <div class="score-bar-wrap">
+                  <div style="display:flex;justify-content:space-between;font-size:.72rem;font-weight:600;margin-bottom:.3rem">
+                    <span style="color:var(--green)">IKGP (Resilience)</span><span style="color:var(--green)">54.8 / 100</span>
+                  </div>
+                  <div class="score-bar">
+                    <div class="score-bar-fill" style="width:54.8%;background:linear-gradient(90deg,var(--cyan),var(--green))"></div>
+                  </div>
+                </div>
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Top Affected ILAG</th>
+                      <th>Baseline</th>
+                      <th>New</th>
+                      <th>&#916;</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Harga Minyak Global</td>
+                      <td>55.2</td>
+                      <td>82.7</td>
+                      <td style="color:var(--rose)">+27.5</td>
+                    </tr>
+                    <tr>
+                      <td>Insiden Chokepoint Maritim</td>
+                      <td>41.8</td>
+                      <td>68.3</td>
+                      <td style="color:var(--rose)">+26.5</td>
+                    </tr>
+                    <tr>
+                      <td>Tekanan Rantai Pasok</td>
+                      <td>48.1</td>
+                      <td>63.9</td>
+                      <td style="color:var(--rose)">+15.8</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="result-src">
+                  <div class="result-src-title">Mitigation Mandate (excerpt)</div>
+                  <div style="font-size:.78rem;color:var(--text2);line-height:1.6;padding:.2rem 0">
+                    SEGERA mengaktifkan cadangan minyak strategis nasional, MENDIVERSIFIKASI jalur impor energi melalui
+                    koridor alternatif Tanjung Harapan, dan MEMPERCEPAT produksi biodiesel domestik B40...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMPLE 2: Country Watch V3 -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-purple" style="font-size:.65rem">Pipeline 2</span> Country Watch V3 &mdash; China
+        </h3>
+        <div class="demo-pair">
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; Input</div>
+            <div class="demo-card-body">
+              <div class="demo-q">"China"</div>
+              <div class="demo-context">
+                <strong>Period:</strong> Feb 8 &ndash; Mar 13, 2026<br>
+                <strong>Framework:</strong> V3 (Baseline + 3 Perspectives)<br>
+                <strong>Perspectives:</strong> SQPP, RPP, GSP<br>
+                <strong>Search:</strong> BraveSearch + KnowledgeRepo + Elasticsearch
+              </div>
+            </div>
+          </div>
+          <div class="demo-arrow">&#10132;</div>
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; Strategic Profile (V3)</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <div class="result-analysis" style="margin-bottom:.5rem">
+                  <strong>Baseline Orientation:</strong> <span style="color:var(--amber)">Outside-In</span><br>
+                  <span style="font-size:.78rem;color:var(--text3)">External forces (trade, FDI, global supply chains) more influential than domestic drivers</span>
+                </div>
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Baseline Dimension</th>
+                      <th>Score</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>International Economic Integration</td>
+                      <td style="color:var(--cyan)">3 / 10</td>
+                      <td style="font-size:.72rem;color:var(--text3)">Moderate trade openness</td>
+                    </tr>
+                    <tr>
+                      <td>Elite Capital Affiliation</td>
+                      <td style="color:var(--amber)">4 / 10</td>
+                      <td style="font-size:.72rem;color:var(--text3)">Mixed domestic-foreign</td>
+                    </tr>
+                    <tr>
+                      <td>Financial Security Sovereignty</td>
+                      <td style="color:var(--rose)">3 / 10</td>
+                      <td style="font-size:.72rem;color:var(--text3)">Vulnerable to external pressure</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="result-table" style="margin-top:.75rem">
+                  <thead>
+                    <tr>
+                      <th>Strategic Layer (SQPP)</th>
+                      <th>Classification</th>
+                      <th>Conf.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Grand Strategy</td>
+                      <td>Revisionist Challenge</td>
+                      <td>90%</td>
+                    </tr>
+                    <tr>
+                      <td>Relational Orientation</td>
+                      <td>Systemic Competitor</td>
+                      <td>85%</td>
+                    </tr>
+                    <tr>
+                      <td>Global Systemic Role</td>
+                      <td>Systemic Disruptor</td>
+                      <td>88%</td>
+                    </tr>
+                    <tr>
+                      <td>Regional Role</td>
+                      <td>Regional Coercer</td>
+                      <td>90%</td>
+                    </tr>
+                    <tr>
+                      <td>Instruments of Power</td>
+                      <td>Grey-Zone Coercion</td>
+                      <td>85%</td>
+                    </tr>
+                    <tr>
+                      <td>Leadership Style</td>
+                      <td>Revisionist &amp; Firm</td>
+                      <td>88%</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="result-src" style="margin-top:.75rem">
+                  <div class="result-src-title">Comprehensive Analysis (excerpt)</div>
+                  <div style="font-size:.78rem;color:var(--text2);line-height:1.6;padding:.2rem 0">
+                    Across all three perspectives (SQPP, RPP, GSP), convergence is strongest on China&rsquo;s
+                    revisionist grand strategy and systemic competitor orientation. Divergence appears on instruments
+                    of power: SQPP sees grey-zone coercion; RPP identifies strategic autonomy via BRICS+
+                    dedollarization; GSP highlights developmental diplomacy as primary instrument...
+                  </div>
+                  <div style="font-size:.68rem;color:var(--text3);margin-top:.3rem">25 data sources &middot; ~17,000 chars analysis &middot; 459s processing</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMPLE 3: Country Relations -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-cyan" style="font-size:.65rem">Pipeline 3</span> Bilateral Relations &mdash; US
+          &harr; China
+        </h3>
+        <div class="demo-pair">
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; Input</div>
+            <div class="demo-card-body">
+              <div class="demo-q">"United States" &harr; "China"</div>
+              <div class="demo-context">
+                <strong>Date:</strong> 2026-02-10<br>
+                <strong>Dimensions:</strong> 4 (Ekonomi, Politik, Keamanan, Sosial-Budaya)
+              </div>
+            </div>
+          </div>
+          <div class="demo-arrow">&#10132;</div>
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; Relations Matrix</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Dimension</th>
+                      <th>Score</th>
+                      <th>Zone</th>
+                      <th>Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ekonomi</td>
+                      <td style="color:var(--amber)">-1.5</td>
+                      <td>KOMPETISI</td>
+                      <td>Strategic Rival</td>
+                    </tr>
+                    <tr>
+                      <td>Politik</td>
+                      <td style="color:var(--rose)">-2.8</td>
+                      <td>KOMPETISI</td>
+                      <td>Adversarial</td>
+                    </tr>
+                    <tr>
+                      <td>Keamanan</td>
+                      <td style="color:var(--rose)">-3.2</td>
+                      <td>KOMPETISI</td>
+                      <td>Strategic Rival</td>
+                    </tr>
+                    <tr>
+                      <td>Sosial-Budaya</td>
+                      <td style="color:var(--amber)">-0.8</td>
+                      <td>NETRAL</td>
+                      <td>Cool/Distant</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="result-src">
+                  <div class="result-src-title">Composite Score</div>
+                  <div style="font-size:.88rem;font-weight:700;color:var(--rose);padding:.2rem 0">-2.08 &mdash;
+                    KOMPETISI Zone</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMPLE 4: Policy Simulation -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-amber" style="font-size:.65rem">Pipeline 4</span> Policy Simulation &mdash; Absorb
+          Mode
+        </h3>
+        <div class="demo-pair">
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; Policy Input</div>
+            <div class="demo-card-body">
+              <div class="demo-q">Absorb Mode: "Optimalisasi cadangan energi strategis"</div>
+              <div class="demo-context">
+                <strong>Indicator:</strong> Stok Energi Operasional (IKGP)<br>
+                <strong>Current Score:</strong> 72 / 100<br>
+                <strong>Mode:</strong> Absorb &mdash; tactical defense using reserves
+              </div>
+            </div>
+          </div>
+          <div class="demo-arrow">&#10132;</div>
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; Simulation Result</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <div class="score-bar-wrap">
+                  <div style="display:flex;justify-content:space-between;font-size:.72rem;font-weight:600;margin-bottom:.3rem">
+                    <span style="color:var(--text2)">Score Projection</span><span style="color:var(--green)">72 &#8594;
+                      82 (+10)</span>
+                  </div>
+                  <div class="score-bar">
+                    <div class="score-bar-fill" style="width:82%;background:linear-gradient(90deg,var(--cyan),var(--green))"></div>
+                  </div>
+                </div>
+                <div class="result-analysis" style="margin-top:.5rem">
+                  <strong>Executive Summary:</strong> Kebijakan Absorb mempertahankan skor ancaman sambil meningkatkan
+                  cadangan logistik strategis. Efisiensi operasional menekan konsumsi BBM militer 15%.
+                </div>
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Dimension</th>
+                      <th>Benefit</th>
+                      <th>Risk</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Security</td>
+                      <td style="font-size:.75rem">Operational readiness maintained</td>
+                      <td style="font-size:.75rem">Reserve depletion if prolonged</td>
+                    </tr>
+                    <tr>
+                      <td>Economy</td>
+                      <td style="font-size:.75rem">Reduced import dependency</td>
+                      <td style="font-size:.75rem">Short-term fiscal burden</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMPLE 5: Country Wiki -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-green" style="font-size:.65rem">Pipeline 5</span> Country Wiki &mdash; China &rarr; Indonesia
+        </h3>
+        <div class="demo-pair">
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; Input</div>
+            <div class="demo-card-body">
+              <div class="demo-q">"China" (target: Indonesia)</div>
+              <div class="demo-context">
+                <strong>Period:</strong> Mar 2025 &ndash; Mar 2026<br>
+                <strong>Indicators:</strong> 6 (History, Politics, Economy, Demographics, Socio-Cultural, National Interest)<br>
+                <strong>Doktrin Target:</strong> Indonesia<br>
+                <strong>Tools:</strong> BraveSearch + KnowledgeRepo (dual)
+              </div>
+            </div>
+          </div>
+          <div class="demo-arrow">&#10132;</div>
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; Encyclopedic Profile</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <div class="result-analysis">
+                  <strong>6 indicators</strong> with <strong>20 sub-menus</strong> covering the full country knowledge base:
+                </div>
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Indicator</th>
+                      <th>Sub-Menus</th>
+                      <th>Nature</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>History</td>
+                      <td>Identity &amp; Territory, History as Modern State, Doctrine, Key Turning Points</td>
+                      <td style="font-size:.7rem;color:var(--text3)">static + dynamic</td>
+                    </tr>
+                    <tr>
+                      <td>Politics &amp; Governance</td>
+                      <td>Regime, Form of State, Foreign Policy Orientation, Key Figures</td>
+                      <td style="font-size:.7rem;color:var(--text3)">dynamic</td>
+                    </tr>
+                    <tr>
+                      <td>Economy</td>
+                      <td>Natural Resources, Main Imports, Main Exports</td>
+                      <td style="font-size:.7rem;color:var(--text3)">dynamic</td>
+                    </tr>
+                    <tr>
+                      <td>Demographics</td>
+                      <td>Population Size, Life Expectancy, Ethnic Composition</td>
+                      <td style="font-size:.7rem;color:var(--text3)">static + dynamic</td>
+                    </tr>
+                    <tr>
+                      <td>Socio-Cultural</td>
+                      <td>Religion/Belief, Social Conflict, Cultural Identity</td>
+                      <td style="font-size:.7rem;color:var(--text3)">static</td>
+                    </tr>
+                    <tr>
+                      <td>National Interest</td>
+                      <td>Survival &amp; Security, Economic Welfare, Ideological Goals</td>
+                      <td style="font-size:.7rem;color:var(--text3)">dynamic</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="result-src">
+                  <div class="result-src-title">Sample Content (History &rarr; Identity &amp; Territory)</div>
+                  <div style="font-size:.78rem;color:var(--text2);line-height:1.6;padding:.2rem 0">
+                    &ldquo;The official name of the country is Zhonghua Renmin Gongheguo (People&rsquo;s Republic of
+                    China). Borders 14 sovereign states &mdash; the most of any country. Territorial disputes in South
+                    China Sea, Taiwan Strait, and Sino-Indian border remain active...&rdquo;
+                  </div>
+                  <div style="font-size:.68rem;color:var(--text3);margin-top:.3rem">6 indicators &middot; 20 sub-menus &middot; 596s processing</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMPLE 6: Doctrine Impact -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-rose" style="font-size:.65rem">Pipeline 6</span> Doctrine Impact &mdash; China &rarr; Indonesia
+        </h3>
+        <div class="demo-pair">
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; Input</div>
+            <div class="demo-card-body">
+              <div class="demo-q">China&rsquo;s Doctrine Impact on Indonesia (1949&ndash;2026)</div>
+              <div class="demo-context">
+                <strong>Initial Country:</strong> China<br>
+                <strong>Impacted Country:</strong> Indonesia<br>
+                <strong>Period:</strong> 1949&ndash;2026 (5 doctrine phases)<br>
+                <strong>Context:</strong> Wiki profiles for both countries injected
+              </div>
+            </div>
+          </div>
+          <div class="demo-arrow">&#10132;</div>
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; Doctrine Impact Assessment</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <div class="result-analysis">
+                  <strong>Executive Summary:</strong> China&rsquo;s foreign policy doctrine evolved from Strategic
+                  Nationalism (1949) to Progressive Internationalism (2026), significantly impacting Indonesia through
+                  Belt &amp; Road Initiative investment and South China Sea tensions.
+                </div>
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Impact Dimension</th>
+                      <th>Level</th>
+                      <th>Key Finding</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Economy &amp; Trade</td>
+                      <td style="color:var(--rose);font-weight:600">HIGH</td>
+                      <td style="font-size:.75rem">Trade USD 82.7B (2025); China = 40% non-oil imports</td>
+                    </tr>
+                    <tr>
+                      <td>Security &amp; Defense</td>
+                      <td style="color:var(--amber);font-weight:600">MEDIUM</td>
+                      <td style="font-size:.75rem">Natuna waters tension; increased maritime patrol</td>
+                    </tr>
+                    <tr>
+                      <td>Diplomatic &amp; Political</td>
+                      <td style="color:var(--amber);font-weight:600">MEDIUM</td>
+                      <td style="font-size:.75rem">Indonesia as ASEAN leader in SCS dialogue</td>
+                    </tr>
+                    <tr>
+                      <td>Technology &amp; Innovation</td>
+                      <td style="color:var(--amber);font-weight:600">MEDIUM</td>
+                      <td style="font-size:.75rem">Digital infrastructure + Industry 4.0 transfer</td>
+                    </tr>
+                    <tr>
+                      <td>Social &amp; Cultural</td>
+                      <td style="color:var(--green);font-weight:600">LOW</td>
+                      <td style="font-size:.75rem">Student exchange + tourism growth</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="result-table" style="margin-top:.75rem">
+                  <thead>
+                    <tr>
+                      <th>Doctrine Phase</th>
+                      <th>Period</th>
+                      <th>Impact on Indonesia</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-size:.75rem">Strategic Nationalism</td>
+                      <td style="font-size:.75rem">1949&ndash;1976</td>
+                      <td style="font-size:.75rem">Ideological influence, anti-colonial activism</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:.75rem">Moderate Realism</td>
+                      <td style="font-size:.75rem">1978&ndash;2001</td>
+                      <td style="font-size:.75rem">Economic ties begin, diplomatic tensions</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:.75rem">Hard Realism</td>
+                      <td style="font-size:.75rem">2002&ndash;2012</td>
+                      <td style="font-size:.75rem">Maritime claim escalation, Natuna alert</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:.75rem">Progressive Internationalism</td>
+                      <td style="font-size:.75rem">2013&ndash;2026</td>
+                      <td style="font-size:.75rem">BRI investment boom + digital dependency risk</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="result-src">
+                  <div class="result-src-title">Projections &amp; Recommendations</div>
+                  <div class="result-src-item s-green">Short-term: Economic ties expand, SCS tensions persist</div>
+                  <div class="result-src-item s-amber">Medium-term: Tech cooperation grows, dependency risk increases</div>
+                  <div class="result-src-item s-red">Long-term: US-China competition forces Indonesia to navigate actively</div>
+                  <div style="font-size:.68rem;color:var(--text3);margin-top:.4rem">Wiki context: both countries &middot; 104s processing</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMPLE 7: What-If -->
+      <div style="margin-bottom:3.5rem" class="rv">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-blue" style="font-size:.65rem">Pipeline 7</span> What-If Scenario &mdash; US Diego Garcia
+        </h3>
+        <div class="demo-pair">
+          <div class="demo-card">
+            <div class="demo-card-head input-h">&#11015; Scenario Input</div>
+            <div class="demo-card-body">
+              <div class="demo-q">&ldquo;US increases diplomatic pressure for Diego Garcia base access&rdquo;</div>
+              <div class="demo-context">
+                <strong>Country:</strong> United States<br>
+                <strong>Original Event:</strong> UK halts Chagos Islands transfer plan<br>
+                <strong>Persona:</strong> &ldquo;The Geostrategic Architect&rdquo; &mdash; senior policymaker requiring strategic intelligence synthesis<br>
+                <strong>Context:</strong> Doctrine + Country Watch cache injected
+              </div>
+            </div>
+          </div>
+          <div class="demo-arrow">&#10132;</div>
+          <div class="demo-card">
+            <div class="demo-card-head output-h">&#11014; What-If Assessment</div>
+            <div class="demo-card-body">
+              <div class="result-mock">
+                <div class="result-analysis">
+                  <strong>Probability:</strong> <span style="color:var(--rose);font-weight:700">HIGH</span> &mdash;
+                  US has strong diplomatic/military capacity and historical Diego Garcia usage as vital Indian Ocean base.
+                </div>
+                <table class="result-table">
+                  <thead>
+                    <tr>
+                      <th>Phase</th>
+                      <th>Timeframe</th>
+                      <th>Key Development</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-size:.78rem">Initial Response</td>
+                      <td style="font-size:.78rem">0&ndash;1 month</td>
+                      <td style="font-size:.75rem">US intensifies diplomatic lobby to UK; media attention on Chagos sovereignty</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:.78rem">Secondary Impact</td>
+                      <td style="font-size:.78rem">2&ndash;3 months</td>
+                      <td style="font-size:.75rem">UK faces Commonwealth pressure; China &amp; Russia promote anti-US narrative</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:.78rem">Stabilize/Escalate</td>
+                      <td style="font-size:.78rem">4&ndash;6 months</td>
+                      <td style="font-size:.75rem">Conditional US-UK agreement likely; more aggressive military posture</td>
+                    </tr>
+                    <tr>
+                      <td style="font-size:.78rem">Medium-term View</td>
+                      <td style="font-size:.78rem">7&ndash;12 months</td>
+                      <td style="font-size:.75rem">Diego Garcia solidified as US Indo-Pacific operations center</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="result-table" style="margin-top:.75rem">
+                  <thead>
+                    <tr>
+                      <th>Impact Dimension</th>
+                      <th>Assessment</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Economic</td>
+                      <td style="font-size:.75rem">Military infrastructure investment; commodity supply chain stabilized</td>
+                    </tr>
+                    <tr>
+                      <td>Security &amp; Military</td>
+                      <td style="font-size:.75rem">Strengthened US footprint; proxy confrontation risk with China/Russia</td>
+                    </tr>
+                    <tr>
+                      <td>Diplomatic &amp; Political</td>
+                      <td style="font-size:.75rem">US-UK AUKUS coalition reinforced; UN legitimacy concerns</td>
+                    </tr>
+                    <tr>
+                      <td>Social &amp; Humanitarian</td>
+                      <td style="font-size:.75rem">Chagossian diaspora protests; no mass migration impact</td>
+                    </tr>
+                    <tr>
+                      <td>Technology &amp; Strategic</td>
+                      <td style="font-size:.75rem">Satellite surveillance + cyber operations capability enhanced</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="result-src">
+                  <div class="result-src-title">Stakeholder &amp; Risk Analysis</div>
+                  <div class="result-src-item s-red">Adversaries: China &amp; Russia exploit tensions to erode US Indian Ocean influence</div>
+                  <div class="result-src-item s-blue">Allies: UK faces dilemma &mdash; strategic alliance vs international pressure</div>
+                  <div class="result-src-item s-amber">Black Swan: Terrorist attack on base facility triggering military escalation</div>
+                  <div style="font-size:.68rem;color:var(--text3);margin-top:.4rem">3 pathways (De-escalation / Status Quo / Escalation) &middot; Infographic generated &middot; 181s</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Behind the Scenes -->
+      <div class="rv" style="margin-top:1rem">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-amber" style="font-size:.65rem">Behind the Scenes</span> Core Simulation Processing
+        </h3>
+        <div class="demo-card" style="max-width:600px">
+          <div class="demo-card-head process-h">&#9881; Pipeline Execution (Hormuz Scenario)</div>
+          <div class="demo-card-body">
+            <div class="process-steps">
+              <div class="ps">
+                <div class="ps-num" style="background:var(--red)">1</div>
+                <div class="ps-text">Validated 28/28 indicators in database</div>
+                <div class="ps-time">1.2s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--rose)">2</div>
+                <div class="ps-text">Fetched baseline scores for all indicators</div>
+                <div class="ps-time">0.8s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--purple)">3</div>
+                <div class="ps-text">Launched 28 indicator agents in parallel</div>
+                <div class="ps-time">0.3s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--blue)">4</div>
+                <div class="ps-text">All 28 agents completed (LLM + knowledge search)</div>
+                <div class="ps-time">45s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--cyan)">5</div>
+                <div class="ps-text">Aggregated scores, determined quadrant</div>
+                <div class="ps-time">0.1s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:#818cf8">6</div>
+                <div class="ps-text">Position analysis + mitigation mandate</div>
+                <div class="ps-time">12s</div>
+              </div>
+              <div class="ps">
+                <div class="ps-num" style="background:var(--green)">7</div>
+                <div class="ps-text">Country summary + infographic generation</div>
+                <div class="ps-time">18s</div>
+              </div>
+            </div>
+            <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:.8rem;color:var(--text3)">Total processing time</span>
+              <span style="font-size:1rem;font-weight:700;color:var(--green)">~78 seconds</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output formats -->
+      <div class="rv" style="margin-top:3rem">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem">
+          <span class="pill pill-rose" style="font-size:.65rem">Delivery</span> Output Channels
+        </h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
+          <div class="card rv">
+            <div style="font-size:1.2rem;margin-bottom:.5rem">&#128421;</div>
+            <div style="font-weight:700;margin-bottom:.25rem">REST API (FastAPI)</div>
+            <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Synchronous or async (Redis queue)
+              responses. 8 swagger services across multiple ports with health checks.</div>
+          </div>
+          <div class="card rv rv-d1">
+            <div style="font-size:1.2rem;margin-bottom:.5rem">&#128172;</div>
+            <div style="font-weight:700;margin-bottom:.25rem">MCP / Stellar Chat</div>
+            <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Trigger simulations via chat with
+              &ldquo;sim-ikkep&rdquo; keyword. Rich markdown formatting with tables and country flags.</div>
+          </div>
+          <div class="card rv rv-d2">
+            <div style="font-size:1.2rem;margin-bottom:.5rem">&#128202;</div>
+            <div style="font-weight:700;margin-bottom:.25rem">Streamlit Dashboards</div>
+            <div style="font-size:.85rem;color:var(--text2);line-height:1.6">6 interactive dashboards for country
+              watch, relations matrix, wiki, institutional and regional intelligence.</div>
+          </div>
+          <div class="card rv rv-d3">
+            <div style="font-size:1.2rem;margin-bottom:.5rem">&#128196;</div>
+            <div style="font-weight:700;margin-bottom:.25rem">Infographic (HTML/PDF/PPTX)</div>
+            <div style="font-size:.85rem;color:var(--text2);line-height:1.6">Auto-generated visual reports uploaded to
+              S3. Dashboard HTML, printable PDF, and presentation-ready PPTX.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- TAB 6: TECH & METRICS                                            -->
+  <!-- ================================================================ -->
+  <div class="tab-panel" id="tab-tech">
+    <div class="panel-inner">
+      <span class="pill pill-amber rv">Infrastructure</span>
+      <h2 class="section-h rv" style="margin-top:.75rem">Tech Stack &amp; Metrics</h2>
+      <p class="section-sub rv">The technologies, services, and architecture powering the engine.</p>
+
+      <div class="tech-g">
+
+        <div class="card rv">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(168,85,247,.1);color:#c084fc">&#129302;</div>
+            <div>
+              <div class="tech-title">AI &amp; LLM</div>
+              <div class="tech-role">Intelligence Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>OpenRouter &mdash; GLM-4.7 (primary), Claude Sonnet (secondary)</li>
+            <li>OpenAI &mdash; Fallback provider</li>
+            <li>eb_labs &mdash; Custom Agent + Toolkit + Model framework</li>
+            <li>28 parallel agents &mdash; asyncio.gather orchestration</li>
+          </ul>
+        </div>
+
+        <div class="card rv rv-d1">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(34,211,238,.1);color:var(--cyan)">&#128270;</div>
+            <div>
+              <div class="tech-title">Search &amp; Tools</div>
+              <div class="tech-role">Knowledge Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>KnowledgeRepositoryTools &mdash; Internal API with full content retrieval</li>
+            <li>BraveSearchTools &mdash; Web search + URL scraping</li>
+            <li>Elasticsearch &mdash; Event search + document clustering</li>
+            <li>Date-range filtering &mdash; Time-bounded search</li>
+          </ul>
+        </div>
+
+        <div class="card rv rv-d2">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(52,211,153,.1);color:var(--green)">&#128450;</div>
+            <div>
+              <div class="tech-title">Data Storage</div>
+              <div class="tech-role">Persistence Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>PostgreSQL &mdash; Indicator baselines (asyncpg, CTE queries)</li>
+            <li>Redis &mdash; Job queue with 5 async workers (Semaphore)</li>
+            <li>JSON files &mdash; Result caching + doctrine cache</li>
+            <li>S3 &mdash; Infographic output storage</li>
+          </ul>
+        </div>
+
+        <div class="card rv rv-d3">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(251,191,36,.1);color:var(--amber)">&#128640;</div>
+            <div>
+              <div class="tech-title">API &amp; Services</div>
+              <div class="tech-role">Communication Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>FastAPI &mdash; 8 swagger services with Pydantic models</li>
+            <li>MCP Protocol &mdash; Stellar chat integration (FastMCP SSE)</li>
+            <li>Streamlit &mdash; 6 interactive dashboards</li>
+            <li>Infographic API &mdash; External HTML/PDF/PPTX generation</li>
+          </ul>
+        </div>
+
+        <div class="card rv">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(99,102,241,.1);color:#818cf8">&#128736;</div>
+            <div>
+              <div class="tech-title">Architecture Patterns</div>
+              <div class="tech-role">Design Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>Parametrized Polymorphism &mdash; 1 class, 28 indicator instances</li>
+            <li>Context Cascading &mdash; Country Watch &#8594; Indicator Agents</li>
+            <li>Registry-Based Dispatch &mdash; Dynamic agent instantiation</li>
+            <li>Fallback Safety &mdash; Agent failure never breaks pipeline</li>
+          </ul>
+        </div>
+
+        <div class="card rv rv-d1">
+          <div class="tech-card-h">
+            <div class="tech-ico" style="background:rgba(251,113,133,.1);color:var(--rose)">&#128272;</div>
+            <div>
+              <div class="tech-title">Configuration</div>
+              <div class="tech-role">Settings Layer</div>
+            </div>
+          </div>
+          <ul class="tech-list">
+            <li>Pydantic BaseSettings &mdash; Type-safe config from .env</li>
+            <li>Dual model support &mdash; OpenAI + OpenRouter switchable</li>
+            <li>Configurable concurrency &mdash; Worker pool + semaphores</li>
+            <li>LoguRu &mdash; Structured logging with rotation</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- METRICS -->
+      <div style="margin-top:3.5rem">
+        <span class="pill pill-rose rv">By the Numbers</span>
+        <h3 class="section-h rv" style="margin-top:.75rem;font-size:1.6rem">Key Metrics</h3>
+
+        <div class="met-grid">
+          <div class="card met-card rv"><b data-count="28">0</b><span>Parallel Agents</span><em>10 ILAG + 18 IKGP</em>
+          </div>
+          <div class="card met-card rv rv-d1"><b data-count="10">0</b><span>Pipelines</span><em>Specialized
+              workflows</em></div>
+          <div class="card met-card rv rv-d2"><b data-count="8">0</b><span>Swagger Services</span><em>FastAPI
+              endpoints</em></div>
+          <div class="card met-card rv rv-d3"><b data-count="6">0</b><span>Dashboards</span><em>Streamlit UIs</em></div>
+          <div class="card met-card rv"><b data-count="250">0</b><span>Countries</span><em>In catalog</em></div>
+          <div class="card met-card rv rv-d1"><b data-count="4">0</b><span>Quadrant Positions</span><em>Strategic
+              states</em></div>
+          <div class="card met-card rv rv-d2"><b data-count="3">0</b><span>Defense Modes</span><em>Absorb, Evade,
+              Negotiate</em></div>
+          <div class="card met-card rv rv-d3"><b data-count="3">0</b><span>Languages</span><em>ID, EN, FR</em></div>
+          <div class="card met-card rv"><b data-count="5">0</b><span>Async Workers</span><em>Redis concurrency</em>
+          </div>
+          <div class="card met-card rv rv-d1"><b data-count="32">0</b><span>Country Pairs</span><em>Relations
+              analyzed</em></div>
+        </div>
+      </div>
+
+      <!-- Countries Analyzed -->
+      <div style="margin-top:3rem" class="rv">
+        <h4 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Primary Countries &amp; Blocs Analyzed</h4>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+          <span class="badge" data-c="red" style="font-size:.78rem;padding:.35rem .8rem">&#127482;&#127480; United States</span>
+          <span class="badge" data-c="red" style="font-size:.78rem;padding:.35rem .8rem">&#127464;&#127475; China</span>
+          <span class="badge" data-c="ai" style="font-size:.78rem;padding:.35rem .8rem">&#127471;&#127477; Japan</span>
+          <span class="badge" data-c="ai" style="font-size:.78rem;padding:.35rem .8rem">&#127472;&#127479; South Korea</span>
+          <span class="badge" data-c="etl" style="font-size:.78rem;padding:.35rem .8rem">&#127470;&#127475; India</span>
+          <span class="badge" data-c="db" style="font-size:.78rem;padding:.35rem .8rem">&#127479;&#127482; Russia</span>
+          <span class="badge" data-c="infra" style="font-size:.78rem;padding:.35rem .8rem">&#127466;&#127482; European Union</span>
+          <span class="badge" data-c="infra" style="font-size:.78rem;padding:.35rem .8rem">ASEAN</span>
+          <span class="badge" data-c="etl" style="font-size:.78rem;padding:.35rem .8rem">BRICS</span>
+          <span class="badge" style="font-size:.78rem;padding:.35rem .8rem">&#127470;&#127465; Indonesia (target)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div style="padding:2.5rem 1.5rem;text-align:center;border-top:1px solid var(--border)">
+    <p style="font-size:.85rem;color:var(--text3)">
+      <span style="background:var(--grd3);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">NETRA</span>
+      &mdash; Multi-Agent Defense Intelligence Engine &middot; IKKEP Framework
+    </p>
+    <p style="font-size:.72rem;color:var(--text3);margin-top:.4rem;opacity:.6">NETRA &middot; Multi-Agent Orchestration &middot; 28
+      Parallel AI Agents &middot; 10 Pipeline Variants &middot; Real-Time Strategic Intelligence</p>
+  </div>
+
+  <script>
+    /* ===== TAB SWITCHING ===== */
+    const btns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        panels.forEach(p => {
+          p.classList.remove('active');
+          p.style.opacity = '0';
+          p.style.transform = 'translateY(12px)';
+        });
+
+        const panel = document.getElementById('tab-' + target);
+        panel.classList.add('active');
+
+        requestAnimationFrame(() => {
+          panel.style.opacity = '1';
+          panel.style.transform = 'translateY(0)';
+          panel.querySelectorAll('.rv').forEach(el => {
+            el.classList.remove('vis');
+            void el.offsetWidth;
+          });
+          observeReveals();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+    });
+
+    /* ===== REVEAL ON SCROLL ===== */
+    function observeReveals() {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+      }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+      document.querySelectorAll('.rv:not(.vis)').forEach(el => obs.observe(el));
+    }
+    observeReveals();
+
+    /* ===== COUNTER ANIMATION ===== */
+    const counterObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting || e.target.dataset.done) return;
+        e.target.dataset.done = '1';
+        const t = +e.target.dataset.count;
+        let c = 0;
+        const dur = Math.max(30, Math.min(60, t));
+        const s = t / dur;
+        const run = () => {
+          c += s;
+          if (c >= t) { e.target.textContent = t; return; }
+          e.target.textContent = Math.round(c);
+          requestAnimationFrame(run);
+        };
+        run();
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
+  </script>
+</body>
+
+</html>

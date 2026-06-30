@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
-import { Bot, Info } from "lucide-react";
+import { Bot, ExternalLink } from "lucide-react";
 import projectsData from "../data/projects.json";
 import type { Project } from "../types";
 import { useSendMessage } from "../lib/useChat";
 import { useUI } from "../store";
-import ProjectModal from "./ProjectModal";
+import Reveal from "./Reveal";
 
 const projects = projectsData as Project[];
 
@@ -21,7 +21,6 @@ const FILTERS: { key: string; label: string }[] = [
 
 export default function ProjectGallery() {
   const [active, setActive] = useState("all");
-  const [detail, setDetail] = useState<Project | null>(null);
   const { send } = useSendMessage();
   const { openChat } = useUI();
 
@@ -52,8 +51,9 @@ export default function ProjectGallery() {
         </div>
 
         <div className="grid">
-          {shown.map((p) => (
-            <article key={p.id} className="card">
+          {shown.map((p, i) => (
+            <Reveal key={p.id} delay={(i % 3) * 70}>
+            <article className="card">
               <div className="card-badge mono">
                 {p.domain} · {p.agents} agent
               </div>
@@ -66,20 +66,23 @@ export default function ProjectGallery() {
                 ))}
               </div>
               <div className="card-actions">
-                <button className="btn-detail" onClick={() => setDetail(p)}>
-                  <Info size={15} /> Detail
-                </button>
+                <a
+                  className="btn-detail"
+                  href={`/projects/${p.id}.html`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <ExternalLink size={15} /> Detail
+                </a>
                 <button className="btn-ask" onClick={() => askAbout(p)}>
                   <Bot size={15} /> Tanya AI
                 </button>
               </div>
             </article>
+            </Reveal>
           ))}
         </div>
       </div>
-      {detail && (
-        <ProjectModal project={detail} onClose={() => setDetail(null)} onAsk={askAbout} />
-      )}
     </section>
   );
 }

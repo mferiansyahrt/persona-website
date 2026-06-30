@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FIP v2 — Fire Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#08080f;--bg2:#0e0e18;--bg3:#141422;--bg4:#1a1a2c;--bg5:#202036;
+--brd:#1c1c30;--brd2:#282845;--brd3:#363660;
+--t1:#f0f0f8;--t2:#9a9ab8;--t3:#6a6a88;--t4:#484868;
+--blue:#5090ff;--cyan:#22d4e4;--purple:#a882f8;--green:#32d4a4;
+--orange:#f09444;--red:#f06464;--pink:#e474b4;--yellow:#e8cc34;
+--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--r:14px;--rs:10px;--rx:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--orange);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:3px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd)}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:54px;gap:10px}
+.brand{font-weight:800;font-size:13px;color:var(--orange);white-space:nowrap;letter-spacing:-.02em;flex-shrink:0}
+.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 14px;border-radius:var(--rx);font-size:11.5px;font-weight:600;color:var(--t4);cursor:pointer;white-space:nowrap;transition:all .2s;border:none;background:none;font-family:var(--sans);letter-spacing:.01em}
+.tab:hover{color:var(--t2);background:rgba(255,255,255,.03)}
+.tab.on{color:var(--t1);background:rgba(240,148,68,.14)}
+
+/* SECTIONS */
+.sec{display:none;min-height:100vh;padding:72px 0 60px}.sec.on{display:block}
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+
+/* SECTION HEADER */
+.sh{margin-bottom:36px;padding-top:12px}
+.sh-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--orange);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sh-label::before{content:'';width:14px;height:1.5px;background:var(--orange);border-radius:1px}
+.sh-title{font-size:clamp(22px,3.2vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:8px}
+.sh-title em{font-style:normal;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sh-desc{font-size:14px;color:var(--t2);max-width:620px;line-height:1.75}
+
+/* ANIM */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}.rv.v{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}.d4{transition-delay:.24s}
+
+/* HERO */
+.hero-wrap{display:flex;align-items:center;min-height:100vh;padding-top:54px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-18%;left:22%;width:520px;height:520px;background:radial-gradient(circle,rgba(240,148,68,.08),transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-12%;right:12%;width:420px;height:420px;background:radial-gradient(circle,rgba(240,100,100,.05),transparent 70%);pointer-events:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--brd);background:rgba(240,148,68,.05);font-size:10.5px;font-weight:600;color:var(--orange);margin-bottom:22px}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:bk 2s infinite;box-shadow:0 0 8px rgba(240,100,100,.6)}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.35}}
+.hero-wrap h1{font-size:clamp(32px,5.5vw,56px);font-weight:900;letter-spacing:-.04em;line-height:1.06;margin-bottom:16px}
+.hero-wrap h1 em{font-style:normal;background:linear-gradient(135deg,var(--orange),var(--yellow));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-wrap .container>p{font-size:clamp(14px,1.5vw,16px);color:var(--t2);max-width:560px;margin-bottom:28px;line-height:1.8}
+
+/* METRIC GRID */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:32px}
+.mc{padding:20px 16px;border-radius:var(--r);border:1px solid var(--brd);background:var(--bg2);position:relative;overflow:hidden;transition:all .25s}
+.mc:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.mc .gw{position:absolute;top:-30px;right:-30px;width:70px;height:70px;border-radius:50%;filter:blur(32px);opacity:.3}
+.mc .num{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px}
+.mc .lx{font-size:10.5px;color:var(--t3);font-weight:500}
+
+/* TAG */
+.tg{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.t{padding:5px 11px;border-radius:5px;font-size:10.5px;font-weight:600;font-family:var(--mono);border:1px solid var(--brd);background:var(--bg3);color:var(--t2);white-space:nowrap}
+
+/* ARCH LAYER */
+.dc-arch{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:36px}
+.dc-layer{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative;overflow:hidden}
+.dc-layer::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:0 2px 2px 0}
+.dc-layer.l1::before{background:var(--orange)}.dc-layer.l2::before{background:var(--cyan)}.dc-layer.l3::before{background:var(--purple)}.dc-layer.l4::before{background:var(--green)}.dc-layer.l5::before{background:var(--blue)}.dc-layer.l6::before{background:var(--pink)}.dc-layer.l7::before{background:var(--red)}
+.dc-layer h4{font-size:13px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.dc-layer h4 .num-badge{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.dc-layer p{font-size:12.5px;color:var(--t2);line-height:1.7}
+
+/* PLATFORM CARDS */
+.plat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:32px}
+.plat-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden;transition:border-color .2s}
+.plat-card:hover{border-color:var(--brd2)}
+.plat-hdr{padding:16px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--brd)}
+.plat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
+.plat-hdr .plat-name{font-size:14px;font-weight:700}
+.plat-hdr .plat-sub{font-size:10.5px;color:var(--t3);margin-top:1px;font-family:var(--mono)}
+.plat-body{padding:14px 20px 18px}
+.plat-body .item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;color:var(--t2);line-height:1.65}
+.plat-body .item::before{content:'';width:5px;height:5px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.plat-body .item.i-blue::before{background:var(--blue)}.plat-body .item.i-cyan::before{background:var(--cyan)}.plat-body .item.i-green::before{background:var(--green)}.plat-body .item.i-orange::before{background:var(--orange)}.plat-body .item.i-red::before{background:var(--red)}.plat-body .item.i-purple::before{background:var(--purple)}.plat-body .item.i-pink::before{background:var(--pink)}.plat-body .item.i-yellow::before{background:var(--yellow)}
+
+/* CHALLENGE */
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:32px}
+.ch-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative}
+.ch-card h4{font-size:13.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.ch-card h4 .ch-num{font-family:var(--mono);font-size:10px;font-weight:800;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch-card p{font-size:12.5px;color:var(--t2);line-height:1.7}
+.ch-card .ch-example{margin-top:10px;padding:10px 14px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);font-family:var(--mono);font-size:10.5px;color:var(--t3);line-height:1.7;overflow-x:auto;white-space:pre-wrap}
+
+/* FLOW DIAGRAM */
+.flow-row{display:flex;align-items:stretch;gap:0;margin-bottom:32px;overflow-x:auto;padding-bottom:8px}
+.flow-step{flex:1;min-width:130px;text-align:center;position:relative;padding:16px 10px}
+.flow-step .fs-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin:0 auto 8px;border:2px solid var(--brd2);background:var(--bg)}
+.flow-step .fs-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.flow-step .fs-desc{font-size:10px;color:var(--t3);line-height:1.5}
+.flow-step:not(:last-child)::after{content:'';position:absolute;right:-1px;top:30px;width:calc(100% - 30px);height:2px;background:linear-gradient(90deg,transparent,var(--brd2),var(--brd2),transparent);z-index:-1;left:65%}
+
+/* STEP GRID */
+.step-grid{display:grid;grid-template-columns:1fr;gap:0;position:relative}
+.step-grid::before{content:'';position:absolute;left:19px;top:28px;bottom:28px;width:2px;background:linear-gradient(180deg,var(--orange),var(--yellow),var(--purple),var(--green),var(--cyan),var(--blue));border-radius:1px;opacity:.3}
+.step{display:flex;gap:20px;padding:18px 0;position:relative}
+.step-num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;border:2px solid var(--brd2);background:var(--bg);z-index:1}
+.step-body{flex:1;padding-top:4px}
+.step-body h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--t2);line-height:1.7}
+
+/* AGENT/ENGINE CARDS */
+.ctabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px}
+.ctb{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--brd);background:none;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.ctb:hover{color:var(--t2);border-color:var(--brd2)}.ctb.on{color:var(--t1);background:rgba(240,148,68,.12);border-color:rgba(240,148,68,.3)}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px}
+.ac{border:1px solid var(--brd);border-radius:var(--rs);background:var(--bg2);padding:16px 18px;transition:all .2s}
+.ac:hover{border-color:var(--brd2)}
+.ah{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ai{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;font-family:var(--mono)}
+.an{font-size:13px;font-weight:700}.am{font-size:10px;color:var(--t4);margin-top:1px;font-family:var(--mono)}
+.ad{font-size:12px;color:var(--t2);line-height:1.65}
+.am2{margin-top:8px;padding-top:8px;border-top:1px solid var(--brd);display:flex;flex-wrap:wrap;gap:4px}
+.am2 .t{font-size:9.5px;padding:3px 8px}
+
+/* PAGES */
+.pg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.pg-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden}
+.pg-hdr{padding:20px 24px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pg-hdr h3{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.pg-route{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:5px;border:1px solid var(--brd);font-weight:600}
+.pg-body{padding:18px 24px 22px}
+.pg-body>p{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px}
+.pg-feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:6px}
+.pg-feat .fi{padding:8px 12px;border-radius:6px;background:var(--bg);border:1px solid var(--brd);font-size:11.5px;color:var(--t2);display:flex;align-items:center;gap:7px}
+.pg-feat .fi::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.pg-feat .fi.f-blue::before{background:var(--blue)}.pg-feat .fi.f-cyan::before{background:var(--cyan)}.pg-feat .fi.f-green::before{background:var(--green)}.pg-feat .fi.f-orange::before{background:var(--orange)}.pg-feat .fi.f-red::before{background:var(--red)}.pg-feat .fi.f-purple::before{background:var(--purple)}.pg-feat .fi.f-pink::before{background:var(--pink)}.pg-feat .fi.f-yellow::before{background:var(--yellow)}
+
+/* TECH GRID */
+.tg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px;transition:border-color .2s}
+.tc:hover{border-color:var(--brd2)}
+.tc-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.tl{display:flex;flex-direction:column;gap:8px}
+.ti{display:flex;align-items:center;gap:10px;font-size:12px}
+.td{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tn{font-weight:600;flex:1}.tr{font-size:10.5px;color:var(--t4)}
+
+/* FOOTER */
+footer{padding:40px 0 32px;border-top:1px solid var(--brd);text-align:center;font-size:11.5px;color:var(--t4)}
+
+@media(max-width:640px){
+  .nav-in{height:48px;gap:8px}.brand{font-size:11px}
+  .tab{padding:5px 10px;font-size:10.5px}
+  .plat-grid,.ch-grid,.pg-grid,.ag,.tg2{grid-template-columns:1fr}
+  .flow-row{flex-direction:column;align-items:stretch}
+  .flow-step:not(:last-child)::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav><div class="nav-in">
+  <div class="brand">FIP v2</div>
+  <div class="tabs">
+    <button class="tab on" data-s="hero">Overview</button>
+    <button class="tab" data-s="data">Sumber Data</button>
+    <button class="tab" data-s="flow">Alur Pembangunan</button>
+    <button class="tab" data-s="pages">Dashboard</button>
+    <button class="tab" data-s="engines">Engines &amp; Agents</button>
+    <button class="tab" data-s="tech">Tech Stack</button>
+  </div>
+</div></nav>
+
+<!-- ========== HERO ========== -->
+<div class="sec on" id="s-hero">
+  <div class="hero-wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="container">
+      <div class="pill rv"><span class="dot"></span> Karhutla Intelligence &middot; Polda Riau</div>
+      <h1 class="rv d1">Fire Intelligence<br><em>Platform</em></h1>
+      <p class="rv d2">Sistem cerdas pemetaan dan prediksi kebakaran hutan &amp; lahan untuk Provinsi Riau. Menggabungkan data hotspot satelit BMKG, cuaca NASA POWER, konsesi sawit, lahan gambut, dan pemantauan berita real-time menjadi satu pandangan intelijen taktis bagi kepolisian.</p>
+      <div class="tg rv d3">
+        <span class="t">FastAPI</span><span class="t">React 18</span><span class="t">TypeScript</span>
+        <span class="t">PostgreSQL + PostGIS</span><span class="t">Mapbox GL</span>
+        <span class="t">Elasticsearch</span><span class="t">Redis</span><span class="t">DBSCAN</span>
+        <span class="t">Cellular Automata</span><span class="t">GPT-4.1-mini / vLLM</span>
+      </div>
+      <div class="mg rv d4">
+        <div class="mc"><div class="gw" style="background:var(--orange)"></div><div class="num" style="color:var(--orange)">1.076</div><div class="lx">Zona Desa</div></div>
+        <div class="mc"><div class="gw" style="background:var(--yellow)"></div><div class="num" style="color:var(--yellow)">12</div><div class="lx">Kabupaten / Kota</div></div>
+        <div class="mc"><div class="gw" style="background:var(--cyan)"></div><div class="num" style="color:var(--cyan)">6</div><div class="lx">Analytical Engines</div></div>
+        <div class="mc"><div class="gw" style="background:var(--purple)"></div><div class="num" style="color:var(--purple)">2</div><div class="lx">LLM Agents</div></div>
+        <div class="mc"><div class="gw" style="background:var(--green)"></div><div class="num" style="color:var(--green)">H-7&rarr;T+7</div><div class="lx">Window Prediksi</div></div>
+        <div class="mc"><div class="gw" style="background:var(--pink)"></div><div class="num" style="color:var(--pink)">6</div><div class="lx">Sumber Data</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SUMBER DATA ========== -->
+<div class="sec" id="s-data"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Sumber Data</div>
+    <div class="sh-title">Bagaimana data <em>dikumpulkan</em></div>
+    <div class="sh-desc">Platform mengintegrasikan enam sumber data heterogen &mdash; mulai dari satelit BMKG, reanalysis cuaca NASA, konsesi sawit, polygon gambut, hingga indeks berita karhutla. Setiap sumber punya format, frekuensi refresh, dan keterbatasan tersendiri yang harus dinormalisasi.</div>
+  </div>
+
+  <div class="flow-row rv d1">
+    <div class="flow-step"><div class="fs-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">1</div><div class="fs-title" style="color:var(--orange)">Sumber Eksternal</div><div class="fs-desc">BMKG, NASA POWER, BPS, Kemendagri, scraper berita</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">2</div><div class="fs-title" style="color:var(--cyan)">Bronze Layer</div><div class="fs-desc">PostgreSQL raw schema <code>bronze.*</code></div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">3</div><div class="fs-title" style="color:var(--purple)">Silver Aggregate</div><div class="fs-desc">CTE + ST_Union, indeks GiST, geo-distance</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">4</div><div class="fs-title" style="color:var(--green)">Engine Compute</div><div class="fs-desc">DBSCAN, cause rule, intent, spatial assignment</div></div>
+    <div class="flow-step"><div class="fs-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">5</div><div class="fs-title" style="color:var(--blue)">Cache &amp; API</div><div class="fs-desc">Redis multi-tier TTL, FastAPI ResponseEnvelope</div></div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d2">Data yang Dikumpulkan per Sumber</h3>
+  <div class="plat-grid rv d3">
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(240,148,68,.12);color:var(--orange)">BMKG</div>
+        <div><div class="plat-name">Hotspot Sebaran</div><div class="plat-sub">bronze.bmkg_sebaran_hotspot</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-orange">Deteksi titik panas dari satelit NOAA &mdash; refresh tiap 3-6 jam mengikuti orbit pass</div>
+        <div class="item i-cyan">Atribut: lat/lon, confidence level 7/8/9, satelit asal, waktu deteksi, kab/kec/kel</div>
+        <div class="item i-green">Range tanggal dapat di-query, default 7 hari, max lookback 90 hari</div>
+        <div class="item i-red">Tantangan: confidence rendah banyak false-positive, perlu filter threshold sebelum di-cluster</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(34,212,228,.12);color:var(--cyan)">NASA</div>
+        <div><div class="plat-name">POWER Weather</div><div class="plat-sub">kementan.cuaca</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-cyan">Reanalysis cuaca: presipitasi (mm/hari), suhu udara, kelembapan, angin, indeks kekeringan</div>
+        <div class="item i-blue">Resolusi grid &asymp; 0.5&deg; &mdash; di-interpolasi ke centroid desa untuk skor risiko per zona</div>
+        <div class="item i-orange">Tantangan: pipeline NASA bisa lag 1-2 hari, perlu fallback ke nilai histori</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(50,212,164,.12);color:var(--green)">KSAWIT</div>
+        <div><div class="plat-name">Konsesi Sawit</div><div class="plat-sub">kemendagri.oil_palm_concession</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-green">Polygon area perizinan perkebunan sawit di seluruh Riau (HGU, IUP)</div>
+        <div class="item i-purple">Atribut perusahaan: nama, group induk, status aktif/expired</div>
+        <div class="item i-orange">Dipakai engine untuk menetapkan attribusi sumber kebakaran (kategori INDUSTRI)</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(168,130,248,.12);color:var(--purple)">GAMBUT</div>
+        <div><div class="plat-name">Lahan Gambut (WDPA)</div><div class="plat-sub">silver.intersect_kebakaran_v2</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-purple">1.033 feature polygon area gambut sebagai overlay risiko ekstrem</div>
+        <div class="item i-red">Indikator api bawah tanah &mdash; sangat sulit dipadamkan, emisi pekat</div>
+        <div class="item i-orange">Komputasi ratio overlap gambut per zona desa, bobot 8% skor risiko</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(80,144,255,.12);color:var(--blue)">NEWS</div>
+        <div><div class="plat-name">Indeks Berita Karhutla</div><div class="plat-sub">Elasticsearch prod-news-*</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-blue">Artikel scraping karhutla, di-index dengan geolokasi &amp; timestamp</div>
+        <div class="item i-cyan">Pencarian per cluster lewat <code>geo_distance</code> radius default 5 km</div>
+        <div class="item i-purple">Keyword: pembukaan_lahan, industri, alam, masyarakat &rarr; memetakan cause bucket</div>
+        <div class="item i-orange">Lookback 180 hari, max 20 artikel per cluster, sentimen positif/negatif/netral</div>
+      </div>
+    </div>
+
+    <div class="plat-card">
+      <div class="plat-hdr">
+        <div class="plat-icon" style="background:rgba(240,100,100,.12);color:var(--red)">LULC</div>
+        <div><div class="plat-name">Tutupan Lahan &amp; POI</div><div class="plat-sub">kementan.lulc + dbpoi.poi_umum</div></div>
+      </div>
+      <div class="plat-body">
+        <div class="item i-red">11 kelas polygon: perkebunan, pertanian, hutan, belukar, pemukiman, gambut, industri</div>
+        <div class="item i-pink">Priority hierarki untuk attribusi hotspot &mdash; industri menang dari konsesi, dst.</div>
+        <div class="item i-cyan">POI industri (pabrik) di-buffer radius 1 km menjadi polygon kandidat sumber kebakaran</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d3">Tantangan Integrasi Data</h3>
+  <div class="ch-grid rv d4">
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,100,100,.12);color:var(--red)">1</span> Heterogenitas Format Geometri</h4>
+      <p>Hotspot adalah POINT, konsesi POLYGON, simulasi rambatan MULTIPOINT, gambut MULTIPOLYGON. Semua harus disatukan via PostGIS &mdash; ST_Within untuk attribusi, ST_Union untuk agregasi, ST_AsGeoJSON untuk serialisasi.</p>
+      <div class="ch-example">hotspot   &rarr; POINT(lon lat)
+konsesi   &rarr; POLYGON
+gambut    &rarr; MULTIPOLYGON
+rambatan  &rarr; MULTIPOINT (per time_hour)</div>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(240,148,68,.12);color:var(--orange)">2</span> Multi-Row per Kombo</h4>
+      <p>Tabel <code>silver.fire_spread_riau</code> menyimpan banyak baris per (hotspot_id, time_hour). Untuk render 1 MultiPoint utuh, query pakai CTE + <code>ST_Union</code> ber-<code>GROUP BY</code>.</p>
+      <div class="ch-example">WITH spread_agg AS (
+  SELECT hotspot_id, time_hour,
+    ST_AsGeoJSON(ST_Union(geometry))
+  FROM silver.fire_spread_riau
+  GROUP BY hotspot_id, time_hour
+)</div>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span> Sinkronisasi Time Window</h4>
+      <p>Filter PERIODE di dashboard (Hari ini, 7 hari, 30 hari, custom range) harus konsisten di semua endpoint. Helper <code>_normalize_date_range</code> sentralisasi konversi <code>days</code> &harr; <code>date_from/date_to</code> dengan clamp lookback &amp; swap reversed.</p>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(34,212,228,.12);color:var(--cyan)">4</span> LEFT JOIN Bocor ke UI</h4>
+      <p>Hotspot tanpa data simulasi tetap return dari <code>LEFT JOIN</code> dengan <code>frames=[]</code>. Tanpa filter Python, selektor FE tampil &ldquo;HOTSPOT AKTIF 1/1&rdquo; padahal peta kosong. Solusi: post-filter <code>[h for h in groups.values() if h.get("frames")]</code>.</p>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(50,212,164,.12);color:var(--green)">5</span> Cache-Aside Multi-Tier</h4>
+      <p>TTL berbeda per endpoint sesuai tingkat <em>freshness</em>: hotspot 5 menit (data live), cluster 30 menit, news 15 menit, peat overlay 24 jam (statis). Cache key di-versioning per filter signature.</p>
+    </div>
+
+    <div class="ch-card">
+      <h4><span class="ch-num" style="background:rgba(224,116,180,.12);color:var(--pink)">6</span> Snake_case Bocor ke Layar</h4>
+      <p>String yang di-feed LLM mengandung enum mentah seperti <code>lulc_plantation</code>, <code>night_burn_flag</code>. Dipakai mapping <code>_POLYGON_TYPE_ID</code> &amp; <code>_INDICATOR_LABEL_ID</code> di engine untuk humanisasi sebelum render.</p>
+    </div>
+
+  </div>
+
+</div></div>
+
+<!-- ========== ALUR PEMBANGUNAN ========== -->
+<div class="sec" id="s-flow"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Alur Pembangunan</div>
+    <div class="sh-title">Dari satelit ke <em>layar operator</em></div>
+    <div class="sh-desc">Pipeline cache-aside tujuh lapis. Setiap lapisan punya tanggung jawab tunggal dan dapat di-trace via log + Redis introspection.</div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:14px" class="rv d1">Arsitektur Berlapis</h3>
+  <div class="dc-arch rv d1">
+    <div class="dc-layer l1">
+      <h4><span class="num-badge" style="background:rgba(240,148,68,.12);color:var(--orange)">1</span> <span style="color:var(--orange)">Ingest &mdash; Sumber Eksternal</span></h4>
+      <p>Hotspot BMKG, cuaca NASA POWER, konsesi sawit dari Kemendagri, polygon gambut WDPA, dan scraper berita karhutla. Masing-masing punya frekuensi refresh berbeda: hotspot 3-6 jam, cuaca harian, konsesi/gambut statis, berita kontinu.</p>
+    </div>
+    <div class="dc-layer l2">
+      <h4><span class="num-badge" style="background:rgba(34,212,228,.12);color:var(--cyan)">2</span> <span style="color:var(--cyan)">Store &mdash; Bronze &amp; Silver Layer</span></h4>
+      <p>PostgreSQL dengan tiga cluster terpisah per domain (Kementan, Kemendagri, POI). Schema <code>bronze.*</code> menampung data mentah, <code>silver.*</code> menampung agregat dan geometri yang sudah diolah dengan indeks GiST untuk spatial join cepat.</p>
+    </div>
+    <div class="dc-layer l3">
+      <h4><span class="num-badge" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span> <span style="color:var(--purple)">Compute &mdash; Analytical Engines</span></h4>
+      <p>Enam engine berlapis: DBSCAN clusterer, cause rule engine, intent classifier, temporal stats, spatial assignment, cellular automata fire spread. Semua deterministik &mdash; hasil dapat diaudit dan reprodusibel.</p>
+    </div>
+    <div class="dc-layer l4">
+      <h4><span class="num-badge" style="background:rgba(50,212,164,.12);color:var(--green)">4</span> <span style="color:var(--green)">Enrich &mdash; Bukti Berita &amp; Cuaca</span></h4>
+      <p>NewsEvidenceService mencari artikel relevan per cluster lewat <code>geo_distance</code> Elasticsearch. WeatherEvidenceService inject konteks cuaca (kekeringan ekstrem, presipitasi rendah, periode kemarau anomali) untuk grounding narasi LLM.</p>
+    </div>
+    <div class="dc-layer l5">
+      <h4><span class="num-badge" style="background:rgba(80,144,255,.12);color:var(--blue)">5</span> <span style="color:var(--blue)">LLM Synthesis &mdash; Agent Layer (optional)</span></h4>
+      <p>Cluster Intel Agent untuk narasi historis, Prediksi Briefing Agent untuk tactical briefing per zona. Semaphore-gated (max 3 concurrent), timeout 90s. Selalu ada fallback template deterministik &mdash; respons tidak pernah HTTP 500.</p>
+    </div>
+    <div class="dc-layer l6">
+      <h4><span class="num-badge" style="background:rgba(224,116,180,.12);color:var(--pink)">6</span> <span style="color:var(--pink)">Cache &amp; Serve &mdash; Redis + FastAPI</span></h4>
+      <p>Multi-tier TTL per endpoint (hotspot 5 m, cluster 30 m, news 15 m, peat 24 j). Cache key versioned per filter signature. <code>ResponseEnvelope</code> JSON dengan meta info untuk transparansi state ke frontend.</p>
+    </div>
+    <div class="dc-layer l7">
+      <h4><span class="num-badge" style="background:rgba(240,100,100,.12);color:var(--red)">7</span> <span style="color:var(--red)">Render &mdash; Frontend Layer</span></h4>
+      <p>Zustand store sebagai single source of truth, Mapbox GL render geometri (layers, sources, paint), React komponen untuk panel intelijen, chart ECharts untuk timeline historis-prediksi. URL sync untuk shareable view.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;margin:32px 0 14px" class="rv d2">Cara Pembangunan &mdash; Fase per Fase</h3>
+  <div class="step-grid rv d2">
+    <div class="step">
+      <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">1</div>
+      <div class="step-body">
+        <h4 style="color:var(--orange)">Discovery &amp; Schema Reconnaissance</h4>
+        <p>Verifikasi struktur tabel database sebelum coding: tipe kolom, granularity, distribusi nilai. Banyak bug awalnya muncul karena asumsi salah (mis. <code>time_hour</code> varchar &ldquo;T+1&rdquo; bukan integer). Setiap penambahan endpoint diawali query sample data.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--yellow);border-color:rgba(232,204,52,.3)">2</div>
+      <div class="step-body">
+        <h4 style="color:var(--yellow)">Backend Endpoint &amp; SQL First</h4>
+        <p>Tulis SQL dengan CTE + <code>ST_Union</code> + <code>BETWEEN date_from AND date_to</code>, test langsung di DB dulu. Validasi performa (worst-case 90-day query &le; 300 ms) sebelum dipanggil dari FastAPI router.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">3</div>
+      <div class="step-body">
+        <h4 style="color:var(--purple)">Pydantic Schema &amp; ResponseEnvelope</h4>
+        <p>Definisikan DTO Pydantic untuk request &amp; response &mdash; FastAPI auto-generate OpenAPI. Bungkus dalam <code>ResponseEnvelope</code> standar dengan meta info (stale flag, generated_at, total count).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">4</div>
+      <div class="step-body">
+        <h4 style="color:var(--green)">Frontend Service Layer (realApi)</h4>
+        <p>Modul <code>realApi.ts</code> mengisolasi semua HTTP call ke satu tempat. Setiap fungsi terima <code>opts</code> object &amp; signal abort. Mock mode disediakan untuk dev tanpa BE &mdash; toggle via <code>VITE_USE_REAL_API</code>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">5</div>
+      <div class="step-body">
+        <h4 style="color:var(--cyan)">Zustand Store dengan Cache Signature</h4>
+        <p>Store memegang data + loading flag + cache signature per filter window. Re-fetch saat signature berubah, skip kalau sama. Reset animation pointer otomatis ketika list ter-update supaya idx tidak out-of-bounds.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">6</div>
+      <div class="step-body">
+        <h4 style="color:var(--blue)">Mapbox Layer Setup di MapController</h4>
+        <p>Pola epoch-based: setup source + layer sekali per <code>mapStyleEpoch</code>, useEffect kedua update <code>setData</code> berdasarkan state animasi. Layer visibility di-toggle via <code>setLayoutProperty('visibility')</code>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--red);border-color:rgba(240,100,100,.3)">7</div>
+      <div class="step-body">
+        <h4 style="color:var(--red)">QC Iterasi &amp; Polishing</h4>
+        <p>Setiap fitur diuji dengan QC checklist: istilah teknis Indonesia, penanganan empty state, dynamic positioning panel terhadap sidebar, zoom-responsive sizing, tooltip non-popup. Bug deployment dipisah dari bug kode.</p>
+      </div>
+    </div>
+  </div>
+
+</div></div>
+
+<!-- ========== DASHBOARD ========== -->
+<div class="sec" id="s-pages"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Dashboard</div>
+    <div class="sh-title">Dua mode <em>operasi</em></div>
+    <div class="sh-desc">Operator berpindah antara investigasi historis dan antisipasi prediksi lewat satu top-nav. Tata letak <em>map-first</em> &mdash; peta full-screen di belakang, panel kontrol sebagai vertical tab + slide-in.</div>
+  </div>
+
+  <div class="pg-grid rv d1">
+
+    <div class="pg-card">
+      <div class="pg-hdr">
+        <h3 style="color:var(--orange)">Intel Historis</h3>
+        <span class="pg-route" style="color:var(--orange);border-color:rgba(240,148,68,.4);background:rgba(240,148,68,.06)">/spasial</span>
+      </div>
+      <div class="pg-body">
+        <p>Investigasi karhutla yang sudah terjadi &mdash; hotspot harian dikelompokkan menjadi <em>cluster</em>, dilengkapi narasi penyebab berbasis bukti cuaca dan berita. Cocok untuk forensik laporan harian dan briefing pagi.</p>
+        <div class="pg-feat">
+          <div class="fi f-orange">Cluster polygon DBSCAN</div>
+          <div class="fi f-orange">Hotspot point + pulse</div>
+          <div class="fi f-cyan">Filter periode &amp; cause</div>
+          <div class="fi f-cyan">Filter conf &amp; kab/kec</div>
+          <div class="fi f-purple">Timelapse H-7 &rarr; hari ini</div>
+          <div class="fi f-purple">Cuaca time slider</div>
+          <div class="fi f-green">Kartu Intelijen Cluster</div>
+          <div class="fi f-green">Panel Bukti Berita</div>
+          <div class="fi f-blue">News ticker live feed</div>
+          <div class="fi f-blue">Stats strip ringkasan</div>
+          <div class="fi f-red">Export PDF cluster</div>
+          <div class="fi f-red">URL sync shareable</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pg-card">
+      <div class="pg-hdr">
+        <h3 style="color:var(--yellow)">Prediksi Risiko</h3>
+        <span class="pg-route" style="color:var(--yellow);border-color:rgba(232,204,52,.4);background:rgba(232,204,52,.06)">/prediksi</span>
+      </div>
+      <div class="pg-body">
+        <p>Pandangan ke depan &mdash; skor risiko 0-100 per desa, simulasi rambatan api dari hotspot aktif, dan timeline historis-prediksi 14 hari. Cocok untuk perencanaan patroli dan pra-posisi unit pemadam.</p>
+        <div class="pg-feat">
+          <div class="fi f-yellow">Risk Choropleth 1076 zona</div>
+          <div class="fi f-yellow">Hotspot BMKG live</div>
+          <div class="fi f-purple">Overlay Lahan Gambut</div>
+          <div class="fi f-cyan">Animasi Angin windy-style</div>
+          <div class="fi f-red">Simulasi Rambatan Api (CA)</div>
+          <div class="fi f-red">Timeline H-7 &rarr; T+7</div>
+          <div class="fi f-green">Daftar Zona Rawan</div>
+          <div class="fi f-green">Detail skor &amp; kontribusi</div>
+          <div class="fi f-blue">Tactical Briefing (LLM)</div>
+          <div class="fi f-blue">Tren skor 14 hari</div>
+          <div class="fi f-orange">Filter PERIODE sync</div>
+          <div class="fi f-orange">Full View Riau button</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3 style="font-size:14px;font-weight:700;margin:32px 0 14px" class="rv d2">Komponen UI Khas</h3>
+  <div class="dc-arch rv d2">
+    <div class="dc-layer l1">
+      <h4><span class="num-badge" style="background:rgba(240,148,68,.12);color:var(--orange)">A</span> <span style="color:var(--orange)">Map-First Layout dengan Vertical Tab</span></h4>
+      <p>Peta full-screen di z-index 0. Vertical tab kiri (Filter &amp; Layer) dan kanan (Daftar Zona Rawan) dengan slide-in panel. Hover untuk preview, klik untuk pin. Memberi ruang map maksimal saat panel tertutup.</p>
+    </div>
+    <div class="dc-layer l2">
+      <h4><span class="num-badge" style="background:rgba(34,212,228,.12);color:var(--cyan)">B</span> <span style="color:var(--cyan)">Dynamic Positioning Antar Panel</span></h4>
+      <p>Detail Zona Card auto-shift ke kiri ketika Daftar Zona Rawan terbuka. Fire Spread Controls juga geser otomatis berdasar 4 state visibility supaya tidak saling tertimpa.</p>
+    </div>
+    <div class="dc-layer l3">
+      <h4><span class="num-badge" style="background:rgba(168,130,248,.12);color:var(--purple)">C</span> <span style="color:var(--purple)">Animasi Cumulative Frame</span></h4>
+      <p>Simulasi rambatan api render cumulative &mdash; frame T+6 menampilkan gabungan T+1 + T+6, T+12 menambahkan T+12, dst. Loop tak berhenti dengan delay 1200 ms per frame, bisa di-pause manual atau via klik bullet timeline.</p>
+    </div>
+    <div class="dc-layer l4">
+      <h4><span class="num-badge" style="background:rgba(50,212,164,.12);color:var(--green)">D</span> <span style="color:var(--green)">News Ticker Inline di Filter Bar</span></h4>
+      <p>Running text berita karhutla di-inline di FilterBar (basis-full line break) sehingga tidak menyita baris tersendiri saat viewport lebar. Marquee speed proporsional terhadap panjang konten supaya konsisten visual.</p>
+    </div>
+  </div>
+
+</div></div>
+
+<!-- ========== ENGINES & AGENTS ========== -->
+<div class="sec" id="s-engines"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Engines &amp; Agents</div>
+    <div class="sh-title">Enam mesin analitik + <em>dua LLM agent</em></div>
+    <div class="sh-desc">Logika deterministik berbasis rule + statistik temporal &mdash; hasilnya stabil, dapat diaudit, dan tidak bergantung pada inferensi black-box. LLM hanya untuk narasi, selalu di-grounded oleh output engine.</div>
+  </div>
+
+  <div class="ctabs rv d1">
+    <button class="ctb on" data-c="all">Semua (8)</button>
+    <button class="ctb" data-c="engine">Analytical Engines (6)</button>
+    <button class="ctb" data-c="agent">LLM Agents (2)</button>
+  </div>
+
+  <div class="ag rv d2">
+
+    <div class="ac" data-c="engine">
+      <div class="ah">
+        <div class="ai" style="background:rgba(240,148,68,.12);color:var(--orange)">01</div>
+        <div><div class="an">Hotspot DBSCAN Clusterer</div><div class="am">hotspot_dbscan_clusterer.py</div></div>
+      </div>
+      <div class="ad">Mengelompokkan titik hotspot yang berdekatan menjadi satu cluster, lalu menggambar polygon dengan convex hull + buffer.</div>
+      <div class="am2"><span class="t">eps &asymp; 3.3 km</span><span class="t">min_samples = 5</span><span class="t">buffer 1.1 km</span></div>
+    </div>
+
+    <div class="ac" data-c="engine">
+      <div class="ah">
+        <div class="ai" style="background:rgba(232,204,52,.12);color:var(--yellow)">02</div>
+        <div><div class="an">Cause Rule Engine</div><div class="am">cause_rule_engine.py</div></div>
+      </div>
+      <div class="ad">Mengklasifikasikan penyebab kebakaran ke empat kategori: Pembukaan Lahan, Industri, Faktor Alam, Aktivitas Masyarakat berdasar jenis lahan + sinyal cuaca + keyword berita.</div>
+      <div class="am2"><span class="t">4 bucket</span><span class="t">confidence HIGH/MED/LOW</span><span class="t">rationale naratif</span></div>
+    </div>
+
+    <div class="ac" data-c="engine">
+      <div class="ah">
+        <div class="ai" style="background:rgba(168,130,248,.12);color:var(--purple)">03</div>
+        <div><div class="an">Intent Classifier</div><div class="am">intent_classifier.py</div></div>
+      </div>
+      <div class="ad">Weighted scoring tujuh indikator: pembakaran malam, rambatan cepat, pola garis, konsesi aktif, anomali pra-kemarau, sebutan berita, kekeringan ekstrem.</div>
+      <div class="am2"><span class="t">ARSON_SUSPECTED</span><span class="t">ACCIDENTAL</span><span class="t">NATURAL</span></div>
+    </div>
+
+    <div class="ac" data-c="engine">
+      <div class="ah">
+        <div class="ai" style="background:rgba(50,212,164,.12);color:var(--green)">04</div>
+        <div><div class="an">Temporal Stats Engine</div><div class="am">temporal_stats.py</div></div>
+      </div>
+      <div class="ad">Menghitung tren 90 hari per polygon: count, peak date, kemunculan berulang untuk menandai zona <em>recurring</em>.</div>
+      <div class="am2"><span class="t">90-day window</span><span class="t">min_hotspot 5</span><span class="t">min_dates 3</span></div>
+    </div>
+
+    <div class="ac" data-c="engine">
+      <div class="ah">
+        <div class="ai" style="background:rgba(34,212,228,.12);color:var(--cyan)">05</div>
+        <div><div class="an">Spatial Assignment</div><div class="am">spatial_assignment.py</div></div>
+      </div>
+      <div class="ad">Menetapkan setiap hotspot ke polygon prioritas (industri &rarr; konsesi &rarr; lahan terbuka &rarr; gambut) berikut atribut administratif via lookup centroid.</div>
+      <div class="am2"><span class="t">ST_Within</span><span class="t">priority 11 tingkat</span><span class="t">centroid lookup</span></div>
+    </div>
+
+    <div class="ac" data-c="engine">
+      <div class="ah">
+        <div class="ai" style="background:rgba(240,100,100,.12);color:var(--red)">06</div>
+        <div><div class="an">Cellular Automata Fire Spread</div><div class="am">fire_spread_simulator</div></div>
+      </div>
+      <div class="ad">Simulasi rambatan api dari titik aktif dengan memperhitungkan angin, kemiringan lahan, bahan bakar vegetasi, dan kelembapan. MultiPoint GeoJSON per milestone.</div>
+      <div class="am2"><span class="t">T+1 / T+6 / T+12 / T+24</span><span class="t">loop 1200 ms</span><span class="t">cumulative frame</span></div>
+    </div>
+
+    <div class="ac" data-c="agent">
+      <div class="ah">
+        <div class="ai" style="background:rgba(80,144,255,.12);color:var(--blue)">A</div>
+        <div><div class="an">Cluster Intel Agent</div><div class="am">cluster_intel_agent.py</div></div>
+      </div>
+      <div class="ad">Menyusun narasi per cluster di halaman Intel Historis: ringkasan, faktor temporal, dugaan akar masalah, dan rekomendasi aksi. Selalu di-grounded oleh NewsEvidence + WeatherEvidence.</div>
+      <div class="am2"><span class="t">GPT-4.1-mini / vLLM</span><span class="t">semaphore async</span><span class="t">cache 1 jam</span></div>
+    </div>
+
+    <div class="ac" data-c="agent">
+      <div class="ah">
+        <div class="ai" style="background:rgba(224,116,180,.12);color:var(--pink)">B</div>
+        <div><div class="an">Prediksi Briefing Agent</div><div class="am">prediksi_briefing_agent.py</div></div>
+      </div>
+      <div class="ad">Generate empat seksi tactical briefing per zona desa: [RISIKO], [FAKTOR], [PREDIKSI], [REKOMENDASI] dengan fallback template per kategori risiko. Selalu HTTP 200.</div>
+      <div class="am2"><span class="t">deterministic fallback</span><span class="t">timeout 90s</span><span class="t">4-section format</span></div>
+    </div>
+
+  </div>
+
+</div></div>
+
+<!-- ========== TECH STACK ========== -->
+<div class="sec" id="s-tech"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Tech Stack</div>
+    <div class="sh-title">Rincian <em>Teknologi</em></div>
+    <div class="sh-desc">Stack modern, asynchronous-first di setiap lapisan, dengan cache-aside dan abstraksi yang memudahkan migrasi provider LLM atau database.</div>
+  </div>
+
+  <div class="tg2" style="margin-top:8px">
+
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--orange)"><div class="td" style="background:var(--orange);width:7px;height:7px"></div>Backend</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Python 3.11</span><span class="tr">Runtime</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">FastAPI</span><span class="tr">Web framework</span></div>
+        <div class="ti"><div class="td" style="background:var(--yellow)"></div><span class="tn">Uvicorn</span><span class="tr">ASGI server</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">asyncpg</span><span class="tr">PostgreSQL async</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Pydantic v2</span><span class="tr">Schema validation</span></div>
+        <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">Shapely</span><span class="tr">Geometri spasial</span></div>
+        <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">httpx</span><span class="tr">HTTP client async</span></div>
+        <div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Loguru</span><span class="tr">Structured logging</span></div>
+      </div>
+    </div>
+
+    <div class="tc rv d1">
+      <div class="tc-cat" style="color:var(--blue)"><div class="td" style="background:var(--blue);width:7px;height:7px"></div>Frontend</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">React 18</span><span class="tr">UI library</span></div>
+        <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">TypeScript 5</span><span class="tr">Type safety</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Vite 5</span><span class="tr">Build tooling</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Zustand</span><span class="tr">State store</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Mapbox GL</span><span class="tr">Peta interaktif</span></div>
+        <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">TailwindCSS</span><span class="tr">Utility styling</span></div>
+        <div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">ECharts</span><span class="tr">Timeline chart</span></div>
+        <div class="ti"><div class="td" style="background:var(--yellow)"></div><span class="tn">turf.js</span><span class="tr">Spatial helpers</span></div>
+      </div>
+    </div>
+
+    <div class="tc rv d2">
+      <div class="tc-cat" style="color:var(--green)"><div class="td" style="background:var(--green);width:7px;height:7px"></div>Data Layer</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">PostgreSQL + PostGIS</span><span class="tr">3 cluster</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Elasticsearch</span><span class="tr">Indeks berita</span></div>
+        <div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Redis</span><span class="tr">Cache multi-tier</span></div>
+      </div>
+    </div>
+
+    <div class="tc rv d2">
+      <div class="tc-cat" style="color:var(--purple)"><div class="td" style="background:var(--purple);width:7px;height:7px"></div>AI / LLM</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">OpenAI gpt-4.1-mini</span><span class="tr">Primary LLM</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">vLLM (gpt-oss-20b)</span><span class="tr">Fallback lokal</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Semaphore async</span><span class="tr">Max 3 concurrent</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Template fallback</span><span class="tr">Selalu HTTP 200</span></div>
+      </div>
+    </div>
+
+    <div class="tc rv d3">
+      <div class="tc-cat" style="color:var(--cyan)"><div class="td" style="background:var(--cyan);width:7px;height:7px"></div>Geospasial &amp; Algoritma</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">DBSCAN</span><span class="tr">Density clustering</span></div>
+        <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Convex Hull + Buffer</span><span class="tr">Cluster polygon</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">ST_Union / ST_Within</span><span class="tr">PostGIS spasial</span></div>
+        <div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Cellular Automata</span><span class="tr">Fire spread sim</span></div>
+        <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">GeoJSON MultiPoint</span><span class="tr">Frame storage</span></div>
+      </div>
+    </div>
+
+    <div class="tc rv d3">
+      <div class="tc-cat" style="color:var(--red)"><div class="td" style="background:var(--red);width:7px;height:7px"></div>Build &amp; Runtime</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">Docker multi-stage</span><span class="tr">Slim, non-root</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">docker-compose</span><span class="tr">BE + FE orchestration</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">pnpm 9</span><span class="tr">Frontend package mgr</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Node 20</span><span class="tr">Build runtime</span></div>
+      </div>
+    </div>
+
+  </div>
+</div></div>
+
+<footer><div class="container"><p style="color:var(--t2);font-weight:600;margin-bottom:3px">FIP v2 &mdash; Fire Intelligence Platform</p><p>Karhutla Intelligence &middot; Polda Riau &middot; 1.076 Zona Desa &middot; 6 Engines &middot; H-7 &rarr; T+7</p></div></footer>
+
+<script>
+const tabs=document.querySelectorAll('.tab'),secs=document.querySelectorAll('.sec');
+function go(id){
+  tabs.forEach(t=>t.classList.toggle('on',t.dataset.s===id));
+  secs.forEach(s=>{
+    const show=s.id==='s-'+id;
+    s.classList.toggle('on',show);
+    if(show){
+      window.scrollTo({top:0,behavior:'instant'});
+      setTimeout(()=>{
+        s.querySelectorAll('.rv').forEach(r=>r.classList.add('v'));
+      },40);
+    }
+  });
+}
+tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.s)));
+
+const ctbs=document.querySelectorAll('.ctb'),acs=document.querySelectorAll('.ac');
+ctbs.forEach(t=>t.addEventListener('click',()=>{
+  ctbs.forEach(c=>c.classList.remove('on'));
+  t.classList.add('on');
+  const cat=t.dataset.c;
+  acs.forEach(c=>{c.style.display=(cat==='all'||c.dataset.c===cat)?'':'none'});
+}));
+
+document.querySelectorAll('#s-hero .rv').forEach(r=>r.classList.add('v'));
+
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')});
+},{threshold:.06});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

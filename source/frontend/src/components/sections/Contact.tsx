@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Mail, MessageCircle, Linkedin, Copy, Check, Bot } from "lucide-react";
 import SectionHeader from "../SectionHeader";
+import Reveal from "../Reveal";
 import { profile } from "../../data/profile";
 import { useUI } from "../../store";
 
@@ -25,8 +26,9 @@ export default function Contact() {
       <div className="container">
         <SectionHeader eyebrow="MARI TERHUBUNG" title="Contact" />
         <div className="contact-grid">
-          {profile.contact.map((c) => (
-            <div key={c.kind} className="card contact-card">
+          {profile.contact.map((c, i) => (
+            <Reveal key={c.kind} delay={i * 70}>
+            <div className="card contact-card">
               <div className="contact-icon">{ICONS[c.kind]}</div>
               <div className="contact-body">
                 <div className="contact-label mono">{c.label}</div>
@@ -38,6 +40,7 @@ export default function Contact() {
                 {copied === c.value ? <Check size={16} /> : <Copy size={16} />}
               </button>
             </div>
+            </Reveal>
           ))}
         </div>
         <div className="contact-cta">

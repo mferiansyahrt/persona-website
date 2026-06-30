@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Contextual Intelligence — Topic Management Layer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#08080f;--bg2:#0e0e18;--bg3:#141422;--bg4:#1a1a2c;--bg5:#202036;
+--brd:#1c1c30;--brd2:#282845;--brd3:#363660;
+--t1:#f0f0f8;--t2:#9a9ab8;--t3:#6a6a88;--t4:#484868;
+--blue:#5090ff;--cyan:#22d4e4;--purple:#a882f8;--green:#32d4a4;
+--orange:#f09444;--red:#f06464;--pink:#e474b4;--yellow:#e8cc34;
+--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+--r:14px;--rs:10px;--rx:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:3px}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(8,8,15,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd)}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;height:54px;gap:10px}
+.brand{font-weight:800;font-size:13px;color:var(--purple);white-space:nowrap;letter-spacing:-.02em;flex-shrink:0}
+.tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 14px;border-radius:var(--rx);font-size:11.5px;font-weight:600;color:var(--t4);cursor:pointer;white-space:nowrap;transition:all .2s;border:none;background:none;font-family:var(--sans);letter-spacing:.01em}
+.tab:hover{color:var(--t2);background:rgba(255,255,255,.03)}
+.tab.on{color:var(--t1);background:rgba(168,130,248,.14)}
+
+/* SECTIONS */
+.sec{display:none;min-height:100vh;padding:72px 0 60px}.sec.on{display:block}
+.container{max-width:1100px;margin:0 auto;padding:0 28px}
+
+/* SECTION HEADER */
+.sh{margin-bottom:36px;padding-top:12px}
+.sh-label{font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--purple);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.sh-label::before{content:'';width:14px;height:1.5px;background:var(--purple);border-radius:1px}
+.sh-title{font-size:clamp(22px,3.2vw,32px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:8px}
+.sh-title em{font-style:normal;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sh-desc{font-size:14px;color:var(--t2);max-width:680px;line-height:1.75}
+
+/* ANIM */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}.rv.v{opacity:1;transform:none}
+.d1{transition-delay:.06s}.d2{transition-delay:.12s}.d3{transition-delay:.18s}.d4{transition-delay:.24s}
+
+/* HERO */
+.hero-wrap{display:flex;align-items:center;min-height:100vh;padding-top:54px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-18%;left:22%;width:520px;height:520px;background:radial-gradient(circle,rgba(168,130,248,.07),transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-12%;right:12%;width:420px;height:420px;background:radial-gradient(circle,rgba(34,212,228,.05),transparent 70%);pointer-events:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--brd);background:rgba(168,130,248,.05);font-size:10.5px;font-weight:600;color:var(--purple);margin-bottom:22px}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:bk 2s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-wrap h1{font-size:clamp(32px,5.5vw,56px);font-weight:900;letter-spacing:-.04em;line-height:1.06;margin-bottom:16px}
+.hero-wrap h1 em{font-style:normal;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-wrap>div>p{font-size:clamp(14px,1.5vw,16px);color:var(--t2);max-width:600px;margin-bottom:28px;line-height:1.8}
+
+/* CONTEXT BANNER */
+.context-banner{padding:14px 20px;border-radius:var(--rs);border:1px solid var(--brd);background:linear-gradient(135deg,rgba(168,130,248,.06),rgba(34,212,228,.04));margin-bottom:28px;display:flex;align-items:center;gap:14px}
+.context-banner .cb-icon{width:30px;height:30px;border-radius:8px;background:rgba(168,130,248,.15);color:var(--purple);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.context-banner .cb-text{font-size:12px;color:var(--t2);line-height:1.6}
+.context-banner .cb-text b{color:var(--t1);font-weight:700}
+
+/* METRIC GRID */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:32px}
+.mc{padding:20px 16px;border-radius:var(--r);border:1px solid var(--brd);background:var(--bg2);position:relative;overflow:hidden;transition:all .25s}
+.mc:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.mc .gw{position:absolute;top:-30px;right:-30px;width:70px;height:70px;border-radius:50%;filter:blur(32px);opacity:.3}
+.mc .num{font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:2px}
+.mc .lx{font-size:10.5px;color:var(--t3);font-weight:500}
+
+/* TAG */
+.tg{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.t{padding:5px 11px;border-radius:5px;font-size:10.5px;font-weight:600;font-family:var(--mono);border:1px solid var(--brd);background:var(--bg3);color:var(--t2);white-space:nowrap}
+
+/* DIAGRAM IMAGE */
+.diagram-wrap{margin:24px 0 32px;border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px;overflow:hidden}
+.diagram-wrap img{width:100%;height:auto;border-radius:var(--rs);background:#fff;display:block}
+.diagram-caption{font-size:11.5px;color:var(--t3);margin-top:12px;text-align:center;font-style:italic;line-height:1.6}
+
+/* LAYER ARCH */
+.dc-arch{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:36px}
+.dc-layer{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative;overflow:hidden}
+.dc-layer::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:0 2px 2px 0}
+.dc-layer.l1::before{background:var(--blue)}.dc-layer.l2::before{background:var(--cyan)}.dc-layer.l3::before{background:var(--purple)}.dc-layer.l4::before{background:var(--green)}.dc-layer.l5::before{background:var(--orange)}
+.dc-layer h4{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.dc-layer h4 .num-badge{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.dc-layer p{font-size:12.5px;color:var(--t2);line-height:1.7}
+.dc-layer .layer-meta{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.dc-layer .meta-pill{padding:3px 9px;border-radius:4px;font-size:10px;font-weight:600;font-family:var(--mono);background:var(--bg3);color:var(--t3);border:1px solid var(--brd)}
+
+/* FLOW DIAGRAM */
+.flow-row{display:flex;align-items:stretch;gap:0;margin-bottom:32px;overflow-x:auto;padding-bottom:8px}
+.flow-step{flex:1;min-width:130px;text-align:center;position:relative;padding:16px 10px}
+.flow-step .fs-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin:0 auto 8px;border:2px solid var(--brd2)}
+.flow-step .fs-title{font-size:11px;font-weight:700;margin-bottom:3px}
+.flow-step .fs-desc{font-size:10px;color:var(--t3);line-height:1.5}
+.flow-step:not(:last-child)::after{content:'';position:absolute;right:-1px;top:30px;width:calc(100% - 30px);height:2px;background:linear-gradient(90deg,transparent,var(--brd2),var(--brd2),transparent);z-index:-1;left:65%}
+
+/* PIPELINE TABS (Tahap A / B) */
+.pipe-tabs{display:flex;gap:6px;margin-bottom:20px}
+.pipe-tab{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid var(--brd);background:none;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:all .2s}
+.pipe-tab:hover{color:var(--t2);border-color:var(--brd2)}
+.pipe-tab.on{color:var(--t1);background:rgba(168,130,248,.12);border-color:rgba(168,130,248,.35)}
+.pipe-content{display:none}.pipe-content.on{display:block}
+
+/* STEP GRID */
+.step-grid{display:grid;grid-template-columns:1fr;gap:0;position:relative}
+.step-grid::before{content:'';position:absolute;left:19px;top:28px;bottom:28px;width:2px;background:linear-gradient(180deg,var(--purple),var(--cyan),var(--blue),var(--green),var(--orange));border-radius:1px;opacity:.3}
+.step{display:flex;gap:20px;padding:18px 0;position:relative}
+.step-num{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;border:2px solid var(--brd2);background:var(--bg);z-index:1}
+.step-body{flex:1;padding-top:4px}
+.step-body h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--t2);line-height:1.7}
+.step-body .step-meta{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
+.step-body .step-meta .mp{padding:3px 9px;border-radius:4px;font-size:10px;font-weight:600;font-family:var(--mono);border:1px solid var(--brd);background:var(--bg2);color:var(--t3)}
+
+/* COMPONENT CARDS */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:24px}
+.comp-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden;transition:border-color .2s}
+.comp-card:hover{border-color:var(--brd2)}
+.comp-hdr{padding:16px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--brd)}
+.comp-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.comp-hdr .comp-name{font-size:14px;font-weight:700}
+.comp-hdr .comp-sub{font-size:10.5px;color:var(--t3);margin-top:1px;font-family:var(--mono)}
+.comp-body{padding:14px 20px 18px}
+.comp-body .item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;color:var(--t2);line-height:1.65}
+.comp-body .item::before{content:'';width:5px;height:5px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.comp-body .item.i-blue::before{background:var(--blue)}.comp-body .item.i-cyan::before{background:var(--cyan)}.comp-body .item.i-green::before{background:var(--green)}.comp-body .item.i-orange::before{background:var(--orange)}.comp-body .item.i-red::before{background:var(--red)}.comp-body .item.i-purple::before{background:var(--purple)}.comp-body .item.i-pink::before{background:var(--pink)}
+
+/* AGENT CARDS */
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ac{border:1px solid var(--brd);border-radius:var(--rs);background:var(--bg2);padding:18px 20px;transition:all .2s}
+.ac:hover{border-color:var(--brd2)}
+.ah{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ai{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.an{font-size:13.5px;font-weight:700}.am{font-size:10px;color:var(--t4);margin-top:2px;font-family:var(--mono)}
+.ad{font-size:12px;color:var(--t2);line-height:1.7}
+.ac .ag-meta{margin-top:10px;padding-top:10px;border-top:1px solid var(--brd);font-size:11px;color:var(--t3);line-height:1.6}
+.ac .ag-meta b{color:var(--t2);font-weight:600}
+
+/* ISSUE TYPE CARDS */
+.issue-types{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:20px 0}
+.it-card{border:1px solid var(--brd);border-radius:var(--rs);background:var(--bg2);padding:18px 20px;position:relative;overflow:hidden}
+.it-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px}
+.it-card.t-issue::before{background:var(--blue)}
+.it-card.t-framing::before{background:var(--orange)}
+.it-card.t-narrative::before{background:var(--purple)}
+.it-hdr{font-size:14px;font-weight:800;margin-bottom:8px;font-family:var(--mono);text-transform:lowercase}
+.it-card.t-issue .it-hdr{color:var(--blue)}
+.it-card.t-framing .it-hdr{color:var(--orange)}
+.it-card.t-narrative .it-hdr{color:var(--purple)}
+.it-desc{font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:12px}
+.it-example{padding:10px 12px;border-radius:var(--rx);background:var(--bg);border:1px solid var(--brd);font-size:11px;color:var(--t3);line-height:1.6;font-family:var(--mono)}
+.it-example b{display:block;color:var(--t2);margin-bottom:4px;font-family:var(--sans);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+
+/* JSON BLOCK */
+.json-block{padding:16px 18px;border-radius:var(--rs);background:var(--bg);border:1px solid var(--brd);font-family:var(--mono);font-size:11px;color:var(--t2);line-height:1.7;overflow-x:auto;white-space:pre;margin-bottom:14px}
+.json-block .jk{color:var(--cyan)}
+.json-block .js{color:var(--green)}
+.json-block .jn{color:var(--orange)}
+.json-block .jc{color:var(--t4);font-style:italic}
+
+/* SETTINGS TABLE */
+.settings-table{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);overflow:hidden;margin-bottom:14px}
+.st-row{display:grid;grid-template-columns:280px 80px 1fr;padding:12px 18px;border-bottom:1px solid var(--brd);gap:14px;align-items:center;font-size:12px}
+.st-row:last-child{border-bottom:none}
+.st-row.head{background:var(--bg3);font-weight:700;color:var(--t1);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.st-row .st-k{font-family:var(--mono);font-size:11px;color:var(--t1);font-weight:600}
+.st-row .st-v{font-family:var(--mono);font-size:11px;color:var(--cyan);font-weight:600}
+.st-row .st-d{color:var(--t2);line-height:1.55}
+
+/* DEPLOYMENT BOX */
+.deploy-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+@media(max-width:768px){.deploy-grid{grid-template-columns:1fr}}
+.deploy-box{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px 22px;position:relative;overflow:hidden}
+.deploy-box::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:50%;filter:blur(32px);opacity:.3}
+.deploy-box.b1::before{background:var(--blue)}
+.deploy-box.b2::before{background:var(--green)}
+.deploy-box h3{font-size:14px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.deploy-box h3 .db-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.deploy-box .db-sub{font-size:11px;color:var(--t3);margin-bottom:14px;font-family:var(--mono)}
+.deploy-box ul{list-style:none}
+.deploy-box ul li{padding:6px 0;font-size:12px;color:var(--t2);line-height:1.6;display:flex;gap:8px}
+.deploy-box ul li::before{content:'→';color:var(--t4);font-family:var(--mono);flex-shrink:0}
+
+/* CODE BLOCK */
+.code-block{padding:14px 18px;border-radius:var(--rs);background:#040408;border:1px solid var(--brd);font-family:var(--mono);font-size:11.5px;color:var(--green);line-height:1.7;overflow-x:auto;white-space:pre;margin:12px 0}
+.code-block .cc{color:var(--t4)}
+.code-block .ck{color:var(--purple)}
+.code-block .cs{color:var(--cyan)}
+
+/* TECH */
+.tg2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tc{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px;transition:border-color .2s}
+.tc:hover{border-color:var(--brd2)}
+.tc-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.tl{display:flex;flex-direction:column;gap:8px}
+.ti{display:flex;align-items:center;gap:10px;font-size:12px}
+.td{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tn{font-weight:600;flex:1}.tr{font-size:10.5px;color:var(--t4)}
+
+/* FEATURE CARDS */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px}
+.feat-card{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg2);padding:20px;transition:all .2s}
+.feat-card:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.feat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;margin-bottom:14px}
+.feat-card h4{font-size:14px;font-weight:700;margin-bottom:6px}
+.feat-card p{font-size:12.5px;color:var(--t2);line-height:1.7}
+
+/* CHALLENGE / KEY CONCEPT BOX */
+.kc-box{border-left:3px solid var(--cyan);background:rgba(34,212,228,.04);padding:14px 18px;border-radius:0 var(--rs) var(--rs) 0;margin-bottom:14px;font-size:12.5px;color:var(--t2);line-height:1.75}
+.kc-box b{color:var(--cyan);font-weight:700}
+.kc-box.warn{border-color:var(--orange);background:rgba(240,148,68,.04)}
+.kc-box.warn b{color:var(--orange)}
+.kc-box.ok{border-color:var(--green);background:rgba(50,212,164,.04)}
+.kc-box.ok b{color:var(--green)}
+
+/* FOOTER */
+footer{padding:40px 0 32px;border-top:1px solid var(--brd);text-align:center;font-size:11.5px;color:var(--t4)}
+
+@media(max-width:640px){
+  .nav-in{height:48px;gap:8px}.brand{font-size:11px}
+  .tab{padding:5px 10px;font-size:10.5px}
+  .comp-grid,.feat-grid,.ag{grid-template-columns:1fr}
+  .tg2{grid-template-columns:1fr}
+  .flow-row{flex-direction:column;align-items:stretch}
+  .flow-step:not(:last-child)::after{display:none}
+  .st-row{grid-template-columns:1fr;gap:4px}
+  .st-row.head{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav><div class="nav-in">
+  <div class="brand">CONTEXTUAL INTELLIGENCE</div>
+  <div class="tabs">
+    <button class="tab on" data-s="hero">Overview</button>
+    <button class="tab" data-s="arch">Architecture</button>
+    <button class="tab" data-s="pipeline">Pipeline</button>
+    <button class="tab" data-s="agents">Agents</button>
+    <button class="tab" data-s="features">Features</button>
+    <button class="tab" data-s="build">Build & Deploy</button>
+    <button class="tab" data-s="tech">Tech Stack</button>
+  </div>
+</div></nav>
+
+<!-- ========== HERO / OVERVIEW ========== -->
+<div class="sec on" id="s-hero">
+  <div class="hero-wrap">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="container">
+      <div class="pill rv"><span class="dot"></span> Topic Management Layer · ACIS</div>
+      <h1 class="rv d1">Contextual<br><em>Intelligence Engine</em></h1>
+      <p class="rv d2">A streaming pipeline that takes a single anchor post from Kafka, enriches it with semantically related posts across social media + news, then extracts events and clusters them into umbrella issues — classifying each as <b style="color:var(--blue)">issue</b>, <b style="color:var(--orange)">framing</b>, or <b style="color:var(--purple)">narrative</b>.</p>
+      <div class="tg rv d3">
+        <span class="t">Python</span><span class="t">AsyncIO</span><span class="t">FastAPI</span>
+        <span class="t">Kafka</span><span class="t">Elasticsearch</span><span class="t">Qdrant</span>
+        <span class="t">vLLM Qwen3.5-9B</span><span class="t">APScheduler</span>
+      </div>
+      <div class="mg rv d4">
+        <div class="mc"><div class="gw" style="background:var(--purple)"></div><div class="num" style="color:var(--purple)">2</div><div class="lx">Pipeline Stages</div></div>
+        <div class="mc"><div class="gw" style="background:var(--cyan)"></div><div class="num" style="color:var(--cyan)">380</div><div class="lx">Tag Centroids</div></div>
+        <div class="mc"><div class="gw" style="background:var(--blue)"></div><div class="num" style="color:var(--blue)">2</div><div class="lx">LLM Agents</div></div>
+        <div class="mc"><div class="gw" style="background:var(--green)"></div><div class="num" style="color:var(--green)">15</div><div class="lx">Concurrent / Worker</div></div>
+        <div class="mc"><div class="gw" style="background:var(--orange)"></div><div class="num" style="color:var(--orange)">3</div><div class="lx">Issue Types</div></div>
+        <div class="mc"><div class="gw" style="background:var(--pink)"></div><div class="num" style="color:var(--pink)">12</div><div class="lx">Platforms Handled</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ARCHITECTURE ========== -->
+<div class="sec" id="s-arch"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">System Architecture</div>
+    <div class="sh-title">Position in the <em>Adaptive Crawling System</em></div>
+    <div class="sh-desc">Contextual Intelligence sits at the <b style="color:var(--purple)">Topic Management</b> layer of the ACIS pipeline. The Lifecycle Engine (upstream) decides which keywords/topics to crawl and at what cadence; the crawler harvests posts and publishes anchor signals; this engine then transforms each anchor into a coherent stream of events and issues.</div>
+  </div>
+
+  <div class="context-banner rv d1">
+    <div class="cb-icon">i</div>
+    <div class="cb-text">The diagram below shows the full ACIS crawler job flow. <b>Contextual Intelligence operates at the Topic Management stage</b> — between the Crawl Worker (publishing anchor signals to Kafka) and downstream issue consumers.</div>
+  </div>
+
+  <div class="diagram-wrap rv d2">
+    <img src="flow_fix.png" alt="ACIS Crawler Job Flow Diagram">
+    <div class="diagram-caption">ACIS Crawler Job-Flow — full pipeline from crawler scheduling to issue detection. Contextual Intelligence consumes anchor messages from the Crawl Worker output and feeds enriched issues downstream.</div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:32px 0 14px" class="rv d2">Layered Architecture (5 Layers)</h3>
+  <div class="dc-arch rv d2">
+    <div class="dc-layer l1">
+      <h4><span class="num-badge" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span> <span style="color:var(--blue)">Input — Kafka Anchor Stream</span></h4>
+      <p>Each input is exactly one post + a <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">_metadata</code> envelope (object id, client id, platform, lifecycle state from the upstream Lifecycle Engine, plus a query hint). The schema-discriminator routes the payload to either the <b>socmed</b> or <b>news</b> normalizer based on the platform field. Schema discrimination handles 12 platforms across 2 source types.</p>
+      <div class="layer-meta">
+        <span class="meta-pill">Kafka topic: anchor input (TBD)</span>
+        <span class="meta-pill">12 platforms</span>
+        <span class="meta-pill">2 schemas: socmed / news</span>
+      </div>
+    </div>
+    <div class="dc-layer l2">
+      <h4><span class="num-badge" style="background:rgba(34,212,228,.12);color:var(--cyan)">2</span> <span style="color:var(--cyan)">Tahap A — Context Retrieval</span></h4>
+      <p>Single post → enriched pool. Embeds the anchor (eBdesk 1024-dim), looks up top-K matching tag centroids in Qdrant (dual-node failover), then retrieves up to 20 related posts from Elasticsearch (read-only — both <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">prod-social-media-2026*</code> and <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">prod-news-2026*</code>). A semantic relevance guard filters out unrelated noise.</p>
+      <div class="layer-meta">
+        <span class="meta-pill">Qdrant kNN</span>
+        <span class="meta-pill">ES 81 multimatch</span>
+        <span class="meta-pill">cosine guard ≥ threshold</span>
+        <span class="meta-pill">TRY 2 fallback</span>
+      </div>
+    </div>
+    <div class="dc-layer l3">
+      <h4><span class="num-badge" style="background:rgba(168,130,248,.12);color:var(--purple)">3</span> <span style="color:var(--purple)">Tahap B — Event/Issue Pipeline</span></h4>
+      <p>EventExtractor LLM converts the post pool into structured events (label, narrative, entities, claims, location, sentiment). Events are cross-batch deduped (cosine), gate-checked (3 rules), and matched against existing issues via kNN. Each event becomes ATTACH (to an existing issue), WAIT, or FORM_NEW. New issues are labeled and classified by the ContextLabeler agent.</p>
+      <div class="layer-meta">
+        <span class="meta-pill">EventExtractor LLM</span>
+        <span class="meta-pill">cosine dedup</span>
+        <span class="meta-pill">3-rule gate</span>
+        <span class="meta-pill">ES 51 kNN</span>
+        <span class="meta-pill">ATTACH / WAIT / FORM_NEW</span>
+      </div>
+    </div>
+    <div class="dc-layer l4">
+      <h4><span class="num-badge" style="background:rgba(50,212,164,.12);color:var(--green)">4</span> <span style="color:var(--green)">Storage — Elasticsearch 51</span></h4>
+      <p>Events and issues are persisted to dedicated indices. The <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">acis_issues</code> index uses native dense_vector + cosine kNN search on the issue centroid, making issue clustering scalable across millions of issues without an external vector store.</p>
+      <div class="layer-meta">
+        <span class="meta-pill">acis_events (per event)</span>
+        <span class="meta-pill">acis_issues (centroid + meta)</span>
+        <span class="meta-pill">native kNN search</span>
+      </div>
+    </div>
+    <div class="dc-layer l5">
+      <h4><span class="num-badge" style="background:rgba(240,148,68,.12);color:var(--orange)">5</span> <span style="color:var(--orange)">Output — Kafka Result Stream</span></h4>
+      <p>For each anchor message processed, the engine publishes a single result payload to <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">acis-contextual-intelligence-result</code>. The payload includes the formed/attached issues with their <b>issue_type</b> classification, dominant narrative, entity signature, and event linkages. Downstream consumers (analytics, dashboards) subscribe directly.</p>
+      <div class="layer-meta">
+        <span class="meta-pill">Kafka: acis-contextual-intelligence-result</span>
+        <span class="meta-pill">at-least-once delivery</span>
+        <span class="meta-pill">prefix-commit per partition</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:32px 0 14px" class="rv d3">End-to-End Data Flow</h3>
+  <div class="flow-row rv d3">
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--blue);border-color:rgba(80,144,255,.3)">1</div>
+      <div class="fs-title" style="color:var(--blue)">Kafka Anchor</div>
+      <div class="fs-desc">1 post + _metadata envelope from upstream crawler</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--cyan);border-color:rgba(34,212,228,.3)">2</div>
+      <div class="fs-title" style="color:var(--cyan)">Tahap A</div>
+      <div class="fs-desc">embed → Qdrant tag select → ES retrieve → relevance guard</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--purple);border-color:rgba(168,130,248,.3)">3</div>
+      <div class="fs-title" style="color:var(--purple)">Tahap B</div>
+      <div class="fs-desc">LLM extract events → gate → kNN similar issues → decide</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--orange);border-color:rgba(240,148,68,.3)">4</div>
+      <div class="fs-title" style="color:var(--orange)">Classify</div>
+      <div class="fs-desc">ContextLabeler tags issue_type (issue/framing/narrative)</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="color:var(--green);border-color:rgba(50,212,164,.3)">5</div>
+      <div class="fs-title" style="color:var(--green)">Publish</div>
+      <div class="fs-desc">Result → Kafka topic + ES persisted</div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== PIPELINE DETAIL ========== -->
+<div class="sec" id="s-pipeline"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Pipeline Stages</div>
+    <div class="sh-title">From <em>Anchor Post</em> to <em>Classified Issues</em></div>
+    <div class="sh-desc">Two stages: <b>Tahap A (Context Retrieval)</b> takes one post and expands it into a pool of semantically related posts. <b>Tahap B (Event/Issue Pipeline)</b> turns that pool into structured events, then clusters them under umbrella issues.</div>
+  </div>
+
+  <div class="pipe-tabs rv d1">
+    <button class="pipe-tab on" data-p="a">Tahap A — Context Retrieval</button>
+    <button class="pipe-tab" data-p="b">Tahap B — Event/Issue Pipeline</button>
+  </div>
+
+  <!-- TAHAP A CONTENT -->
+  <div class="pipe-content on" data-p="a">
+    <div class="kc-box rv d2">
+      <b>Why retrieve more posts?</b> A single anchor post is rarely enough to form a meaningful issue. To detect actual events (need ≥3 events from multiple platforms with shared entities), the engine first expands the context — finds posts about the same topic across both social media and news, within a 24-hour window.
+    </div>
+
+    <div class="step-grid rv d2">
+      <div class="step">
+        <div class="step-num" style="color:var(--purple);border-color:rgba(168,130,248,.5);background:rgba(168,130,248,.05)">1</div>
+        <div class="step-body">
+          <h4>Schema Discrimination & Anchor Normalization</h4>
+          <p>The <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">_metadata.platform</code> field routes the raw Kafka payload to either the socmed or news normalizer. Each schema knows its own field layout — Twitter <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">full_text</code>, news <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">title+content</code>, etc. — and produces a unified <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">UnifiedAnchor</code> object. A unified date normalizer handles four input formats (Twitter, News ES, ISO8601, unix epoch).</p>
+          <div class="step-meta"><span class="mp">SOCMED_PLATFORMS = 8</span><span class="mp">NEWS_PLATFORMS = 4</span><span class="mp">4 date formats</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--cyan);border-color:rgba(34,212,228,.5);background:rgba(34,212,228,.05)">2</div>
+        <div class="step-body">
+          <h4>Anchor Embedding</h4>
+          <p>The anchor text (title + content) is embedded via the eBdesk API (1024-dim, L2-normalized). The same vector is reused later for relevance filtering — saving one API call per anchor.</p>
+          <div class="step-meta"><span class="mp">eBdesk v1</span><span class="mp">dim=1024</span><span class="mp">L2 normalized</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--blue);border-color:rgba(80,144,255,.5);background:rgba(80,144,255,.05)">3</div>
+        <div class="step-body">
+          <h4>Tag Centroid Selection (Qdrant)</h4>
+          <p>Instead of feeding 200+ raw <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">media_tags</code> to an LLM, the system pre-computes a <b>centroid embedding per canonical tag</b>: take 50 posts tagged with this canonical → embed batched → mean → L2 normalize. At runtime: cosine search of the anchor vector vs all centroids → top-2 best-matching tags. Centroids refresh daily at 02:00 WIB. Tag canonical merge (lowercase) handles case variants like <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">CYCLOPS</code> + <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">cyclops</code> → one canonical.</p>
+          <div class="step-meta"><span class="mp">Qdrant dual-node</span><span class="mp">380 centroids</span><span class="mp">top_k = 2</span><span class="mp">failover try-right-then-left</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--green);border-color:rgba(50,212,164,.5);background:rgba(50,212,164,.05)">4</div>
+        <div class="step-body">
+          <h4>Elasticsearch Retrieval (TRY 1 + Fallback)</h4>
+          <p>Query both <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">prod-social-media-2026*</code> and <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">prod-news-2026*</code> with: multimatch on text fields (boosted), filter on the selected tag variants, 24-hour window. Returns up to 20 hits per index. If TRY 1 returns 0 hits, fallback TRY 2 drops the <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">media_tags</code> filter and re-queries with just multimatch — ensures retrieval never returns empty when the topic is fresh and lacks tag coverage.</p>
+          <div class="step-meta"><span class="mp">ES 81 (10.12.1.80)</span><span class="mp">multimatch + filter</span><span class="mp">24h window</span><span class="mp">TRY 2 graceful fallback</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.5);background:rgba(240,148,68,.05)">5</div>
+        <div class="step-body">
+          <h4>Semantic Relevance Guard</h4>
+          <p>Multimatch alone returns lexical hits, not semantic matches. The guard batched-embeds all retrieved posts, computes cosine vs the anchor vector, and keeps only posts ≥ threshold (default 0.40, tunable). One batched embedding call (not N individual calls) keeps latency low — eBdesk supports list-of-strings input natively.</p>
+          <div class="step-meta"><span class="mp">batched embed</span><span class="mp">cosine threshold tunable</span><span class="mp">anchor de-dup</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--pink);border-color:rgba(228,116,180,.5);background:rgba(228,116,180,.05)">6</div>
+        <div class="step-body">
+          <h4>Build Pool</h4>
+          <p>Final output of Tahap A: <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">pool = [anchor] + relevant_retrieved</code>, capped at 30 posts. This pool feeds Tahap B as the input batch.</p>
+          <div class="step-meta"><span class="mp">anchor always included</span><span class="mp">MAX_POOL = 30</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAHAP B CONTENT -->
+  <div class="pipe-content" data-p="b">
+    <div class="kc-box rv d2">
+      <b>From posts to issues.</b> The pool of posts is converted to structured events by an LLM. Events are then deduped, gate-checked (count, shared entities, platform diversity), and either ATTACHED to existing issues or used to FORM_NEW umbrella issues.
+    </div>
+
+    <div class="step-grid rv d2">
+      <div class="step">
+        <div class="step-num" style="color:var(--purple);border-color:rgba(168,130,248,.5);background:rgba(168,130,248,.05)">1</div>
+        <div class="step-body">
+          <h4>Event Extraction (LLM)</h4>
+          <p>Pool is split into batches (size 6 default). Each batch goes to the <b>EventExtractor</b> agent — a JSON-mode LLM that distills posts into structured events: <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">event_label</code>, <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">narrative_frame</code>, <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">entities</code>, <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">claims</code>, <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">location</code>, <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">sentiment</code>, <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">source_posts</code>. The prompt explicitly distinguishes events from opinions (single-sentence reactions → skipped).</p>
+          <div class="step-meta"><span class="mp">JSON mode</span><span class="mp">pydantic validated</span><span class="mp">batch size = 6</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--cyan);border-color:rgba(34,212,228,.5);background:rgba(34,212,228,.05)">2</div>
+        <div class="step-body">
+          <h4>Cross-Batch Dedup</h4>
+          <p>Each event is embedded; cosine similarity ≥ 0.85 merges duplicates across batches. The merged event keeps source_posts from all contributing duplicates so downstream traceability is preserved.</p>
+          <div class="step-meta"><span class="mp">cosine threshold = 0.85</span><span class="mp">union source_posts</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--blue);border-color:rgba(80,144,255,.5);background:rgba(80,144,255,.05)">3</div>
+        <div class="step-body">
+          <h4>Gate Check (3 Rules)</h4>
+          <p>An issue forms only when the event cluster meets all three rules:<br>
+            <b style="color:var(--blue)">count</b> ≥ N (default 2-3) — enough events to constitute a topic<br>
+            <b style="color:var(--blue)">shared_entity</b> ≥ 1 — at least one entity appears in ≥ 2 events<br>
+            <b style="color:var(--blue)">platforms</b> ≥ 2 — multi-platform coverage (avoid single-source bias)</p>
+          <p>All thresholds are tunable via environment variables. The gate prevents "issue formation" from a single isolated post.</p>
+          <div class="step-meta"><span class="mp">tunable per env</span><span class="mp">diagnose object returned</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--green);border-color:rgba(50,212,164,.5);background:rgba(50,212,164,.05)">4</div>
+        <div class="step-body">
+          <h4>Similarity Search vs Existing Issues</h4>
+          <p>Each event vector is queried against <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">acis_issues</code> in Elasticsearch (native dense_vector kNN, top-K=2, cosine similarity). The query is scoped to the same <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">object_id</code> and <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">client_id</code> — issues are tenant-isolated. Score determines the next action:</p>
+          <p>≥ 0.70 → <b style="color:var(--green)">ATTACH</b> &nbsp;·&nbsp; 0.50-0.70 → <b style="color:var(--orange)">WAIT</b> &nbsp;·&nbsp; &lt; 0.50 / empty → <b style="color:var(--purple)">FORM_NEW</b></p>
+          <div class="step-meta"><span class="mp">ES native kNN</span><span class="mp">tenant-scoped</span><span class="mp">2 thresholds</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.5);background:rgba(240,148,68,.05)">5</div>
+        <div class="step-body">
+          <h4>Sub-Cluster Before FORM_NEW</h4>
+          <p>If multiple events all FORM_NEW, they shouldn't all collapse into one issue. The system sub-clusters FORM_NEW events by cosine ≥ 0.65 — each cluster becomes one distinct new issue. This prevents over-merging diverse events into a single umbrella.</p>
+          <div class="step-meta"><span class="mp">sub-cluster threshold = 0.65</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--pink);border-color:rgba(228,116,180,.5);background:rgba(228,116,180,.05)">6</div>
+        <div class="step-body">
+          <h4>Issue Labeling + Classification (LLM)</h4>
+          <p>Per sub-cluster, the <b>ContextLabeler</b> agent generates: <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">issue_type</code> (issue/framing/narrative), <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">issue_label</code> (umbrella name), <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">dominant_narrative</code> (1-2 sentence framing), <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">entity_signature</code> (top entities). Label styling adapts to issue_type — actor-centered for "issue", agenda-setting for "framing", observational for "narrative".</p>
+          <div class="step-meta"><span class="mp">3-way classification</span><span class="mp">adaptive prompting</span><span class="mp">JSON mode + pydantic</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="color:var(--red);border-color:rgba(240,100,100,.5);background:rgba(240,100,100,.05)">7</div>
+        <div class="step-body">
+          <h4>Persist + Publish</h4>
+          <p>New issues + their events are bulk-inserted to ES 51. ATTACH events update their target issue's <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">last_event_at</code> and centroid (rolling average). Final result (without internal Tahap A diagnostics) is published to the output Kafka topic.</p>
+          <div class="step-meta"><span class="mp">bulk insert</span><span class="mp">centroid rolling avg</span><span class="mp">strip tahap_a_summary</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:32px 0 16px" class="rv d2">Issue Type Classification</h3>
+  <div class="issue-types rv d2">
+    <div class="it-card t-issue">
+      <div class="it-hdr">"issue"</div>
+      <div class="it-desc">A concrete event/problem being publicly discussed. Has real action / impact / conflict (strike, policy, legal case, disaster). Verifiable facts. Clear stakeholders.</div>
+      <div class="it-example">
+        <b>Example label</b>
+        Mogok Kerja Karyawan Indomaret 2026
+      </div>
+    </div>
+    <div class="it-card t-framing">
+      <div class="it-hdr">"framing"</div>
+      <div class="it-desc">An interpretation pattern / point-of-view deliberately constructed by media or actors to give meaning to a series of events. Value-laden, agenda-setting, narrative engineering.</div>
+      <div class="it-example">
+        <b>Example label</b>
+        Framing Polri sebagai Pelindung NKRI
+      </div>
+    </div>
+    <div class="it-card t-narrative">
+      <div class="it-hdr">"narrative"</div>
+      <div class="it-desc">A general discourse / discussion circulating without a dominant concrete event. Public conversation, opinion, recurring old issues, topical chatter.</div>
+      <div class="it-example">
+        <b>Example label</b>
+        Wacana Work-Life Balance Generasi Muda
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== AGENTS ========== -->
+<div class="sec" id="s-agents"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">LLM Agents</div>
+    <div class="sh-title">Two <em>Specialized Agents</em></div>
+    <div class="sh-desc">The engine uses only two LLM agents — kept minimal to control cost and latency. Both agents use JSON-mode output with strict pydantic validation; malformed responses are caught and logged without crashing the pipeline.</div>
+  </div>
+
+  <div class="ag rv d1">
+    <div class="ac">
+      <div class="ah">
+        <div class="ai" style="background:rgba(168,130,248,.12);color:var(--purple)">EX</div>
+        <div>
+          <div class="an">EventExtractor</div>
+          <div class="am">agents/event_extractor_agent/</div>
+        </div>
+      </div>
+      <div class="ad">Per-batch event extractor. Reads up to 6 posts, returns 0-N structured events. Posts about the same real-world event are merged into a single event (even across platforms). Opinion / generic reactions / ads are explicitly filtered out via prompt rules.</div>
+      <div class="ag-meta">
+        <b>Input</b> · pool batch + object context + persona<br>
+        <b>Output</b> · <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">LLMEventExtractorOutput</code>{events: [LLMEvent]}<br>
+        <b>Fallback</b> · timeout / parse-fail → empty events (worker continues)
+      </div>
+    </div>
+
+    <div class="ac">
+      <div class="ah">
+        <div class="ai" style="background:rgba(34,212,228,.12);color:var(--cyan)">CL</div>
+        <div>
+          <div class="an">ContextLabeler</div>
+          <div class="am">agents/context_labeler_agent/</div>
+        </div>
+      </div>
+      <div class="ad">Generates the umbrella label for a new issue cluster. Classifies as issue / framing / narrative and adapts the label + narrative writing style accordingly. Called only on FORM_NEW path — rare path (~1-3 calls per object per day in production).</div>
+      <div class="ag-meta">
+        <b>Input</b> · cluster events + object + persona + (optional) existing issues for awareness<br>
+        <b>Output</b> · <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">LLMContextLabelerOutput</code> with issue_type, issue_label, dominant_narrative, entity_signature<br>
+        <b>Fallback</b> · output null → skip insert + log warning
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:32px 0 14px" class="rv d2">Agent Framework</h3>
+  <div class="comp-grid rv d2">
+    <div class="comp-card">
+      <div class="comp-hdr">
+        <div class="comp-icon" style="background:rgba(168,130,248,.12);color:var(--purple)">⚙</div>
+        <div>
+          <div class="comp-name">Provider Switching</div>
+          <div class="comp-sub">via LLM_PROVIDER env</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="item i-blue"><b style="color:var(--blue)">vllm</b> &mdash; default. Local Qwen3.5-9B served via vLLM. No cost, but ~2-5s per call.</div>
+        <div class="item i-cyan"><b style="color:var(--cyan)">openai</b> &mdash; cloud GPT-4o-mini. Faster, paid per token.</div>
+        <div class="item i-purple"><b style="color:var(--purple)">openrouter</b> &mdash; OpenRouter native (Claude / Llama / etc).</div>
+      </div>
+    </div>
+    <div class="comp-card">
+      <div class="comp-hdr">
+        <div class="comp-icon" style="background:rgba(50,212,164,.12);color:var(--green)">✓</div>
+        <div>
+          <div class="comp-name">Schema Validation</div>
+          <div class="comp-sub">schemas/llm_schemas.py</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="item i-green"><b style="color:var(--green)">LLMEvent</b> &mdash; entities/claims min/max counts, sentiment enum validator, confidence 0-1.</div>
+        <div class="item i-green"><b style="color:var(--green)">LLMContextLabelerOutput</b> &mdash; issue_type enforced to {issue, framing, narrative}, fallback to "issue" if invalid.</div>
+        <div class="item i-green"><b style="color:var(--green)">pydantic v1</b> &mdash; matches base boilerplate used across ACIS modules.</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ========== FEATURES ========== -->
+<div class="sec" id="s-features"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Dashboard & Features</div>
+    <div class="sh-title">What the System <em>Exposes</em></div>
+    <div class="sh-desc">Three entry points: a Kafka consumer (primary production path), a FastAPI service (on-demand testing + admin), and CLI tools (manual testing + maintenance).</div>
+  </div>
+
+  <div class="feat-grid rv d1">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(168,130,248,.12);color:var(--purple)">⇄</div>
+      <h4>Kafka-to-Kafka Worker</h4>
+      <p>Main production pipeline. Each worker process pulls anchor messages from the input topic, processes up to 15 in parallel (async semaphore-bounded), publishes results to <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">acis-contextual-intelligence-result</code>. Multi-worker via N independent processes; broker distributes partitions via consumer_group.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(34,212,228,.12);color:var(--cyan)">⇨</div>
+      <h4>On-Demand Endpoint</h4>
+      <p><code style="color:var(--cyan);font-family:var(--mono);font-size:11px">POST /on_demand</code> — user provides <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">keyword + platform</code>. The system strict-searches ES for the most representative matching post, treats it as a synthetic anchor, and runs the full pipeline. Used for testing, debugging, and ad-hoc queries.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(80,144,255,.12);color:var(--blue)">⏱</div>
+      <h4>Built-in Cron Scheduler</h4>
+      <p>APScheduler embedded in the FastAPI service. Refreshes all 380 tag centroids daily at <b>02:00 Asia/Jakarta</b>. No separate OS-level crontab needed. Manual trigger available via <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">POST /admin/refresh_centroid</code>.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(50,212,164,.12);color:var(--green)">⚙</div>
+      <h4>Health + Readiness Checks</h4>
+      <p><code style="color:var(--cyan);font-family:var(--mono);font-size:11px">GET /health</code> reports Tahap A readiness — Qdrant collection count, ES connectivity, canonical map availability. Service refuses to start serving anchors if Qdrant centroids are empty (cold-start protection).</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(240,148,68,.12);color:var(--orange)">⚡</div>
+      <h4>Async Parallel Processing</h4>
+      <p>Per-worker concurrency capped at 15 (tunable). Per Kafka batch: poll up to 50 messages, run them through asyncio.gather, then commit only the contiguous-successful prefix per partition. Provides at-least-once delivery — failed messages re-poll on next iteration.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(240,100,100,.12);color:var(--red)">⛨</div>
+      <h4>Dual-Node Qdrant Failover</h4>
+      <p>Qdrant deployed across two nodes (10.12.1.110 + 192.168.180.129). Writes go to both nodes via ThreadPoolExecutor. Reads try right-then-left with automatic failover — single-node outages don't take the pipeline down.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(228,116,180,.12);color:var(--pink)">⛁</div>
+      <h4>Tunable Thresholds</h4>
+      <p>All key thresholds — relevance cutoff, gate min_count, similarity ATTACH/WAIT, dedup, sub-cluster — exposed via environment variables. No code changes required to calibrate the pipeline per use case.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(232,204,52,.12);color:var(--yellow)">⚏</div>
+      <h4>Manual Testing Tool</h4>
+      <p><code style="color:var(--cyan);font-family:var(--mono);font-size:11px">tools/manual_test_kafka.py</code> — load a JSON fixture, run the full pipeline, optionally publish to Kafka. Includes <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">--skip-kafka</code> mode for offline iteration on prompts and thresholds.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:32px 0 14px" class="rv d2">API Endpoints</h3>
+  <div class="comp-grid rv d2">
+    <div class="comp-card">
+      <div class="comp-hdr">
+        <div class="comp-icon" style="background:rgba(80,144,255,.12);color:var(--blue)">⇨</div>
+        <div>
+          <div class="comp-name">POST /on_demand</div>
+          <div class="comp-sub">keyword-driven test</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="item i-blue">Body: <code style="font-family:var(--mono);font-size:11px;color:var(--cyan)">{"keyword": str, "platform": "socmed"|"news"}</code></div>
+        <div class="item i-cyan">Searches ES strict (operator=AND), top 1 hit → synthetic anchor</div>
+        <div class="item i-purple">Returns full pipeline output incl. tahap_a_summary (debug)</div>
+        <div class="item i-orange">404 if no strict match found</div>
+      </div>
+    </div>
+    <div class="comp-card">
+      <div class="comp-hdr">
+        <div class="comp-icon" style="background:rgba(34,212,228,.12);color:var(--cyan)">⇨</div>
+        <div>
+          <div class="comp-name">POST /process_anchor</div>
+          <div class="comp-sub">raw payload (debug)</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="item i-cyan">Body: raw Kafka anchor JSON (same shape as Kafka message)</div>
+        <div class="item i-blue">For internal debugging — production goes through Kafka, not HTTP</div>
+        <div class="item i-purple">Same processing as worker, returns same shape</div>
+      </div>
+    </div>
+    <div class="comp-card">
+      <div class="comp-hdr">
+        <div class="comp-icon" style="background:rgba(50,212,164,.12);color:var(--green)">⚙</div>
+        <div>
+          <div class="comp-name">GET /health</div>
+          <div class="comp-sub">readiness check</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="item i-green">Reports Tahap A readiness (Qdrant + canonical map + ES 81)</div>
+        <div class="item i-green">Used by orchestrator / load balancer / k8s</div>
+        <div class="item i-blue">Returns 200 with status payload (qdrant_degraded, collection_count, ready)</div>
+      </div>
+    </div>
+    <div class="comp-card">
+      <div class="comp-hdr">
+        <div class="comp-icon" style="background:rgba(240,148,68,.12);color:var(--orange)">⏱</div>
+        <div>
+          <div class="comp-name">POST /admin/refresh_centroid</div>
+          <div class="comp-sub">manual cron trigger</div>
+        </div>
+      </div>
+      <div class="comp-body">
+        <div class="item i-orange">Fires the centroid refresh job in background (returns immediately)</div>
+        <div class="item i-orange">No auth — intended for internal admin use</div>
+        <div class="item i-blue">Watch progress in service logs</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:32px 0 14px" class="rv d3">Output Schema (Kafka result topic)</h3>
+  <div class="json-block rv d3">{
+  <span class="jk">"object_id"</span>: <span class="js">"kw_indomaret_strike"</span>,
+  <span class="jk">"summary"</span>: {
+    <span class="jk">"n_posts"</span>: <span class="jn">14</span>,
+    <span class="jk">"n_events_raw"</span>: <span class="jn">7</span>,
+    <span class="jk">"n_events_deduped"</span>: <span class="jn">5</span>,
+    <span class="jk">"n_issues_total"</span>: <span class="jn">5</span>,
+    <span class="jk">"n_issues_new"</span>: <span class="jn">2</span>,
+    <span class="jk">"n_issues_existing"</span>: <span class="jn">3</span>,
+    <span class="jk">"gate_pass"</span>: <span class="jn">true</span>,
+    <span class="jk">"gate_diagnose"</span>: { <span class="jk">"count"</span>: <span class="jn">7</span>, <span class="jk">"shared_entities"</span>: [<span class="js">"Indomaret"</span>], <span class="jk">"platforms"</span>: [<span class="js">"twitter"</span>, <span class="js">"online-news"</span>] }
+  },
+  <span class="jk">"issues"</span>: [
+    {
+      <span class="jk">"issue_id"</span>: <span class="js">"iss_xxx"</span>,
+      <span class="jk">"issue_type"</span>: <span class="js">"issue"</span>,
+      <span class="jk">"issue_label"</span>: <span class="js">"Demo Karyawan Indomaret Menara PIK"</span>,
+      <span class="jk">"dominant_narrative"</span>: <span class="js">"Ribuan karyawan menggelar aksi protes menuntut..."</span>,
+      <span class="jk">"entity_signature"</span>: [<span class="js">"Indomaret"</span>, <span class="js">"Serikat Pekerja"</span>, <span class="js">"Karyawan"</span>],
+      <span class="jk">"status"</span>: <span class="js">"NEW"</span>,
+      <span class="jk">"decision_action"</span>: <span class="js">"FORM_NEW"</span>,
+      <span class="jk">"events"</span>: [<span class="jc">/* event metadata */</span>]
+    }
+  ],
+  <span class="jk">"pending_events"</span>: [],
+  <span class="jk">"skipped_reason"</span>: <span class="js">null</span>
+}</div>
+</div></div>
+
+<!-- ========== BUILD & DEPLOY ========== -->
+<div class="sec" id="s-build"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Build & Deploy</div>
+    <div class="sh-title">How the System is <em>Built</em></div>
+    <div class="sh-desc">Two-component deployment + manual testing tooling. Built incrementally over 16 implementation steps, each independently verifiable.</div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:0 0 14px" class="rv d1">Deployment Components</h3>
+  <div class="deploy-grid rv d1">
+    <div class="deploy-box b1">
+      <h3><span class="db-icon" style="background:rgba(80,144,255,.12);color:var(--blue)">1</span> Kafka Consumer Worker</h3>
+      <div class="db-sub">tools/kafka_worker.py</div>
+      <ul>
+        <li>Long-running process, consumes anchor messages</li>
+        <li>Async parallel processing — 15 concurrent per worker (tunable)</li>
+        <li>At-least-once delivery, prefix-commit per partition</li>
+        <li>Run N processes for horizontal scaling (worker_id-distinguished)</li>
+        <li>State isolated per process (Qdrant + ES clients not shared)</li>
+        <li>Verify Tahap A readiness on boot — refuses to consume if Qdrant empty</li>
+      </ul>
+    </div>
+    <div class="deploy-box b2">
+      <h3><span class="db-icon" style="background:rgba(50,212,164,.12);color:var(--green)">2</span> FastAPI Service</h3>
+      <div class="db-sub">services/swagger_service.py</div>
+      <ul>
+        <li>On-demand endpoint for keyword-driven testing</li>
+        <li>APScheduler runs cron jobs in-process (no OS crontab needed)</li>
+        <li>Admin endpoints for manual trigger + scheduler status</li>
+        <li>Single long-running uvicorn process (or systemd-managed)</li>
+        <li>Default port 8089</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:32px 0 14px" class="rv d2">Build Order (16 Steps)</h3>
+  <div class="step-grid rv d2">
+    <div class="step">
+      <div class="step-num" style="color:var(--purple);border-color:rgba(168,130,248,.5);background:rgba(168,130,248,.05)">1-3</div>
+      <div class="step-body">
+        <h4>Foundation</h4>
+        <p>Unified date normalizer (4 input formats), anchor normalizer with schema discriminator (socmed/news), settings.py extended with 21+ new config keys. No external services needed yet.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--cyan);border-color:rgba(34,212,228,.5);background:rgba(34,212,228,.05)">4-5</div>
+      <div class="step-body">
+        <h4>External Service Wrappers</h4>
+        <p>Qdrant dual-node client with ensure_collection() (idempotent), ThreadPoolExecutor for parallel writes, search_with_failover() try-right-then-left. ES 81 client extended with factory pattern matching existing ES 51 client.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--blue);border-color:rgba(80,144,255,.5);background:rgba(80,144,255,.05)">6-7</div>
+      <div class="step-body">
+        <h4>Tag Centroid Pipeline (Cron Side)</h4>
+        <p>Whitelist builder runs ES terms aggregation, cleans 12 noise tags (rapidapi/sniffing/browser/etc.), case-merges to canonical lowercase. Tag centroid builder orchestrates: per canonical → sample 50 posts → embed_batch (1 HTTP call) → mean → L2 normalize → upsert to both Qdrant nodes. Runs as a daily cron job.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--green);border-color:rgba(50,212,164,.5);background:rgba(50,212,164,.05)">8-10</div>
+      <div class="step-body">
+        <h4>Runtime Tahap A Components</h4>
+        <p>TagSelector (Qdrant lookup + canonical expand), PostRetriever (ES query both indices + de-dup vs anchor + TRY 2 fallback), RelevanceGuard (batched embed + cosine filter). Each component is independently testable via smoke-test entry points.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--orange);border-color:rgba(240,148,68,.5);background:rgba(240,148,68,.05)">11-12</div>
+      <div class="step-body">
+        <h4>Integration</h4>
+        <p>MainProcessor extended with <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">async process_anchor(kafka_message)</code> that chains Tahap A → existing Tahap B. FastAPI service adds <code style="color:var(--cyan);font-family:var(--mono);font-size:11px">POST /process_anchor</code> endpoint + APScheduler hooks.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--pink);border-color:rgba(228,116,180,.5);background:rgba(228,116,180,.05)">13-15</div>
+      <div class="step-body">
+        <h4>Testing & Calibration</h4>
+        <p>Pytest E2E suite (40 cases — functional + edge cases + integration). Standalone tool to calibrate eBdesk concurrency limit (verified safe at 20 parallel). Stress test harness for throughput measurement at varying RPS.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="color:var(--red);border-color:rgba(240,100,100,.5);background:rgba(240,100,100,.05)">16</div>
+      <div class="step-body">
+        <h4>Deploy</h4>
+        <p>Update .env with production credentials. Eager-build all 380 centroids (~2 minutes). Verify via probe-test. Start FastAPI service (systemd-managed). Setup Kafka worker process(es). APScheduler takes over centroid refresh automatically.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:15px;font-weight:700;margin:32px 0 14px" class="rv d3">Key Tunable Settings</h3>
+  <div class="settings-table rv d3">
+    <div class="st-row head">
+      <div>Setting</div>
+      <div>Default</div>
+      <div>Purpose</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_TAG_TOP_K</div>
+      <div class="st-v">2</div>
+      <div class="st-d">Number of canonical tags selected per anchor via Qdrant kNN</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_RETRIEVAL_TOP_N</div>
+      <div class="st-v">20</div>
+      <div class="st-d">Max posts retrieved from ES per index in Tahap A</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_RETRIEVAL_WINDOW_HOURS</div>
+      <div class="st-v">24</div>
+      <div class="st-d">Time window for retrieval — only fresh posts</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_RELEVANCE_THRESHOLD</div>
+      <div class="st-v">0.40</div>
+      <div class="st-d">Cosine threshold for retrieved posts to pass relevance guard</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_GATE_MIN_COUNT</div>
+      <div class="st-v">2</div>
+      <div class="st-d">Minimum events for gate to pass (issue formation)</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_GATE_MIN_PLATFORMS</div>
+      <div class="st-v">2</div>
+      <div class="st-d">Required platform diversity for issue formation</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_DEDUP_THRESHOLD</div>
+      <div class="st-v">0.85</div>
+      <div class="st-d">Cosine threshold for cross-batch event dedup</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_ATTACH_THRESHOLD</div>
+      <div class="st-v">0.70</div>
+      <div class="st-d">Issue similarity score to attach event to existing issue</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_WAIT_THRESHOLD</div>
+      <div class="st-v">0.50</div>
+      <div class="st-d">Border between WAIT and FORM_NEW decisions</div>
+    </div>
+    <div class="st-row">
+      <div class="st-k">CONTEXTUAL_KAFKA_WORKER_CONCURRENCY</div>
+      <div class="st-v">15</div>
+      <div class="st-d">Max parallel messages processed per Kafka worker</div>
+    </div>
+  </div>
+
+  <div class="kc-box ok rv d4">
+    <b>Tested.</b> 40/40 functional tests pass. Tag centroid build verified at ~2 minutes for 380 centroids. Stress-tested at 2 RPS with 100% success rate — p95 latency LLM-bound (~7s including EventExtractor). E2E validated against real ES + Qdrant + Kafka with multi-platform pool formation producing classified issues.
+  </div>
+</div></div>
+
+<!-- ========== TECH STACK ========== -->
+<div class="sec" id="s-tech"><div class="container">
+  <div class="sh rv">
+    <div class="sh-label">Tech Stack</div>
+    <div class="sh-title">Technology <em>Breakdown</em></div>
+  </div>
+
+  <div class="tg2" style="margin-top:8px">
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--purple)"><div class="td" style="background:var(--purple);width:7px;height:7px"></div>LLM Providers</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">Qwen3.5-9B</span><span class="tr">Local via vLLM (default)</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">GPT-4o-mini</span><span class="tr">OpenAI cloud (optional)</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">OpenRouter</span><span class="tr">Multi-model gateway</span></div>
+      </div>
+    </div>
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--blue)"><div class="td" style="background:var(--blue);width:7px;height:7px"></div>Framework</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Python 3.11</span><span class="tr">conda env profacc</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">FastAPI + Uvicorn</span><span class="tr">HTTP service</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">eb_labs</span><span class="tr">Agent framework</span></div>
+        <div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">Pydantic v1</span><span class="tr">Schema validation</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">AsyncIO</span><span class="tr">Concurrency runtime</span></div>
+        <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">Loguru</span><span class="tr">Structured logging</span></div>
+      </div>
+    </div>
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--cyan)"><div class="td" style="background:var(--cyan);width:7px;height:7px"></div>Data Stores</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Qdrant 1.18</span><span class="tr">Dual-node vector store (Danantara)</span></div>
+        <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">Elasticsearch 8.15</span><span class="tr">2 clusters (read + storage)</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">Apache Kafka</span><span class="tr">prodbt cluster (4 brokers)</span></div>
+      </div>
+    </div>
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--green)"><div class="td" style="background:var(--green);width:7px;height:7px"></div>Embedding & Vector</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">eBdesk Embedding</span><span class="tr">Indonesian-tuned, 1024-dim</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Qdrant kNN</span><span class="tr">Tag centroid lookup (cosine)</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">ES dense_vector</span><span class="tr">Issue centroid (native kNN)</span></div>
+        <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">NumPy</span><span class="tr">Cosine math (in-process)</span></div>
+      </div>
+    </div>
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--orange)"><div class="td" style="background:var(--orange);width:7px;height:7px"></div>Scheduling</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">APScheduler 3.11</span><span class="tr">In-process cron (Asia/Jakarta TZ)</span></div>
+        <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">cron_only / event_only</span><span class="tr">Recompute trigger modes</span></div>
+      </div>
+    </div>
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--pink)"><div class="td" style="background:var(--pink);width:7px;height:7px"></div>Kafka Integration</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--pink)"></div><span class="tn">kafka-python 2.0</span><span class="tr">Consumer + Producer</span></div>
+        <div class="ti"><div class="td" style="background:var(--blue)"></div><span class="tn">prefix-commit</span><span class="tr">At-least-once semantics</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">gzip compression</span><span class="tr">Output topic payload</span></div>
+      </div>
+    </div>
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--red)"><div class="td" style="background:var(--red);width:7px;height:7px"></div>Testing</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--red)"></div><span class="tn">pytest + pytest-asyncio</span><span class="tr">40 E2E cases</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">Mock-based parity</span><span class="tr">Deterministic UUID + clock</span></div>
+        <div class="ti"><div class="td" style="background:var(--purple)"></div><span class="tn">manual_test_kafka.py</span><span class="tr">CLI fixture runner</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">Stress test harness</span><span class="tr">Throughput + p95 latency</span></div>
+      </div>
+    </div>
+    <div class="tc rv">
+      <div class="tc-cat" style="color:var(--yellow)"><div class="td" style="background:var(--yellow);width:7px;height:7px"></div>Observability</div>
+      <div class="tl">
+        <div class="ti"><div class="td" style="background:var(--yellow)"></div><span class="tn">tahap_a_summary</span><span class="tr">Per-step latency + counts</span></div>
+        <div class="ti"><div class="td" style="background:var(--cyan)"></div><span class="tn">structured logs</span><span class="tr">Per-component prefix tagging</span></div>
+        <div class="ti"><div class="td" style="background:var(--green)"></div><span class="tn">/health endpoint</span><span class="tr">Readiness probe</span></div>
+        <div class="ti"><div class="td" style="background:var(--orange)"></div><span class="tn">/admin/scheduler</span><span class="tr">Cron next-run inspection</span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<footer><div class="container">
+  <p style="color:var(--t2);font-weight:600;margin-bottom:3px">Contextual Intelligence Engine</p>
+  <p>Topic Management Layer · ACIS Adaptive Crawling System · 2 Pipeline Stages · 3 Issue Types</p>
+</div></div></footer>
+
+<script>
+// Tab navigation
+const tabs=document.querySelectorAll('.tab'),secs=document.querySelectorAll('.sec');
+function go(id){
+  tabs.forEach(t=>t.classList.toggle('on',t.dataset.s===id));
+  secs.forEach(s=>{
+    const show=s.id==='s-'+id;
+    s.classList.toggle('on',show);
+    if(show){
+      window.scrollTo({top:0,behavior:'instant'});
+      setTimeout(()=>{
+        s.querySelectorAll('.rv').forEach(r=>r.classList.add('v'));
+      },40);
+    }
+  });
+}
+tabs.forEach(t=>t.addEventListener('click',()=>go(t.dataset.s)));
+
+// Pipeline tab (Tahap A / B)
+const ptabs=document.querySelectorAll('.pipe-tab'),pcs=document.querySelectorAll('.pipe-content');
+ptabs.forEach(t=>t.addEventListener('click',()=>{
+  ptabs.forEach(c=>c.classList.remove('on'));
+  t.classList.add('on');
+  const p=t.dataset.p;
+  pcs.forEach(c=>c.classList.toggle('on',c.dataset.p===p));
+  // Re-trigger reveal animation
+  document.querySelectorAll('.pipe-content.on .rv').forEach(r=>{
+    r.classList.remove('v');
+    setTimeout(()=>r.classList.add('v'),50);
+  });
+}));
+
+// Init hero reveals
+document.querySelectorAll('#s-hero .rv').forEach(r=>r.classList.add('v'));
+
+// Observer
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')})},{threshold:.06});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

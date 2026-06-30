@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Markdown from "./Markdown";
+import Reveal from "./Reveal";
 import { Zap, X } from "lucide-react";
 import { useAgents, useChat } from "../store";
 import { streamAgent } from "../lib/api";
@@ -17,12 +18,14 @@ export default function AgentLauncher() {
       <div className="container">
         <h2 className="section-title"><Zap size={20} /> Agent — minta AI lakukan tugas spesifik</h2>
         <div className="grid grid-2">
-          {tasks.map((a) => (
-            <article key={a.id} className="card card-agent">
+          {tasks.map((a, i) => (
+            <Reveal key={a.id} delay={i * 70}>
+            <article className="card card-agent">
               <h3 className="card-title">{a.label.id}</h3>
               <p className="card-summary">{a.description}</p>
               <button className="btn-accent" onClick={() => setOpen(a)}>Jalankan ▸</button>
             </article>
+            </Reveal>
           ))}
         </div>
       </div>

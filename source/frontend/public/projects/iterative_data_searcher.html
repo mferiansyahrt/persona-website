@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iterative Data Searcher &mdash; AI-Powered PDF Research &amp; Insight Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070b14;--bg2:#0f1626;--bg3:#16203400;--bg3:#162034;--bg4:#1e293b;
+  --border:#1b2638;--border2:#2a3a52;
+  --text:#e6edf6;--dim:#9fb0c5;--muted:#637089;
+  --blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;--pink:#ec4899;
+  --accent:#3b82f6;--accent2:#06b6d4;
+  --R:12px;--Rs:8px;--Rx:6px;
+  --F:'Inter',-apple-system,sans-serif;
+  --T:.3s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:16px}
+body{font-family:var(--F);background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+a{color:var(--accent);text-decoration:none}
+code{font-family:ui-monospace,'SFMono-Regular',Menlo,monospace;font-size:.85em;background:rgba(59,130,246,.1);color:#9ec5ff;padding:.1rem .35rem;border-radius:4px}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(7,11,20,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.topbar-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.5rem}
+.logo{font-weight:800;font-size:.95rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.tab-bar{display:flex;gap:2px;background:var(--bg2);border-radius:10px;padding:3px}
+.tab-btn{font-family:var(--F);font-size:.78rem;font-weight:600;color:var(--muted);background:transparent;border:none;padding:.5rem 1rem;border-radius:8px;cursor:pointer;transition:all var(--T);white-space:nowrap}
+.tab-btn:hover{color:var(--dim)}
+.tab-btn.active{color:#fff;background:var(--accent);box-shadow:0 2px 12px rgba(59,130,246,.35)}
+
+.tab-content{display:none;opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
+.tab-content.active{display:block;opacity:1;transform:translateY(0)}
+.page{max-width:1200px;margin:0 auto;padding:6rem 1.5rem 4rem}
+
+.label{display:inline-flex;align-items:center;gap:.5rem;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:.75rem}
+.label::before{content:'';width:20px;height:2px;background:var(--accent)}
+h2.title{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:.5rem}
+.subtitle{font-size:1rem;color:var(--dim);max-width:640px;margin-bottom:2.5rem;line-height:1.7}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--R);padding:1.5rem;transition:all var(--T)}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.badge{display:inline-block;font-size:.65rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;border:1px solid var(--border2);color:var(--dim);white-space:nowrap}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+
+.hero{padding:7rem 1.5rem 4rem;max-width:1200px;margin:0 auto;position:relative}
+.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:520px;height:520px;background:radial-gradient(circle,rgba(59,130,246,.09),transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;top:40px;left:-120px;width:400px;height:400px;background:radial-gradient(circle,rgba(6,182,212,.06),transparent 70%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;font-weight:600;color:var(--cyan);padding:.35rem .85rem;border:1px solid rgba(6,182,212,.2);border-radius:999px;background:rgba(6,182,212,.05);margin-bottom:1.25rem}
+.hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:900;letter-spacing:-.04em;line-height:1.08;margin-bottom:1rem}
+.hero h1 .gr{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.05rem;color:var(--dim);max-width:660px;line-height:1.75;margin-bottom:2rem}
+.hero .tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.hero .tags .badge{transition:all var(--T)}.hero .tags .badge:hover{border-color:var(--accent);color:var(--accent)}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin:3rem 0 0}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--R);padding:1.25rem;text-align:center;transition:all var(--T)}
+.stat:hover{border-color:var(--accent);box-shadow:0 0 25px rgba(59,130,246,.12);transform:translateY(-2px)}
+.stat-num{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.stat-label{font-size:.7rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-top:.2rem}
+
+.flow{position:relative;padding:1rem 0}
+.step{display:flex;gap:1.5rem;padding:1.5rem 0;position:relative}
+.step-left{flex-shrink:0;display:flex;flex-direction:column;align-items:center;width:56px}
+.step-num{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;background:var(--bg2);border:2px solid var(--border2);color:var(--dim);position:relative;z-index:2;transition:all var(--T)}
+.step:hover .step-num{border-color:var(--accent);color:var(--accent);box-shadow:0 0 20px rgba(59,130,246,.15)}
+.step-line{flex:1;width:2px;background:linear-gradient(180deg,var(--border2),rgba(59,130,246,.2));margin:4px 0}
+.step:last-child .step-line{display:none}
+.step-body{flex:1;padding-bottom:.5rem}
+.step-title{font-size:1rem;font-weight:700;margin-bottom:.3rem}
+.step-desc{font-size:.85rem;color:var(--dim);line-height:1.7}
+.step-badges{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem}
+
+.parallel-box{background:var(--bg2);border:1px dashed var(--border2);border-radius:var(--R);padding:1.25rem;margin:1rem 0 1rem 72px}
+.parallel-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:.75rem}
+.parallel-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.branch{background:var(--bg);border-radius:var(--Rx);padding:1rem}
+.branch-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.branch-title.a{color:var(--blue)}.branch-title.b{color:var(--amber)}
+.branch-title.c{color:var(--purple)}
+.branch p{font-size:.82rem;color:var(--dim);line-height:1.7}
+
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem}
+.agent{position:relative;overflow:hidden}
+.agent::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--agent-c,var(--accent)),transparent);opacity:0;transition:opacity var(--T)}
+.agent:hover::before{opacity:1}
+.agent-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.agent-icon{width:38px;height:38px;border-radius:var(--Rs);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.agent-name{font-size:.95rem;font-weight:700}
+.agent-role{font-size:.7rem;color:var(--muted);margin-top:.15rem}
+.agent p{font-size:.84rem;color:var(--dim);line-height:1.65;margin-bottom:.75rem}
+.agent-io{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.io{background:var(--bg);border-radius:var(--Rx);padding:.65rem .75rem}
+.io-title{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.io-title.in{color:var(--cyan)}.io-title.out{color:var(--green)}
+.io ul{list-style:none;font-size:.75rem;color:var(--dim)}
+.io li{padding:.1rem 0}
+.io li::before{content:'\203A';margin-right:.35rem;color:var(--muted);font-weight:700}
+
+.sample-flow{display:flex;align-items:stretch;gap:0;margin:2rem 0}
+.sample-card{flex:1;border-radius:var(--R);overflow:hidden;border:1px solid var(--border)}
+.sample-card .header{padding:.75rem 1rem;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)}
+.sample-card.input .header{background:rgba(6,182,212,.08);color:var(--cyan)}
+.sample-card.output .header{background:rgba(16,185,129,.08);color:var(--green)}
+.sample-card .body{padding:1.25rem;background:var(--bg2);font-size:.82rem;color:var(--dim);line-height:1.7}
+.sample-arrow{display:flex;align-items:center;justify-content:center;padding:0 .75rem;flex-shrink:0}
+.sample-arrow svg{width:32px;height:32px}
+.field{display:flex;gap:.5rem;padding:.35rem 0;align-items:baseline}
+.field-label{font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;min-width:120px;flex-shrink:0}
+.field-value{font-size:.82rem;color:var(--text)}
+.result-group{background:var(--bg3);border-radius:var(--Rs);padding:1rem;margin-bottom:.75rem;border-left:3px solid var(--accent)}
+.result-group:last-child{margin-bottom:0}
+.result-group-title{font-size:.9rem;font-weight:700;margin-bottom:.5rem}
+.result-event{background:var(--bg);border-radius:var(--Rx);padding:.75rem;margin-top:.5rem}
+.result-event-name{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:.3rem}
+.result-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.35rem}
+.result-meta .badge{font-size:.58rem}
+.platform-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem}
+.platform-pill{font-size:.6rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg2);color:var(--dim);border:1px solid var(--border)}
+.platform-pill .ct{color:var(--accent);margin-left:.25rem}
+.codeblock{background:#060a12;border:1px solid var(--border);border-radius:var(--Rs);padding:1rem;font-family:ui-monospace,'SFMono-Regular',Menlo,monospace;font-size:.74rem;line-height:1.7;color:var(--dim);overflow-x:auto;white-space:pre;margin-top:.5rem}
+.codeblock .k{color:#9ec5ff}.codeblock .s{color:#7ee0c0}.codeblock .n{color:#f0b67a}.codeblock .c{color:var(--muted)}
+
+.score-badge{font-size:.6rem;font-weight:700;padding:.2rem .5rem;border-radius:999px}
+.score-badge.high{background:rgba(16,185,129,.14);color:var(--green)}
+.score-badge.mid{background:rgba(245,158,11,.14);color:var(--amber)}
+.score-badge.low{background:rgba(239,68,68,.12);color:var(--red)}
+
+.level-matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0}
+.level-card{padding:1.5rem;border-radius:var(--R);position:relative;overflow:hidden;transition:transform var(--T)}
+.level-card:hover{transform:translateY(-3px)}
+.level-card.t1{background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.02));border:1px solid rgba(16,185,129,.25)}
+.level-card.t2{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(59,130,246,.02));border:1px solid rgba(59,130,246,.25)}
+.level-card.t3{background:linear-gradient(135deg,rgba(239,68,68,.09),rgba(239,68,68,.02));border:1px solid rgba(239,68,68,.28)}
+.level-name{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;margin-bottom:.3rem}
+.level-name.t1{color:var(--green)}.level-name.t2{color:var(--blue)}.level-name.t3{color:var(--red)}
+.level-range{font-size:.7rem;font-weight:600;color:var(--muted);margin-bottom:.7rem}
+.level-desc{font-size:.78rem;color:var(--dim);line-height:1.6}
+
+.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin:1rem 0 0}
+.client-card{padding:1.1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--Rs);transition:all var(--T)}
+.client-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.client-icon{font-size:1.4rem;margin-bottom:.4rem}
+.client-name{font-size:.85rem;font-weight:700;margin-bottom:.25rem}
+.client-mandate{font-size:.7rem;color:var(--muted);line-height:1.55}
+
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.tech .cat{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);margin-bottom:.65rem}
+.tech ul{list-style:none}
+.tech li{display:flex;align-items:baseline;gap:.5rem;padding:.25rem 0;font-size:.84rem;color:var(--dim)}
+.tech li strong{color:var(--text);font-weight:600;min-width:130px;flex-shrink:0}
+
+.dataflow{display:flex;flex-direction:column;gap:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:var(--R);padding:1.5rem;margin:1.5rem 0}
+.df-row{display:grid;grid-template-columns:180px 50px 1fr;gap:1rem;align-items:center}
+.df-source{font-size:.75rem;font-weight:700;color:var(--cyan);text-align:right}
+.df-arrow{color:var(--muted);text-align:center}
+.df-target{font-size:.78rem;color:var(--dim);line-height:1.6}
+.df-target strong{color:var(--text);font-weight:600}
+
+footer{border-top:1px solid var(--border);padding:2.5rem 1.5rem;text-align:center}
+footer .fl{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;font-size:.9rem}
+footer p{font-size:.75rem;color:var(--muted);margin-top:.4rem}
+
+@media(max-width:768px){
+  .tab-bar{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab-btn{font-size:.7rem;padding:.45rem .75rem}
+  .grid-2,.parallel-grid,.sample-flow,.agent-io,.level-matrix{grid-template-columns:1fr;display:grid}
+  .sample-flow{flex-direction:column}
+  .sample-arrow{transform:rotate(90deg);padding:.5rem 0}
+  .agent-grid{grid-template-columns:1fr}
+  .grid-3,.grid-4{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:2rem}
+  .parallel-box{margin-left:0}
+  .df-row{grid-template-columns:1fr;text-align:left}
+  .df-source{text-align:left}
+}
+@media(max-width:480px){
+  .grid-3,.grid-4,.stats{grid-template-columns:1fr 1fr}
+  .page{padding:5rem 1rem 3rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">Iterative Data Searcher</div>
+    <div class="tab-bar" id="tabBar">
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="how">How It Works</button>
+      <button class="tab-btn" data-tab="agents">AI Agents</button>
+      <button class="tab-btn" data-tab="results">Sample Results</button>
+      <button class="tab-btn" data-tab="tech">Technology</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: OVERVIEW
+     ============================================================ -->
+<div class="tab-content active" id="tab-overview">
+
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="dot"></span>Iterative Data Searcher &mdash; AI-Powered PDF Research &amp; Insight Pipeline</div>
+    <h1>From a Single Question to<br><span class="gr">Source-Grounded PDF Intelligence</span></h1>
+    <p>An agentic research pipeline that turns one natural-language question into verified, source-grounded answers. It expands the query into multiple targeted searches, discovers and verifies downloadable PDFs across the web, extracts and reads them concurrently, scores every page for relevance, and synthesizes a grounded answer &mdash; while a background worker performs full-document extraction and ships the knowledge to S3 and Kafka.</p>
+    <div class="tags">
+      <span class="badge">Multi-Agent</span>
+      <span class="badge">Async Pipeline</span>
+      <span class="badge">7 AI Agents</span>
+      <span class="badge">SerpAPI Google Search</span>
+      <span class="badge">Concurrent PDF Extraction</span>
+      <span class="badge">Relevance Scoring 0&ndash;100</span>
+      <span class="badge">Two-Phase Execution</span>
+      <span class="badge">Kafka + S3 + Redis</span>
+      <span class="badge">MCP Tool Server</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-num" style="color:var(--blue)">7</div><div class="stat-label">Specialist AI Agents</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--cyan)">2</div><div class="stat-label">Execution Phases</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--purple)">3</div><div class="stat-label">Entry Points</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--green)">0&ndash;100</div><div class="stat-label">Relevance Score</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--amber)">3</div><div class="stat-label">Data Backends</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--pink)">N&times;</div><div class="stat-label">Parallel Query Fan-out</div></div>
+    </div>
+  </div>
+
+  <!-- What It Does -->
+  <div class="page" style="padding-top:1rem">
+    <div class="label">What It Does</div>
+    <h2 class="title">From a Vague Request to Cited Answers</h2>
+    <p class="subtitle">This is not a chatbot answering from memory &mdash; it actively finds real documents on the open web, reads them, and answers strictly from what those documents say.</p>
+
+    <div class="grid-3" style="margin-bottom:2.5rem">
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x1F50D;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Search &amp; Discover</div>
+        <p style="font-size:.84rem;color:var(--dim)">A single user request is expanded into multiple Google-style PDF queries by the <em>Query Variator</em>, each fired through SerpAPI in parallel. Optional URL normalization converts academic links (arXiv, bioRxiv, PMC) into direct PDF downloads.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x1F4C4;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Verify &amp; Extract</div>
+        <p style="font-size:.84rem;color:var(--dim)">A verification agent scores every candidate link 0&ndash;100 and filters out non-downloadable URLs. Surviving PDFs are downloaded concurrently with SSL fallback and dual extractors (PyPDF2 &rarr; pdfplumber), with smart page-centering to skip covers and tables of contents.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.75rem">&#x1F9E0;</div>
+        <div style="font-weight:700;margin-bottom:.4rem">Analyze &amp; Answer</div>
+        <p style="font-size:.84rem;color:var(--dim)">Each page is scored for relevance and deeply analyzed in parallel. A Q&amp;A agent consolidates every insight into one grounded answer in Bahasa Indonesia. In full mode, documents are pushed to S3 + Kafka for a downstream knowledge base.</p>
+      </div>
+    </div>
+
+    <!-- Use cases / domains -->
+    <div class="label">Proven Across Domains</div>
+    <h2 class="title">One Engine, Many Knowledge Domains</h2>
+    <p class="subtitle">The same pipeline has been run across government, finance, energy, policy, and academic research &mdash; each query producing source-grounded insight from authoritative PDFs.</p>
+
+    <div class="client-grid">
+      <div class="client-card">
+        <div class="client-icon">&#x1F3DB;&#xFE0F;</div>
+        <div class="client-name">Government Budgets</div>
+        <div class="client-mandate">Regional budget, financial &amp; evaluation reports (e.g. Kota Bandung APBD)</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F3E6;</div>
+        <div class="client-name">Central Bank</div>
+        <div class="client-mandate">Leadership dynamics &amp; governance at Bank Indonesia</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x26FD;</div>
+        <div class="client-name">Energy Regulator</div>
+        <div class="client-mandate">Internal dynamics &amp; strategy of BPH Migas (oil &amp; gas downstream)</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F393;</div>
+        <div class="client-name">Academic / Research</div>
+        <div class="client-mandate">arXiv papers, theses, university repositories</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F4CA;</div>
+        <div class="client-name">Policy &amp; Strategy</div>
+        <div class="client-mandate">Leadership, organizational &amp; economic transformation studies</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F310;</div>
+        <div class="client-name">Geopolitics</div>
+        <div class="client-mandate">Defense white-papers, strategic &amp; risk analysis documents</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F3DB;&#xFE0F;</div>
+        <div class="client-name">Ministry Structure</div>
+        <div class="client-mandate">Organizational structures &amp; officials (e.g. Kementerian Keuangan)</div>
+      </div>
+      <div class="client-card">
+        <div class="client-icon">&#x1F50C;</div>
+        <div class="client-name">As an MCP Tool</div>
+        <div class="client-mandate">Callable by other AI agents over the Model Context Protocol</div>
+      </div>
+    </div>
+
+    <!-- Score tiers -->
+    <div style="margin-top:3.5rem">
+      <div class="label">Relevance Scoring Engine</div>
+      <h2 class="title">Every Document Earns Its Place</h2>
+      <p class="subtitle">Both links and page content are scored 0&ndash;100 by dedicated agents. Thresholds act as quality gates &mdash; weak matches are filtered out, only strong matches are ingested into the knowledge base.</p>
+    </div>
+
+    <div class="level-matrix">
+      <div class="level-card t3">
+        <div class="level-name t3">Filtered Out</div>
+        <div class="level-range">Score &le; 30</div>
+        <div class="level-desc">Non-downloadable links or content with weak/no connection to the query. Dropped early so downstream agents never waste compute on irrelevant material.</div>
+      </div>
+      <div class="level-card t2">
+        <div class="level-name t2">Relevant</div>
+        <div class="level-range">Score 31&ndash;69</div>
+        <div class="level-desc">Passes the verification gate and proceeds to download, extraction, and per-page deep analysis. Contributes to the synthesized Q&amp;A answer.</div>
+      </div>
+      <div class="level-card t1">
+        <div class="level-name t1">Knowledge-Grade</div>
+        <div class="level-range">Avg Score &ge; 55</div>
+        <div class="level-desc">High-confidence sources. In full-document mode these are uploaded to S3 as structured "docling" JSON and produced to Kafka for the downstream knowledge base.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: HOW IT WORKS
+     ============================================================ -->
+<div class="tab-content" id="tab-how">
+  <div class="page">
+    <div class="label">How It Works</div>
+    <h2 class="title">From User Query to Grounded Answer</h2>
+    <p class="subtitle">The pipeline runs in two coordinated phases: a fast interactive answer is returned immediately, while full-document extraction continues in the background. Conditional branches skip unnecessary work to save LLM calls.</p>
+
+    <div class="flow">
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--cyan);color:var(--cyan)">1</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Query Variation</div>
+          <div class="step-desc">The <em>Query Variator</em> agent converts one analytical request into <code>num_docs</code> targeted, Google-ready PDF queries in the form <code>"Dokumen pdf mengenai &hellip;"</code> &mdash; expanding coverage through synonyms, scope shifts, and site hints (e.g. arXiv).</div>
+          <div class="step-badges"><span class="badge">QueryVariator</span><span class="badge">gpt-4o-mini</span><span class="badge">1 &rarr; N queries</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--blue);color:var(--blue)">2</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Parallel Web Search (SerpAPI)</div>
+          <div class="step-desc">Each query variant is dispatched as its own <code>gather_pdf</code> task and run concurrently via <code>asyncio.gather</code>. SerpAPI queries Google (location=Indonesia, hl=id), and results are restructured into clean link + title + snippet records.</div>
+          <div class="step-badges"><span class="badge">SerpAPI</span><span class="badge">asyncio fan-out</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--purple);color:var(--purple)">3</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">URL Normalization (Optional)</div>
+          <div class="step-desc">When enabled, the <em>URL Manipulator</em> agent rewrites academic landing pages into direct PDF URLs &mdash; e.g. <code>arxiv.org/abs/ID</code> &rarr; <code>arxiv.org/pdf/ID.pdf</code> &mdash; while leaving already-downloadable and non-academic links untouched.</div>
+          <div class="step-badges"><span class="badge">UrlManipulatorAgent</span><span class="badge">arXiv / bioRxiv / PMC</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--amber);color:var(--amber)">4</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Link Verification &amp; Scoring</div>
+          <div class="step-desc">The <em>PDF Verification</em> agent inspects every candidate, keeping only links that end in <code>.pdf</code> or contain "download", and assigns each a 0&ndash;100 relevance score with reasoning. Links scoring above the threshold pass; the rest are dropped.</div>
+          <div class="step-badges"><span class="badge">PDFVerificationAgent</span><span class="badge">Score gate &gt; 30</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--cyan);color:var(--cyan)">5</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Branch: Search-Only Fast Path</div>
+          <div class="step-desc">If <code>search_only=True</code>, the engine returns verified links with titles &amp; snippets immediately &mdash; an instant, low-latency result set &mdash; while the full extraction continues in the background phase.</div>
+          <div class="step-badges"><span class="badge">Instant results</span><span class="badge">No download</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--blue);color:var(--blue)">6</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Concurrent PDF Download &amp; Extraction</div>
+          <div class="step-desc">Verified PDFs are fetched in parallel with an SSL-verified attempt and an automatic no-verify fallback. Extraction uses PyPDF2 first, then pdfplumber on failure. Pages are read in batches inside a thread pool so the event loop never blocks, with timeouts guarding every stage.</div>
+          <div class="step-badges"><span class="badge">aiohttp + SSL fallback</span><span class="badge">PyPDF2 &rarr; pdfplumber</span><span class="badge">ThreadPoolExecutor</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARALLEL BLOCK 1 -->
+    <div class="parallel-box">
+      <div class="parallel-label">For every extracted page, these 2 analyses run in parallel</div>
+      <div class="parallel-grid">
+        <div class="branch">
+          <div class="branch-title a">Relevancy Analyzer</div>
+          <p>Scores how well the page content answers the query (0&ndash;100) with structured reasoning &mdash; the signal used for ranking and the average-score gate.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title b">Deep Analysis</div>
+          <p>Produces a rich, strictly source-grounded markdown analysis (executive summary, in-depth findings, implications) used to compose the final answer.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow">
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--purple);color:var(--purple)">7</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Page-Centering Optimization</div>
+          <div class="step-desc">In fast mode the reader doesn't blindly take pages 8&ndash;15 &mdash; it centers extraction around <strong>40% of the document</strong>, where the substantive content typically lives, skipping covers, prefaces, and tables of contents to maximize signal per token.</div>
+          <div class="step-badges"><span class="badge">Smart page selection</span><span class="badge">Token efficiency</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--amber);color:var(--amber)">8</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Score Aggregation &amp; Ranking</div>
+          <div class="step-desc">Per-page relevance scores are averaged into an <code>avg_score</code> per document, and deep-analysis sections are concatenated into one consolidated insight stream per source &mdash; producing a ranked, evidence-rich view of every PDF.</div>
+          <div class="step-badges"><span class="badge">avg_score</span><span class="badge">Consolidated insight</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--green);color:var(--green)">9</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title">Answer Synthesis (Q&amp;A)</div>
+          <div class="step-desc">In fast mode, the <em>PDF Q&amp;A</em> agent consolidates every document's insight &mdash; merging duplicates, cross-referencing sections &mdash; into one coherent, grounded answer to the original question, written in professional Bahasa Indonesia.</div>
+          <div class="step-badges"><span class="badge">PDFQnA</span><span class="badge">Grounded synthesis</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARALLEL BLOCK 2 -->
+    <div class="parallel-box">
+      <div class="parallel-label">Background phase (full-document mode) &mdash; runs asynchronously via Redis</div>
+      <div class="parallel-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="branch">
+          <div class="branch-title a">Full Extraction</div>
+          <p>The Redis worker re-runs the pipeline with <code>all_pages=True</code>, extracting every page of each knowledge-grade PDF.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title b">S3 Upload</div>
+          <p>Each document's full text + insight ("docling" JSON) is written to S3 (MinIO) and assigned a stable URL.</p>
+        </div>
+        <div class="branch">
+          <div class="branch-title c">Kafka Production</div>
+          <p>A document record (title, URL, domain, S3 path) is produced to the <code>knowledge-pdf</code> topic for downstream ingestion.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="step">
+        <div class="step-left"><div class="step-num" style="border-color:var(--green);color:var(--green);box-shadow:0 0 15px rgba(16,185,129,.2)">&#10003;</div><div class="step-line"></div></div>
+        <div class="step-body">
+          <div class="step-title" style="color:var(--green)">Delivery: Instant Answer + Durable Knowledge</div>
+          <div class="step-desc">The user receives a grounded answer (or verified link set) in seconds, while a reliable Redis queue (<code>brpoplpush</code> + worker semaphore) guarantees the full-document knowledge is extracted, stored, and broadcast &mdash; observability for every LLM call is streamed to Kafka log topics throughout.</div>
+          <div class="step-badges"><span class="badge">Fast response</span><span class="badge">Reliable queue</span><span class="badge">Per-call Kafka logging</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: AI AGENTS
+     ============================================================ -->
+<div class="tab-content" id="tab-agents">
+  <div class="page">
+    <div class="label">AI Agents</div>
+    <h2 class="title">7 Specialist Agents, One Research Mission</h2>
+    <p class="subtitle">Every agent is a narrow-scope specialist built on a shared <code>BaseAgent</code> foundation. They cooperate in an async pipeline, with search, extraction, and per-page analysis fanned out for speed.</p>
+
+    <div class="agent-grid">
+
+      <div class="card agent" style="--agent-c:var(--cyan)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(6,182,212,.1);color:var(--cyan)">&#x1F500;</div>
+          <div><div class="agent-name">Query Variator</div><div class="agent-role">Query Expansion</div></div>
+        </div>
+        <p>Converts one analytical request into multiple targeted PDF search queries (<code>"Dokumen pdf mengenai &hellip;"</code>), widening coverage via synonyms, scope shifts, and optional site hints &mdash; while ignoring pure availability questions.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>User query</li><li>num_query</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>List of PDF queries</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--purple)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(139,92,246,.1);color:var(--purple)">&#x1F517;</div>
+          <div><div class="agent-name">URL Manipulator</div><div class="agent-role">Link Normalizer</div></div>
+        </div>
+        <p>Rewrites academic landing pages into direct PDF download URLs across known platforms (arXiv, bioRxiv, medRxiv, PMC), preserving order and leaving non-academic or already-downloadable links untouched.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>List of URLs</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>Normalized URLs</li><li>Same count &amp; order</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--amber)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(245,158,11,.1);color:var(--amber)">&#x2705;</div>
+          <div><div class="agent-name">PDF Verification</div><div class="agent-role">Link Gate &amp; Scorer</div></div>
+        </div>
+        <p>Keeps only directly-downloadable links (<code>.pdf</code> or "download"), scoring each 0&ndash;100 against the query with explicit reasoning &mdash; the quality gate that decides which PDFs are worth fetching.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Query</li><li>Candidate links</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>verification[]</li><li>pdf_link, reasoning, score</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--blue)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(59,130,246,.1);color:var(--blue)">&#x1F4D0;</div>
+          <div><div class="agent-name">PDF Relevancy Analyzer</div><div class="agent-role">Content Scorer</div></div>
+        </div>
+        <p>Scores extracted page content for how well it answers the query (0&ndash;100), assessing topic, geography, time, and completeness &mdash; the signal that drives ranking and the average-score gate.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Query, link</li><li>Page content</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>links, reasoning</li><li>score 0&ndash;100</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--green)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(16,185,129,.1);color:var(--green)">&#x1F9E0;</div>
+          <div><div class="agent-name">PDF Deep Analysis</div><div class="agent-role">Grounded Analyst</div></div>
+        </div>
+        <p>Produces a rich, strictly source-grounded markdown analysis per page &mdash; executive summary, in-depth findings, implications &mdash; never introducing knowledge beyond the document itself.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>User query</li><li>Page content</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>Markdown analysis</li><li>5W + insights</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--pink)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(236,72,153,.1);color:var(--pink)">&#x1F4AC;</div>
+          <div><div class="agent-name">PDF Q&amp;A</div><div class="agent-role">Answer Synthesizer</div></div>
+        </div>
+        <p>Consolidates all per-document insights into one coherent answer to the original question &mdash; merging duplicates, cross-referencing sections, and writing professionally in Bahasa Indonesia, grounded only in the analyzed content.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>User query</li><li>Consolidated insights</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>Final grounded answer</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--cyan)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(6,182,212,.1);color:var(--cyan)">&#x1F320;</div>
+          <div><div class="agent-name">Stellar Agent</div><div class="agent-role">External Analysis Client</div></div>
+        </div>
+        <p>An async client to the external "Stellar" analysis microservice, with built-in retries and health checks &mdash; available for advanced entity, sentiment, and narrative analysis tasks beyond plain text.</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Receives</div><ul><li>Prompt</li><li>session_id</li></ul></div>
+          <div class="io"><div class="io-title out">Produces</div><ul><li>stellar_result</li><li>elapsed_time</li></ul></div>
+        </div>
+      </div>
+
+      <div class="card agent" style="--agent-c:var(--blue)">
+        <div class="agent-top">
+          <div class="agent-icon" style="background:rgba(59,130,246,.1);color:var(--blue)">&#x1F9F1;</div>
+          <div><div class="agent-name">BaseAgent</div><div class="agent-role">Shared Foundation</div></div>
+        </div>
+        <p>The common base every LLM agent inherits: OpenAI-compatible sync &amp; async clients, retry-until-complete logic, JSON repair on outputs, and automatic per-call observability streamed to Kafka log topics (prompt, tokens, latency).</p>
+        <div class="agent-io">
+          <div class="io"><div class="io-title in">Provides</div><ul><li>analyze / aanalyze</li><li>Retry + JSON repair</li></ul></div>
+          <div class="io"><div class="io-title out">Emits</div><ul><li>Result + token usage</li><li>Kafka call logs</li></ul></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: SAMPLE RESULTS
+     ============================================================ -->
+<div class="tab-content" id="tab-results">
+  <div class="page">
+    <div class="label">Real-World Sample Results</div>
+    <h2 class="title">Real Run: BPH Migas Internal Dynamics</h2>
+    <p class="subtitle">An actual production run &mdash; from a single analytical request, the pipeline discovered, verified, scored, and analyzed authoritative oil &amp; gas regulatory PDFs, then synthesized a grounded answer.</p>
+
+    <!-- INPUT / PROCESS -->
+    <div class="sample-flow">
+      <div class="sample-card input" style="flex:2">
+        <div class="header">&#x2B05; Pipeline Input</div>
+        <div class="body">
+          <div class="field"><span class="field-label">User Query</span><span class="field-value" style="font-weight:700;font-size:.9rem">"Cari dokumen tentang Dinamika Internal BPH Migas"</span></div>
+          <div class="field"><span class="field-label">num_docs</span><span class="field-value">2 query variants generated</span></div>
+          <div class="field"><span class="field-label">num_search</span><span class="field-value">15 SerpAPI results per query</span></div>
+          <div class="field"><span class="field-label">Mode</span><span class="field-value">Full extraction (all_pages) &middot; return_reasoning</span></div>
+          <div class="field"><span class="field-label">Language</span><span class="field-value">Bahasa Indonesia (hl=id, location=Indonesia)</span></div>
+        </div>
+      </div>
+      <div class="sample-arrow">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M6 16h20M20 10l6 6-6 6" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="sample-card" style="flex:1;border-color:var(--border)">
+        <div class="header" style="background:rgba(139,92,246,.08);color:var(--purple)">&#x2699; Pipeline Process</div>
+        <div class="body" style="display:flex;flex-direction:column;gap:.5rem;font-size:.78rem">
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Expanded to PDF queries</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> SerpAPI Google search</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Verified &amp; scored links</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Downloaded PDFs concurrently</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Per-page relevance + deep analysis</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> Aggregated avg_score</div>
+          <div style="display:flex;align-items:center;gap:.4rem"><span style="color:var(--green)">&#x2714;</span> S3 + Kafka knowledge push</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Query variation -->
+    <div class="result-group" style="border-color:var(--cyan)">
+      <div class="result-group-title">&#x1F500; Step 1 &mdash; Query Variator Output</div>
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:.5rem">One request &rarr; targeted, search-engine-ready PDF queries:</div>
+      <div class="codeblock"><span class="c"># QueryVariator.run(query, num_query=2)</span>
+[
+  <span class="s">"Dokumen pdf mengenai Dinamika Internal BPH Migas"</span>,
+  <span class="s">"Dokumen pdf mengenai analisis BPH Migas dan dinamika internalnya"</span>
+]</div>
+    </div>
+
+    <!-- STEP 2: Search + verification -->
+    <div class="result-group" style="border-color:var(--amber)">
+      <div class="result-group-title">&#x1F50D; Step 2 &mdash; Search &amp; Link Verification</div>
+      <div class="result-event">
+        <div class="result-event-name">Fetched candidates (SerpAPI) &rarr; Verified &amp; scored (PDF Verification Agent)</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.8;margin-top:.4rem">
+          &#x2713; <code>bphmigas.go.id/&hellip;/Renstra-2015-2019-rev.pdf</code> <span class="score-badge high">score 90</span><br>
+          &#x2713; <code>esdm.go.id/&hellip;/content-laporan-kinerja&hellip;.pdf</code> <span class="score-badge high">score 80</span><br>
+          &#x2713; <code>bphn.go.id/&hellip;/2023_analisis_dan_evaluasi_uu_no._22&hellip;.pdf</code> <span class="score-badge high">score 78</span><br>
+          &#x2717; <code>some-blog.com/about-bph-migas</code> <span class="score-badge low">filtered &mdash; not a .pdf</span>
+        </div>
+        <div class="result-meta">
+          <span class="badge">11 PDFs verified</span>
+          <span class="badge">Gate: score &gt; 30</span>
+          <span class="badge">Non-PDF links dropped</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Top scored doc -->
+    <div class="result-group" style="border-color:var(--green)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+        <div class="result-group-title">&#x1F4C4; Step 3 &mdash; Top-Ranked Document</div>
+        <div style="display:flex;gap:.4rem">
+          <span class="score-badge high">avg_score 85</span>
+          <span class="badge">37 pages</span>
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:var(--dim);margin-bottom:.5rem"><strong style="color:var(--text)">Renstra BPH Migas 2015&ndash;2019</strong> &mdash; <code>bphmigas.go.id/files/2019/03/Renstra-2015-2019-rev.pdf</code></div>
+
+      <div class="result-event">
+        <div class="result-event-name">Relevancy Analyzer &mdash; page reasoning (score 90)</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.7">
+          "Dokumen ini adalah Rencana Strategik Badan Pengatur Hilir Minyak dan Gas Bumi (BPH Migas) untuk periode 2015&ndash;2019&hellip; sangat relevan dengan query 'Dinamika Internal BPH Migas' karena membahas secara langsung peran dan tantangan yang dihadapi BPH Migas dalam menjalankan tugasnya, serta strategi yang direncanakan."
+        </div>
+      </div>
+
+      <div class="result-event">
+        <div class="result-event-name">Deep Analysis &mdash; grounded insight (excerpt)</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.7">
+          <strong style="color:var(--text)">Executive Summary.</strong> Dokumen menjelaskan peran dan tantangan BPH Migas dalam mengatur penyediaan dan pendistribusian BBM serta pengangkutan gas bumi di Indonesia, dengan penekanan pada pentingnya perencanaan strategis untuk meningkatkan kinerja lembaga.<br><br>
+          <strong style="color:var(--text)">Latar Belakang.</strong> BPH Migas dibentuk berdasarkan Undang-Undang Migas No. 22 Tahun 2001 dan bertugas mengawasi serta mengatur penyediaan dan pendistribusian BBM serta pengangkutan gas bumi&hellip;
+        </div>
+        <div class="result-meta">
+          <span class="badge">Strictly source-grounded</span>
+          <span class="badge">Per-page concatenated</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Final answer + delivery -->
+    <div class="result-group" style="border-color:var(--pink)">
+      <div class="result-group-title">&#x1F4AC; Step 4 &mdash; Synthesized Answer &amp; Knowledge Delivery</div>
+      <div class="result-event">
+        <div class="result-event-name">PDF Q&amp;A &mdash; consolidated grounded answer</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.7">
+          The Q&amp;A agent merges insights from all knowledge-grade documents (Renstra BPH Migas, ESDM performance report, BPHN legal evaluation of UU No. 22/2001) into a single coherent answer on BPH Migas's internal dynamics &mdash; mandate, governance challenges, and strategic priorities &mdash; citing only what the documents state.
+        </div>
+      </div>
+      <div class="result-event">
+        <div class="result-event-name">Background delivery (full-document mode)</div>
+        <div style="font-size:.75rem;color:var(--dim);line-height:1.7">
+          &#x2705; Full text + insight ("docling" JSON) uploaded to S3<br>
+          &#x2705; Document record produced to Kafka topic <code>knowledge-pdf</code><br>
+          &#x2705; Every LLM call logged to Kafka observability topics
+        </div>
+        <div class="result-meta">
+          <span class="badge">S3: uploaded</span>
+          <span class="badge">Kafka: knowledge-pdf</span>
+          <span class="badge">avg_score &ge; 55 ingested</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Second scenario teaser -->
+    <div style="margin-top:3rem">
+      <div class="label">More Real Runs</div>
+      <h2 class="title" style="font-size:1.5rem">The Same Engine, Any Domain</h2>
+      <p class="subtitle">Other production runs show the breadth of the pipeline &mdash; same flow, different knowledge domains, all source-grounded.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:.4rem">&#x1F3E6; Bank Indonesia</div>
+        <p style="font-size:.8rem;color:var(--dim)">"Dinamika Kepemimpinan di Bank Indonesia" &rarr; 11 verified PDFs analyzed, leadership &amp; governance documents scored and synthesized.</p>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:.4rem">&#x1F310; Geopolitics</div>
+        <p style="font-size:.8rem;color:var(--dim)">"Kapan perang dunia 3 terjadi" &rarr; defense white-papers &amp; strategic studies (e.g. Kemhan Buku Putih, 144 pages) extracted and scored up to 75.</p>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:.4rem">&#x1F4CA; Regional Budget</div>
+        <p style="font-size:.8rem;color:var(--dim)">"Anggaran pemerintah kota Bandung" &rarr; multiple APBD &amp; financial-report PDFs analyzed per page with relevance scoring.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:2rem;border-color:var(--accent);background:rgba(59,130,246,.03)">
+      <div style="font-weight:700;margin-bottom:.5rem;color:var(--accent)">&#x1F4CB; Why This Matters</div>
+      <div style="font-size:.84rem;color:var(--dim);line-height:1.75">
+        <strong style="color:var(--text)">Source-grounded by design</strong> &mdash; every answer is traceable to a real, verified PDF with a relevance score and reasoning, not to model memory. The engine generalizes across government, finance, energy, academic, and geopolitical domains without any per-domain configuration, and its two-phase architecture delivers an instant answer while durably building a searchable knowledge base in the background.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     TAB: TECHNOLOGY
+     ============================================================ -->
+<div class="tab-content" id="tab-tech">
+  <div class="page">
+    <div class="label">Technology</div>
+    <h2 class="title">Async, Multi-Backend Production Architecture</h2>
+    <p class="subtitle">A fully asynchronous Python pipeline combining LLM agents, web search, robust PDF processing, and a battle-tested data stack &mdash; exposed through three interchangeable entry points.</p>
+
+    <!-- Data Flow -->
+    <div class="dataflow">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan);margin-bottom:.5rem">&#x1F4E1; Data Flow Architecture</div>
+      <div class="df-row">
+        <div class="df-source">User / AI Agent</div>
+        <div class="df-arrow">&#x2192;</div>
+        <div class="df-target">Enters via <strong>FastAPI</strong>, <strong>MCP/SSE</strong>, or <strong>CLI</strong></div>
+      </div>
+      <div class="df-row">
+        <div class="df-source">Fast Phase</div>
+        <div class="df-arrow">&#x2192;</div>
+        <div class="df-target">SerpAPI search &rarr; verify &rarr; extract (centered pages) &rarr; <strong>instant grounded answer</strong></div>
+      </div>
+      <div class="df-row">
+        <div class="df-source">Background Phase</div>
+        <div class="df-arrow">&#x2192;</div>
+        <div class="df-target"><strong>Redis</strong> queue &rarr; worker re-runs full extraction (all pages)</div>
+      </div>
+      <div class="df-row">
+        <div class="df-source">Output</div>
+        <div class="df-arrow">&#x2192;</div>
+        <div class="df-target"><strong>S3</strong> (docling JSON) + <strong>Kafka</strong> (knowledge-pdf + per-call logs)</div>
+      </div>
+    </div>
+
+    <div class="tech-grid">
+      <div class="card tech">
+        <div class="cat">AI Models &amp; LLM Layer</div>
+        <ul>
+          <li><strong>GPT-4o-mini</strong>Default for all pipeline agents</li>
+          <li><strong>OpenAI-compatible</strong>Sync &amp; async clients (swappable base_url)</li>
+          <li><strong>Qwen2.5 (7B/14B)</strong>On-prem model options via config</li>
+          <li><strong>temperature 0</strong>Deterministic, retry-until-complete</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Search &amp; Document Processing</div>
+        <ul>
+          <li><strong>SerpAPI</strong>Google search (location=ID, hl=id)</li>
+          <li><strong>PyPDF2</strong>Primary PDF text extractor</li>
+          <li><strong>pdfplumber</strong>Automatic fallback extractor</li>
+          <li><strong>aiohttp</strong>Async download + SSL fallback</li>
+          <li><strong>json_repair</strong>Resilient LLM-JSON parsing</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Data Storage &amp; Messaging</div>
+        <ul>
+          <li><strong>Redis</strong>Background job queue (brpoplpush)</li>
+          <li><strong>Kafka</strong>knowledge-pdf + agent log topics</li>
+          <li><strong>S3 (MinIO)</strong>Docling JSON document store</li>
+          <li><strong>boto3</strong>S3 client / uploads</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Application &amp; Concurrency</div>
+        <ul>
+          <li><strong>Python + asyncio</strong>gather / wait_for / to_thread</li>
+          <li><strong>ThreadPoolExecutor</strong>Non-blocking page extraction</li>
+          <li><strong>FastAPI + uvicorn</strong>HTTP service endpoint</li>
+          <li><strong>FastMCP</strong>MCP tool server (SSE)</li>
+          <li><strong>loguru</strong>Structured logging</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Entry Points</div>
+        <ul>
+          <li><strong>FastAPI</strong>POST /iterative_data_searcher</li>
+          <li><strong>MCP / SSE</strong>Tool: iterative_data_searcher</li>
+          <li><strong>CLI</strong>Direct asyncio entry in main_v2</li>
+        </ul>
+      </div>
+      <div class="card tech">
+        <div class="cat">Key Architectural Decisions</div>
+        <ul>
+          <li><strong>Two-phase</strong>Instant answer + background depth</li>
+          <li><strong>Score gating</strong>Filter weak links/content early</li>
+          <li><strong>Page centering</strong>40% offset for signal density</li>
+          <li><strong>Defensive PDF I/O</strong>SSL + extractor fallbacks</li>
+          <li><strong>Per-call observability</strong>Every LLM call to Kafka</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="fl">Iterative Data Searcher &mdash; Agentic PDF Research &amp; Insight</div>
+  <p>7 AI Agents &middot; 2 Execution Phases &middot; SerpAPI + PDF Extraction &middot; Kafka + S3 + Redis</p>
+  <p>Architecture Portfolio &middot; Source-Grounded Document Intelligence &middot; 2026</p>
+</footer>
+
+<!-- ===== JS ===== -->
+<script>
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    tabContents.forEach(tc => {
+      tc.classList.remove('active');
+      if (tc.id === 'tab-' + target) {
+        requestAnimationFrame(() => {
+          tc.classList.add('active');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    });
+  });
+});
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('vis');
+  });
+}, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll('.card, .step, .stat, .result-group, .parallel-box, .sample-flow, .level-card, .client-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity .5s ease, transform .5s ease';
+  observer.observe(el);
+});
+
+const style = document.createElement('style');
+style.textContent = '.vis{opacity:1!important;transform:translateY(0)!important}';
+document.head.appendChild(style);
+
+document.querySelectorAll('.agent-grid, .tech-grid, .grid-3, .grid-4, .stats, .client-grid, .level-matrix').forEach(container => {
+  Array.from(container.children).forEach((child, i) => {
+    child.style.transitionDelay = (i * 0.06) + 's';
+  });
+});
+</script>
+</body>
+</html>

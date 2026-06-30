@@ -1,4 +1,5 @@
 import Avatar from "../Avatar";
+import Reveal from "../Reveal";
 import { profile } from "../../data/profile";
 import { useUI } from "../../store";
 
@@ -7,11 +8,14 @@ export default function About() {
   return (
     <section className="section about" id="about">
       <div className="container">
-        <span className="eyebrow mono about-eyebrow">{profile.eyebrow}</span>
+        <Reveal><span className="eyebrow mono about-eyebrow">{profile.eyebrow}</span></Reveal>
         <div className="about-grid">
+          <Reveal>
           <div className="about-photo">
             <Avatar />
           </div>
+          </Reveal>
+          <Reveal delay={120}>
           <div className="about-body">
             <h1 className="about-greet">
               Hai, saya <span className="serif name-gradient">{profile.shortName}</span> 👋
@@ -36,6 +40,7 @@ export default function About() {
             </div>
             <button className="btn-accent" onClick={openChat}>💬 Tanya AI tentang saya</button>
           </div>
+          </Reveal>
         </div>
       </div>
     </section>
