@@ -139,7 +139,7 @@
   transition: background .18s, box-shadow .18s, transform .18s;
 }
 .card:hover { background: var(--surface-2); box-shadow: var(--glow-accent); }
-.card-badge { font-size: .72rem; color: var(--accent-ink); text-transform: uppercase; letter-spacing: .04em; }
+.card-badge { display: inline-flex; align-items: center; gap: 6px; font-size: .72rem; color: var(--accent-ink); text-transform: uppercase; letter-spacing: .04em; }
 .card-title { font-size: 1.15rem; }
 .card-tagline { color: var(--muted); font-size: .9rem; }
 .card-summary { color: var(--dim); font-size: .88rem; flex: 1; }
@@ -330,8 +330,14 @@
   width: 14px; height: 14px; border-radius: var(--r-full);
   background: var(--accent); border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--accent);
 }
-.tl-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-5); transition: background .18s, box-shadow .18s; }
+.tl-card { display: flex; gap: var(--s-4); background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-5); transition: background .18s, box-shadow .18s; }
 .tl-card:hover { background: var(--surface-2); box-shadow: var(--glow-accent); }
+.tl-logo {
+  flex: none; width: 44px; height: 44px; border-radius: var(--r-md);
+  display: grid; place-items: center; color: var(--accent-ink);
+  background: var(--accent-soft); border: 1px solid var(--border);
+}
+.tl-main { flex: 1; min-width: 0; }
 .tl-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
 .tl-role { font-size: 1.1rem; }
 .tl-period { font-size: .78rem; color: var(--dim); }

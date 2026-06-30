@@ -30,11 +30,15 @@ def _build_agent(defn: AgentDefinition, accessed: list[str]):
         + index_text
     )
 
-    model = OpenRouter(
-        id=(defn.model or settings.default_model).strip(),
-        api_key=settings.openrouter_api_key.strip(),
-        base_url=settings.openrouter_base_url.strip(),
-    )
+    model_kwargs = {
+        "id": (defn.model or settings.default_model).strip(),
+        "api_key": settings.openrouter_api_key.strip(),
+        "base_url": settings.openrouter_base_url.strip(),
+    }
+    # max_tokens hanya dikirim bila diset (None = tanpa batas output)
+    if settings.max_output_tokens:
+        model_kwargs["max_tokens"] = settings.max_output_tokens
+    model = OpenRouter(**model_kwargs)
 
     tools = [read_knowledge] if "read_knowledge" in defn.tools else []
     return Agent(model=model, tools=tools, instructions=instructions, markdown=True)

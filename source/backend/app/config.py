@@ -12,9 +12,10 @@ class Settings(BaseSettings):
     # --- LLM / OpenRouter ---
     openrouter_api_key: str = "sk-or-REPLACE_ME"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
-    default_model: str = "anthropic/claude-3.5-sonnet"
+    default_model: str = "deepseek/deepseek-v4-pro"   # tanpa :nitro — jawaban tuntas (finish_reason stop)
     openrouter_app_url: str = "http://localhost:5179"
     openrouter_app_name: str = "Feri Personal Site"
+    max_output_tokens: int | None = None   # None = tanpa batas (default); isi angka utk membatasi
 
     # --- CORS ---
     cors_origins: str = "http://localhost:5179"

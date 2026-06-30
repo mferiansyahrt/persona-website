@@ -1,7 +1,23 @@
 import { useMemo, useState } from "react";
-import { Bot, ExternalLink } from "lucide-react";
+import {
+  Bot, ExternalLink, Shield, Eye, Radio, Database, FileText,
+  Siren, FlaskConical, Landmark, Map, Server, type LucideIcon,
+} from "lucide-react";
 import projectsData from "../data/projects.json";
-import type { Project } from "../types";
+import type { Project, Domain } from "../types";
+
+const DOMAIN_ICONS: Record<Domain, LucideIcon> = {
+  civic: Landmark,
+  defense: Shield,
+  media: Radio,
+  osint: Eye,
+  data: Database,
+  geospatial: Map,
+  infra: Server,
+  docs: FileText,
+  crisis: Siren,
+  research: FlaskConical,
+};
 import { useSendMessage } from "../lib/useChat";
 import { useUI } from "../store";
 import Reveal from "./Reveal";
@@ -55,6 +71,7 @@ export default function ProjectGallery() {
             <Reveal key={p.id} delay={(i % 3) * 70}>
             <article className="card">
               <div className="card-badge mono">
+                {(() => { const DI = DOMAIN_ICONS[p.domain] ?? Bot; return <DI size={13} />; })()}
                 {p.domain} · {p.agents} agent
               </div>
               <h3 className="card-title">{p.name}</h3>
