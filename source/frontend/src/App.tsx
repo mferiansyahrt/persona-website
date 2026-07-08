@@ -1,73 +1,47 @@
-import { useEffect } from "react";
-import Navbar from "./components/Navbar";
-import About from "./components/sections/About";
-import Experience from "./components/sections/Experience";
-import ProjectGallery from "./components/ProjectGallery";
-import Achievements from "./components/sections/Achievements";
-import AgentLauncher from "./components/AgentLauncher";
-import Contact from "./components/sections/Contact";
-import ChatBubble from "./components/ChatBubble";
-import HealthBanner from "./components/HealthBanner";
-import { useAgents, useChat, useSystem, useTheme } from "./store";
-import { fetchAgents, fetchHistory, checkHealth } from "./lib/api";
-import { useCardSpotlight } from "./lib/useCardSpotlight";
-import { useMagnetic } from "./lib/useMagnetic";
-import { profile } from "./data/profile";
-import "./styles/components.css";
+import BackgroundCanvas from "./components/BackgroundCanvas";
+import Nav from "./components/Nav";
+import Curtain from "./components/Curtain";
+import PageMeta from "./components/PageMeta";
+import ChatAssistant from "./components/ChatAssistant";
+import About from "./pages/About";
+import Experience from "./pages/Experience";
+import Work from "./pages/Work";
+import Record from "./pages/Record";
+import Contact from "./pages/Contact";
+import type { ComponentType } from "react";
+import { RouterProvider, useRouter } from "./lib/router";
+import { ChatProvider } from "./lib/chat";
+import type { PageId } from "./types";
 
-export default function App() {
-  const { theme } = useTheme();
-  const { setAgents } = useAgents();
-  const { setHealth } = useSystem();
-  const { sessionId, setMessages } = useChat();
-  useCardSpotlight();
-  useMagnetic();
+const PAGES: Record<PageId, ComponentType> = {
+  about: About, experience: Experience, work: Work, record: Record, contact: Contact,
+};
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    checkHealth().then((ok) => setHealth(ok ? "up" : "down"));
-    fetchAgents().then(setAgents).catch(() => {});
-    fetchHistory(sessionId)
-      .then((d) => {
-        if (d.messages?.length) {
-          setMessages(
-            d.messages.map((m: any) => ({
-              id: crypto.randomUUID(),
-              role: m.role,
-              content: m.content,
-              status: "final",
-              model: m.model,
-              citations: m.citations,
-            }))
-          );
-        }
-      })
-      .catch(() => {});
-  }, []);
-
+function Shell() {
+  const { current } = useRouter();
+  const Page = PAGES[current];
   return (
     <>
-      <div className="bg-ambient" />
-      <div className="bg-noise" aria-hidden="true" />
-      <Navbar />
-      <HealthBanner />
-      <main>
-        <About />
-        <Experience />
-        <ProjectGallery />
-        <Achievements />
-        <AgentLauncher />
-        <Contact />
-      </main>
-      <footer className="footer">
-        <div className="container">
-          <p className="mono">© {profile.name} · {profile.role} · {profile.contact[0].value}</p>
-        </div>
-      </footer>
-      <ChatBubble />
+      <BackgroundCanvas scene={current} />
+      <div className="scan" />
+      <div className="frame" />
+      <Curtain />
+      <Nav />
+      <PageMeta />
+      <div className="viewport">
+        <Page key={current} />
+      </div>
+      <ChatAssistant />
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <RouterProvider>
+      <ChatProvider>
+        <Shell />
+      </ChatProvider>
+    </RouterProvider>
   );
 }
